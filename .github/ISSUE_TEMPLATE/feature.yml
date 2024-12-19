@@ -18,7 +18,7 @@ body:
     validations:
       required: true
   - type: input
-    id: atype
+    id: type
     attributes:
       label: Type of Modification
       description: What is it for?
@@ -40,6 +40,5 @@ body:
       description: What alternatives have you considered?
       placeholder: list any...
   - type: markdown
-    id: thanks
     attributes:
       value: "Thank you for filling out the form! We will read it soon.."

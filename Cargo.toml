@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["xcad"]
+members = ["xbim"]
 
 [profile.release]
 opt-level = 2
