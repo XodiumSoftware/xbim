@@ -1,11 +1,13 @@
 name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
-# TODO: check the workflow from xcloud to adjust this one accordingly.
+# TODO: redo workflow to work with framework.
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+    paths:
+      - 'xbim/**'
   workflow_dispatch:
 
 permissions:
@@ -35,17 +37,17 @@ jobs:
         with:
           toolchain: stable
 
-      - id: install_deps
-        name: Install Dependencies
-        run: |
-          sudo apt update && sudo apt install clang
-          cargo install trunk
-          rustup target add wasm32-unknown-unknown
-
-      - id: build_artifact
-        name: Build Artifact
-        run: trunk build
-        working-directory: xbim
+      #      - id: install_deps
+      #        name: Install Dependencies
+      #        run: |
+      #          sudo apt update && sudo apt install clang
+      #          cargo install trunk
+      #          rustup target add wasm32-unknown-unknown
+      #
+      #      - id: build_artifact
+      #        name: Build Artifact
+      #        run: trunk build
+      #        working-directory: xbim
 
       - id: install_toml_cli
         name: Install toml-cli
@@ -63,7 +65,7 @@ jobs:
           path: xbim/dist/
 
   test:
-    needs: [build]
+    needs: [ build ]
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name }}
@@ -85,7 +87,7 @@ jobs:
         run: cargo test --all
 
   release:
-    needs: [build, test]
+    needs: [ build, test ]
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name }}
