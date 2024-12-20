@@ -9,6 +9,7 @@ use rocket::{http::Status, response::status::Custom, State};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use tokio_postgres::{Client, NoTls};
 
+// TODO: fix usage of serde from rocket.
 #[derive(Serialize, Deserialize, Clone)]
 struct User {
     id: Option<i32>,
