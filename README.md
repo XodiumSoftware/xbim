@@ -7,8 +7,7 @@
     </a>
   <br /><br />
   xBIM
-  <br />
-  <br />
+  <br /><br />
 </h1>
 
 <h4 align="center">All-in solution to BIM models, written in Rust.</h4><br />
