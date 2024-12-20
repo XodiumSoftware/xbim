@@ -13,12 +13,6 @@ publish = false
 [package.metadata.docs.rs]
 all-features = true
 
-[profile.release]
-opt-level = 2
-
-[profile.dev]
-opt-level = 2
-
 [dependencies]
 tokio = { version = "1.42.0", features = ["rt", "rt-multi-thread", "macros"] }
 axum = "0.8.0-rc.1"
