@@ -3,13 +3,16 @@
 
 #[macro_use]
 extern crate rocket;
+mod database;
 
+use crate::database::{
+    Database, DELETE_USER_QUERY, GET_USERS_QUERY, INSERT_USER_QUERY, UPDATE_USER_QUERY,
+};
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::{http::Status, response::status::Custom, State};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use tokio_postgres::{Client, NoTls};
+use tokio_postgres::NoTls;
 
-// TODO: fix usage of serde from rocket.
 #[derive(Serialize, Deserialize, Clone)]
 struct User {
     id: Option<i32>,
@@ -19,74 +22,56 @@ struct User {
 
 #[post("/api/users", data = "<user>")]
 async fn add_user(
-    conn: &State<Client>,
+    db_handler: &State<Database>,
     user: Json<User>,
 ) -> Result<Json<Vec<User>>, Custom<String>> {
-    execute_query(
-        conn,
-        "INSERT INTO users (name, email) VALUES ($1, $2)",
-        &[&user.name, &user.email],
-    )
-    .await?;
-    get_users(conn).await
+    db_handler
+        .execute_query(INSERT_USER_QUERY, &[&user.name, &user.email])
+        .await?;
+    get_users(db_handler).await
 }
 
 #[get("/api/users")]
-async fn get_users(conn: &State<Client>) -> Result<Json<Vec<User>>, Custom<String>> {
-    get_users_from_db(conn).await.map(Json)
-}
-
-async fn get_users_from_db(client: &Client) -> Result<Vec<User>, Custom<String>> {
-    let users = client
-        .query("SELECT id, name, email FROM users", &[])
+async fn get_users(db_handler: &State<Database>) -> Result<Json<Vec<User>>, Custom<String>> {
+    db_handler
+        .client
+        .query(GET_USERS_QUERY, &[])
         .await
-        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?
-        .iter()
-        .map(|row| User {
-            id: Some(row.get(0)),
-            name: row.get(1),
-            email: row.get(2),
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))
+        .map(|rows| {
+            Json(
+                rows.iter()
+                    .map(|row| User {
+                        id: Some(row.get(0)),
+                        name: row.get(1),
+                        email: row.get(2),
+                    })
+                    .collect(),
+            )
         })
-        .collect::<Vec<User>>();
-
-    Ok(users)
 }
 
 #[put("/api/users/<id>", data = "<user>")]
 async fn update_user(
-    conn: &State<Client>,
+    db_handler: &State<Database>,
     id: i32,
     user: Json<User>,
 ) -> Result<Json<Vec<User>>, Custom<String>> {
-    execute_query(
-        conn,
-        "UPDATE users SET name = $1, email = $2 WHERE id = $3",
-        &[&user.name, &user.email, &id],
-    )
-    .await?;
-    get_users(conn).await
+    db_handler
+        .execute_query(UPDATE_USER_QUERY, &[&user.name, &user.email, &id])
+        .await?;
+    get_users(db_handler).await
 }
 
 #[delete("/api/users/<id>")]
-async fn delete_user(conn: &State<Client>, id: i32) -> Result<Status, Custom<String>> {
-    execute_query(conn, "DELETE FROM users WHERE id = $1", &[&id]).await?;
+async fn delete_user(db_handler: &State<Database>, id: i32) -> Result<Status, Custom<String>> {
+    db_handler.execute_query(DELETE_USER_QUERY, &[&id]).await?;
     Ok(Status::NoContent)
-}
-
-async fn execute_query(
-    client: &Client,
-    query: &str,
-    params: &[&(dyn tokio_postgres::types::ToSql + Sync)],
-) -> Result<u64, Custom<String>> {
-    client
-        .execute(query, params)
-        .await
-        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))
 }
 
 #[launch]
 async fn rocket() -> _ {
-    let (client, connection) = tokio_postgres::connect(
+    let (client, conn) = tokio_postgres::connect(
         "host=localhost user=postgres password=postgres dbname=postgres",
         NoTls,
     )
@@ -94,31 +79,22 @@ async fn rocket() -> _ {
     .expect("Failed to connect to Postgres");
 
     tokio::spawn(async move {
-        if let Err(e) = connection.await {
+        if let Err(e) = conn.await {
             eprintln!("Failed to connect to Postgres: {}", e);
         }
     });
 
-    //Create the table if it doesn't exist
-    client
-        .execute(
-            "CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL
-            )",
-            &[],
-        )
-        .await
-        .expect("Failed to create table");
-
-    let cors = CorsOptions::default()
-        .allowed_origins(AllowedOrigins::all())
-        .to_cors()
-        .expect("Error while building CORS");
-
     rocket::build()
-        .manage(client)
+        .manage(
+            Database::new(client)
+                .await
+                .expect("Failed to initialize the database"),
+        )
         .mount("/", routes![add_user, get_users, update_user, delete_user])
-        .attach(cors)
+        .attach(
+            CorsOptions::default()
+                .allowed_origins(AllowedOrigins::all())
+                .to_cors()
+                .expect("Error while building CORS"),
+        )
 }
