@@ -1,0 +1,20 @@
+[package]
+name = "backend"
+version = "1.0.0"
+edition = "2021"
+include = ["LICENSE.md", "**/*.rs", "Cargo.toml"]
+authors = ["XodiumSoftware <https://xodium.org/>"]
+description = "All-in solution to BIM models, written in Rust."
+license = "AGPL-3.0"
+repository = "https://github.com/XodiumSoftware/xBIM"
+homepage = "https://xodium.org/"
+publish = false
+
+[package.metadata.docs.rs]
+all-features = true
+
+[dependencies]
+rocket = { version = "0.5", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+tokio-postgres = "0.7.11"
+rocket_cors = { version = "0.6.0", default-features = false }
