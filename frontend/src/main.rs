@@ -7,11 +7,11 @@ mod modules {
 mod app;
 mod utils;
 
+use crate::app::App;
 use wasm_bindgen::JsCast as _;
 
 const HTML_CANVAS_ID: &str = "html_canvas_id";
 
-// TODO: set ENV to wasm32.
 fn main() {
     eframe::WebLogger::init(log::LevelFilter::Debug).ok();
     wasm_bindgen_futures::spawn_local(async {

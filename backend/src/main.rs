@@ -5,30 +5,18 @@
 extern crate rocket;
 
 mod database;
-mod schemas;
+mod api {
+    pub mod user;
+}
 
 use crate::database::Database;
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use tokio_postgres::NoTls;
 
 #[launch]
 async fn rocket() -> _ {
-    let (client, conn) = tokio_postgres::connect(
-        "host=localhost user=postgres password=postgres dbname=postgres",
-        NoTls,
-    )
-    .await
-    .expect("Failed to connect to Postgres");
-
-    tokio::spawn(async move {
-        if let Err(e) = conn.await {
-            eprintln!("Failed to connect to Postgres: {}", e);
-        }
-    });
-
     rocket::build()
         .manage(
-            Database::new(client)
+            Database::new("postgres://username:password@localhost/dbname")
                 .await
                 .expect("Failed to initialize the database"),
         )
