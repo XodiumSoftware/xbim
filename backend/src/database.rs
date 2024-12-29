@@ -1,41 +1,69 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
+#![allow(unused)]
 
-use crate::api::user::User;
-use sqlx::{query, query_as, PgPool};
+use serde::de::DeserializeOwned;
+use sqlx::postgres::{PgPoolOptions, PgRow};
+use sqlx::{Encode, Error, FromRow, Pool, Postgres, Type};
 
+/// Represents a database connection handler using a PostgreSQL connection pool.
 pub struct Database {
-    pub pool: PgPool,
+    pool: Pool<Postgres>,
 }
 
 impl Database {
-    pub async fn new(url: &str) -> Result<Self, sqlx::Error> {
+    /// Creates a new `Database` instance with a connection pool.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `Error` if establishing the database connection fails.
+    pub async fn new(url: &str) -> Result<Self, Error> {
         Ok(Self {
-            pool: PgPool::connect(url).await?,
+            pool: PgPoolOptions::new().max_connections(5).connect(url).await?,
         })
     }
 
-    pub async fn add_user(&self, username: &str, email: &str) -> Result<(), sqlx::Error> {
-        query!(
-            "INSERT INTO users (username, email) VALUES ($1, $2)",
-            username,
-            email
-        )
-        .execute(&self.pool)
-        .await?;
-        Ok(())
+    /// Executes a SQL query (e.g., INSERT, UPDATE, DELETE) and returns the number of affected rows.
+    ///
+    /// # Type Parameters
+    /// - `A`: The type of each query parameter, implementing `Encode` and `Type`.
+    /// - `I`: An iterator of these parameters.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `Error` if the execution fails.
+    pub async fn execute_query<A, I>(&self, sql: &str, args: I) -> Result<u64, Error>
+    where
+        I: IntoIterator<Item = A>,
+        for<'q> A: Encode<'q, Postgres> + Type<Postgres>,
+    {
+        let mut query = sqlx::query(sql);
+        for arg in args {
+            query = query.bind(arg);
+        }
+        Ok(query.execute(&self.pool).await?.rows_affected())
     }
 
-    pub async fn get_users(&self) -> Result<Vec<User>, sqlx::Error> {
-        Ok(query_as!(User, "SELECT id, username, email FROM users")
-            .fetch_all(&self.pool)
-            .await?)
-    }
-
-    pub async fn delete_user(&self, username: &str) -> Result<(), sqlx::Error> {
-        query!("DELETE FROM users WHERE username = $1", username)
-            .execute(&self.pool)
-            .await?;
-        Ok(())
+    /// Executes a SQL SELECT query and returns a collection of deserialized results.
+    ///
+    /// # Type Parameters
+    /// - `T`: The return type, implementing `FromRow`, `DeserializeOwned`, `Send`, and `Unpin`.
+    /// - `A`: The type of each query parameter, implementing `Encode` and `Type`.
+    /// - `I`: An iterator of these parameters.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `Error` if the query or deserialization fails.
+    pub async fn query_data<T, A, I>(&self, sql: &str, args: I) -> Result<Vec<T>, Error>
+    where
+        T: for<'r> FromRow<'r, PgRow> + DeserializeOwned + Send + Unpin,
+        I: IntoIterator<Item = A>,
+        for<'q> A: Encode<'q, Postgres> + Type<Postgres>,
+    {
+        let mut query = sqlx::query_as::<_, T>(sql);
+        for arg in args {
+            query = query.bind(arg);
+        }
+        query.fetch_all(&self.pool).await
     }
 }
