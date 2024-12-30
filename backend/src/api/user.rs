@@ -1,8 +1,10 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
+#![allow(unused)]
 
 use sqlx::FromRow;
 
+// TODO: implement this in use with the database.
 #[derive(FromRow)]
 pub struct User {
     pub id: i32,

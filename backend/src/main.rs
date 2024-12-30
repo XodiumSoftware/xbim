@@ -10,13 +10,16 @@ mod api {
 }
 
 use crate::database::Database;
+use dotenv::dotenv;
 use rocket_cors::{AllowedOrigins, CorsOptions};
+use std::env;
 
 #[launch]
 async fn rocket() -> _ {
+    dotenv().ok();
     rocket::build()
         .manage(
-            Database::new("postgres://username:password@localhost/dbname")
+            Database::new(&env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
                 .await
                 .expect("Failed to initialize the database"),
         )
