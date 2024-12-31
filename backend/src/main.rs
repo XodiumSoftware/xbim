@@ -1,33 +1,34 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-#[macro_use]
-extern crate rocket;
-
-mod database;
-mod api {
-    pub mod user;
+mod models {
+    pub mod users;
 }
 
-use crate::database::Database;
+mod api {
+    pub mod users;
+}
+
+use api::users::create_user;
 use dotenv::dotenv;
+use rocket::{launch, routes};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use std::env;
+use sea_orm::Database;
 
 #[launch]
 async fn rocket() -> _ {
     dotenv().ok();
     rocket::build()
         .manage(
-            Database::new(&env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
+            Database::connect("your_database_url_here")
                 .await
-                .expect("Failed to initialize the database"),
+                .expect("Failed to connect to database"),
         )
-        .mount("/", routes![])
+        .mount("/", routes![create_user])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
                 .to_cors()
-                .expect("Error while building CORS"),
+                .expect("Failed to build CORS"),
         )
 }
