@@ -1,3 +1,8 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Copyright (c) 2025. Xodium.
++ All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 mod modules {
@@ -8,12 +13,13 @@ mod app;
 mod utils;
 
 use crate::app::App;
+use eframe::{WebLogger, WebOptions, WebRunner};
 use wasm_bindgen::JsCast as _;
 
 const HTML_CANVAS_ID: &str = "html_canvas_id";
 
 fn main() {
-    eframe::WebLogger::init(log::LevelFilter::Debug).ok();
+    WebLogger::init(log::LevelFilter::Debug).ok();
     wasm_bindgen_futures::spawn_local(async {
         let document = web_sys::window()
             .expect("No window")
@@ -26,11 +32,11 @@ fn main() {
             .dyn_into::<web_sys::HtmlCanvasElement>()
             .expect(&format!("{} was not a HtmlCanvasElement", HTML_CANVAS_ID));
 
-        let start_result = eframe::WebRunner::new()
+        let start_result = WebRunner::new()
             .start(
                 canvas,
-                eframe::WebOptions::default(),
-                Box::new(|_cc| Ok(Box::new(App::default()))),
+                WebOptions::default(),
+                Box::new(|_| Ok(Box::new(App::default()))),
             )
             .await;
 

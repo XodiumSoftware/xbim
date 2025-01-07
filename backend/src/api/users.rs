@@ -1,3 +1,8 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Copyright (c) 2025. Xodium.
++ All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
@@ -8,13 +13,13 @@ use sea_orm::{ActiveModelTrait, DatabaseConnection, Set};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub(crate) struct CreateUserRequest {
+pub struct CreateUserRequest {
     username: String,
     email: String,
 }
 
 #[post("/users", data = "<user_request>")]
-pub(crate) async fn create_user(
+pub async fn create_user(
     user_request: Json<CreateUserRequest>,
     db: &State<DatabaseConnection>,
 ) -> Json<Result<Model, String>> {

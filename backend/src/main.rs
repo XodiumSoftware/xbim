@@ -1,3 +1,8 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Copyright (c) 2025. Xodium.
++ All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
@@ -5,7 +10,7 @@ mod models {
     pub mod users;
 }
 
-mod api {
+pub mod api {
     pub mod users;
 }
 
