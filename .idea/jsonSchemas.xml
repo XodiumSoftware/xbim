@@ -3,6 +3,23 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
+        <entry key="chrome-manifest">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="chrome-manifest" />
+              <option name="relativePathToSchema" value="https://json.schemastore.org/chrome-manifest" />
+              <option name="schemaVersion" value="JSON Schema 202,012" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="frontend/assets/manifest.json" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="github-funding">
           <value>
             <SchemaInfo>
@@ -85,23 +102,6 @@
                 <list>
                   <Item>
                     <option name="path" value="frontend/Trunk.toml" />
-                  </Item>
-                </list>
-              </option>
-            </SchemaInfo>
-          </value>
-        </entry>
-        <entry key="web-manifest-combined">
-          <value>
-            <SchemaInfo>
-              <option name="generatedName" value="New Schema" />
-              <option name="name" value="web-manifest-combined" />
-              <option name="relativePathToSchema" value="https://json.schemastore.org/web-manifest-combined.json" />
-              <option name="schemaVersion" value="JSON Schema 202,012" />
-              <option name="patterns">
-                <list>
-                  <Item>
-                    <option name="path" value="frontend/assets/manifest.json" />
                   </Item>
                 </list>
               </option>

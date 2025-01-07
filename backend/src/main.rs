@@ -6,30 +6,36 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
+mod schemas;
+
 mod models {
-    pub mod users;
+    pub mod user;
 }
 
 pub mod api {
-    pub mod users;
+    pub mod user;
 }
 
-use api::users::create_user;
+use crate::api::user::{add_user, remove_user};
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::PgConnection;
 use dotenv::dotenv;
 use rocket::{launch, routes};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use sea_orm::Database;
+use std::env;
 
 #[launch]
 async fn rocket() -> _ {
     dotenv().ok();
     rocket::build()
         .manage(
-            Database::connect("your_database_url_here")
-                .await
-                .expect("Failed to connect to database"),
+            Pool::builder()
+                .build(ConnectionManager::<PgConnection>::new(
+                    env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
+                ))
+                .expect("Failed to create pool."),
         )
-        .mount("/", routes![create_user])
+        .mount("/", routes![add_user, remove_user])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())

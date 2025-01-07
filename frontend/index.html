@@ -8,10 +8,7 @@
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
 
 <!-- Disable zooming: -->
-<meta
-        content="width=device-width, initial-scale=1.0, user-scalable=no"
-        name="viewport"
-/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
 
 <head>
     <!-- change this to your project name -->
@@ -26,26 +23,13 @@
 
     <link data-trunk href="assets/sw.js" rel="copy-file"/>
 
-    <link
-            data-target-path="assets"
-            data-trunk
-            href="assets/manifest.json"
-            rel="copy-file"
-    />
+    <link data-target-path="assets" data-trunk href="assets/manifest.json" rel="copy-file"/>
 
     <link href="assets/manifest.json" rel="manifest"/>
 
-    <meta
-            content="white"
-            media="(prefers-color-scheme: light)"
-            name="theme-color"
-    />
+    <meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
 
-    <meta
-            content="#404040"
-            media="(prefers-color-scheme: dark)"
-            name="theme-color"
-    />
+    <meta content="#404040" media="(prefers-color-scheme: dark)" name="theme-color"/>
 
     <style>
         html {
@@ -151,7 +135,7 @@
 <script>
     // We disable caching during development so that we always view the latest version.
     if ("serviceWorker" in navigator && window.location.hash !== "#dev") {
-        window.addEventListener("load", function () {
+        window.addEventListener("load", () => {
             navigator.serviceWorker.register("assets/sw.js"); // Ensure the correct path to the service worker
         });
     }
