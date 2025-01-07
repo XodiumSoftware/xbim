@@ -23,3 +23,13 @@ pub struct NewUser {
     pub username: String,
     pub email: String,
 }
+
+#[derive(Deserialize)]
+pub struct UpdateUsername {
+    pub username: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateEmail {
+    pub email: String,
+}
