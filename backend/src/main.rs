@@ -18,12 +18,13 @@ pub mod api {
     pub mod user;
 }
 
-use crate::api::github::{github_callback, github_login};
+use crate::api::github::{github_callback, github_login, GitHub};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::PgConnection;
 use dotenv::dotenv;
 use rocket::{launch, routes};
 use rocket_cors::{AllowedOrigins, CorsOptions};
+use rocket_oauth2::OAuth2;
 use std::env;
 
 #[launch]
@@ -44,4 +45,5 @@ async fn rocket() -> _ {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
+        .attach(OAuth2::<GitHub>::fairing("github"))
 }

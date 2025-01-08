@@ -20,3 +20,4 @@ rocket = { version = "0.5.1", features = ["json"] }
 rocket_cors = "0.6.0"
 rocket_oauth2 = "0.5.0"
 serde = { version = "1.0.217", features = ["derive"] }
+reqwest = { version = "0.12.12", features = ["json"] }
