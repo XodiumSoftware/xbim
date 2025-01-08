@@ -7,6 +7,7 @@
 #![forbid(unsafe_code)]
 
 mod schemas;
+mod utils;
 
 mod models {
     pub mod user;
