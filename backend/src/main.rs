@@ -14,10 +14,11 @@ mod models {
 }
 
 pub mod api {
+    pub mod github;
     pub mod user;
 }
 
-use crate::api::user::{add_user, remove_user};
+use crate::api::github::{github_callback, github_login};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::PgConnection;
 use dotenv::dotenv;
@@ -36,7 +37,7 @@ async fn rocket() -> _ {
                 ))
                 .expect("Failed to create pool."),
         )
-        .mount("/", routes![add_user, remove_user])
+        .mount("/", routes![github_login, github_callback])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
