@@ -14,10 +14,10 @@ publish = false
 all-features = true
 
 [dependencies]
-diesel = { version = "2.2.6", features = ["r2d2", "postgres"] }
-dotenv = "0.15.0"
 rocket = { version = "0.5.1", features = ["json"] }
 rocket_cors = "0.6.0"
 rocket_oauth2 = "0.5.0"
 serde = { version = "1.0.217", features = ["derive"] }
 reqwest = { version = "0.12.12", features = ["json"] }
+web-sys = { version = "0.3.76", features = ["Storage", "Window"] }
+thiserror = "2.0.10"

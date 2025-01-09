@@ -5,6 +5,7 @@
 
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
+
 mod modules {
     pub mod auth;
     pub mod pages;

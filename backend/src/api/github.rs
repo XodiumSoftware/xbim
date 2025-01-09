@@ -6,16 +6,18 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use reqwest::Client;
+use crate::api::local_storage::LocalStorage;
+use reqwest::{Client, Error};
 use rocket::get;
 use rocket::http::{Cookie, CookieJar, SameSite};
-use rocket::response::Redirect;
+use rocket::response::{Debug, Redirect};
+use rocket::serde::json::serde_json::to_string;
 use rocket_oauth2::{OAuth2, TokenResponse};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub struct GitHub;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct GitHubUser {
     pub id: u64,
     pub name: String,
@@ -27,7 +29,10 @@ pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Redirect
 }
 
 #[get("/auth/github")]
-pub async fn github_callback(token: TokenResponse<GitHub>, cookies: &CookieJar<'_>) -> Redirect {
+pub async fn github_callback(
+    token: TokenResponse<GitHub>,
+    cookies: &CookieJar<'_>,
+) -> Result<Redirect, Debug<Error>> {
     let token = token.access_token().to_string();
 
     cookies.add_private(
@@ -38,19 +43,17 @@ pub async fn github_callback(token: TokenResponse<GitHub>, cookies: &CookieJar<'
             .build(),
     );
 
-    let user_info = Client::new()
+    let response = Client::new()
         .get("https://api.github.com/user")
         .bearer_auth(&token)
         .header("User-Agent", "xBIM")
         .send()
         .await
-        .expect("Failed to send request to GitHub")
-        .json::<GitHubUser>()
-        .await
-        .expect("Failed to parse GitHub user response");
+        .map_err(Debug)?;
 
-    println!("User ID: {}", user_info.id);
-    println!("User Name: {}", user_info.name);
+    let github_user: GitHubUser = response.json().await.map_err(Debug)?;
+    let github_user_json = to_string(&github_user).map_err(Debug)?;
+    LocalStorage::set_item("github_user", &github_user_json).unwrap();
 
-    Redirect::to("/")
+    Ok(Redirect::to("/"))
 }
