@@ -3,7 +3,8 @@
 {
   "name": "Rust and PostgreSQL",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "app",
+  // TODO: replace to app at some point.
+  "service": "db",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
@@ -20,7 +21,7 @@
     "jetbrains": {
       "backend": "RustRover"
     }
-  },
+  }
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
 }
