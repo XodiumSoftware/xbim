@@ -7,8 +7,10 @@
 #![forbid(unsafe_code)]
 
 pub mod api {
+    pub mod database;
     pub mod github;
     pub mod local_storage;
+    pub mod schema;
 }
 
 use crate::api::github::{github_callback, github_login, GitHub};
