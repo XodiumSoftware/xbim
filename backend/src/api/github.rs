@@ -7,25 +7,28 @@
 #![forbid(unsafe_code)]
 
 use crate::api::local_storage::LocalStorage;
+use lazy::sync::Lazy;
 use reqwest::{Client, Error};
 use rocket::get;
 use rocket::http::{Cookie, CookieJar, SameSite};
 use rocket::response::{Debug, Redirect};
-use rocket::serde::json::serde_json::to_string;
+use rocket::serde::json::to_string;
 use rocket_oauth2::{OAuth2, TokenResponse};
-use serde::{Deserialize, Serialize};
+
+static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
+    Client::builder()
+        .user_agent("xBIM")
+        .build()
+        .expect("Failed to initialize HTTP client")
+});
 
 pub struct GitHub;
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct GitHubUser {
-    pub id: u64,
-    pub name: String,
-}
-
 #[get("/login/github")]
-pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Redirect {
-    oauth2.get_redirect(cookies, &["user:read"]).unwrap()
+pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Result<Redirect, String> {
+    oauth2
+        .get_redirect(cookies, &["user:read"])
+        .map_err(|e| e.to_string())
 }
 
 #[get("/auth/github")]
@@ -43,17 +46,19 @@ pub async fn github_callback(
             .build(),
     );
 
-    let response = Client::new()
-        .get("https://api.github.com/user")
-        .bearer_auth(&token)
-        .header("User-Agent", "xBIM")
-        .send()
-        .await
-        .map_err(Debug)?;
-
-    let github_user: GitHubUser = response.json().await.map_err(Debug)?;
-    let github_user_json = to_string(&github_user).map_err(Debug)?;
-    LocalStorage::set_item("github_user", &github_user_json).unwrap();
+    LocalStorage::set_item(
+        "github_user",
+        &to_string(
+            HTTP_CLIENT
+                .get("https://api.github.com/user")
+                .bearer_auth(&token)
+                .header("User-Agent", "xBIM")
+                .send()
+                .await?
+                .json()
+                .await?,
+        ),
+    );
 
     Ok(Redirect::to("/"))
 }

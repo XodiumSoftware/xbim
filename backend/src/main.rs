@@ -16,8 +16,12 @@ use rocket::{launch, routes};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::OAuth2;
 
+/// Launches the Rocket application.
+///
+/// # Returns
+/// A Rocket instance.
 #[launch]
-async fn rocket() -> _ {
+async fn rocket() -> rocket::Rocket<rocket::Build> {
     rocket::build()
         .mount("/", routes![github_login, github_callback])
         .attach(
