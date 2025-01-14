@@ -9,7 +9,6 @@
 pub mod api {
     pub mod database;
     pub mod github;
-    pub mod local_storage;
     pub mod schema;
 }
 

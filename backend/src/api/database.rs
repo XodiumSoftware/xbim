@@ -164,11 +164,11 @@ impl Database {
         conn: &mut PgConnection,
         entries: Vec<(&str, &str)>,
     ) -> QueryResult<()> {
-        match conn.transaction::<_, diesel::result::Error, _>(|| {
-            for (k, v) in entries {
+        match conn.transaction::<_, diesel::result::Error, _>(|transaction_conn| {
+            for (k, v) in &entries {
                 diesel::insert_into(data)
                     .values((key.eq(k), value.eq(v)))
-                    .execute(conn)?;
+                    .execute(transaction_conn)?;
             }
             Ok(())
         }) {
@@ -188,13 +188,12 @@ impl Database {
 mod tests {
     use super::*;
     use diesel::pg::PgConnection;
-    use diesel::prelude::*;
     use std::env;
 
     fn establish_connection() -> PgConnection {
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         PgConnection::establish(&database_url)
-            .expect(&format!("Error connecting to {}", database_url))
+            .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
     }
 
     #[test]
@@ -245,9 +244,9 @@ mod tests {
         db.create_data(conn, "key2", "value2").unwrap();
         let result = db.list_all_data(conn);
         assert!(result.is_ok());
-        let data = result.unwrap();
-        assert!(data.contains(&("key1".to_string(), "value1".to_string())));
-        assert!(data.contains(&("key2".to_string(), "value2".to_string())));
+        let other_data = result.unwrap();
+        assert!(other_data.contains(&("key1".to_string(), "value1".to_string())));
+        assert!(other_data.contains(&("key2".to_string(), "value2".to_string())));
     }
 
     #[test]
@@ -257,8 +256,8 @@ mod tests {
         let entries = vec![("key1", "value1"), ("key2", "value2")];
         let result = db.set_multiple_data(conn, entries);
         assert!(result.is_ok());
-        let data = db.list_all_data(conn).unwrap();
-        assert!(data.contains(&("key1".to_string(), "value1".to_string())));
-        assert!(data.contains(&("key2".to_string(), "value2".to_string())));
+        let other_data = db.list_all_data(conn).unwrap();
+        assert!(other_data.contains(&("key1".to_string(), "value1".to_string())));
+        assert!(other_data.contains(&("key2".to_string(), "value2".to_string())));
     }
 }

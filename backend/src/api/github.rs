@@ -6,21 +6,23 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use crate::api::local_storage::LocalStorage;
-use lazy::sync::Lazy;
+use once_cell::sync::OnceCell;
 use reqwest::{Client, Error};
 use rocket::get;
 use rocket::http::{Cookie, CookieJar, SameSite};
 use rocket::response::{Debug, Redirect};
-use rocket::serde::json::to_string;
 use rocket_oauth2::{OAuth2, TokenResponse};
 
-static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
-    Client::builder()
-        .user_agent("xBIM")
-        .build()
-        .expect("Failed to initialize HTTP client")
-});
+static HTTP_CLIENT: OnceCell<Client> = OnceCell::new();
+
+pub fn get_http_client() -> &'static Client {
+    HTTP_CLIENT.get_or_init(|| {
+        Client::builder()
+            .user_agent("xBIM")
+            .build()
+            .expect("Failed to initialize HTTP client")
+    })
+}
 
 pub struct GitHub;
 
@@ -46,19 +48,14 @@ pub async fn github_callback(
             .build(),
     );
 
-    LocalStorage::set_item(
-        "github_user",
-        &to_string(
-            HTTP_CLIENT
-                .get("https://api.github.com/user")
-                .bearer_auth(&token)
-                .header("User-Agent", "xBIM")
-                .send()
-                .await?
-                .json()
-                .await?,
-        ),
-    );
+    // get_http_client()
+    //     .get("https://api.github.com/user")
+    //     .bearer_auth(&token)
+    //     .header("User-Agent", "xBIM")
+    //     .send()
+    //     .await?
+    //     .json()
+    //     .await?;
 
     Ok(Redirect::to("/"))
 }
