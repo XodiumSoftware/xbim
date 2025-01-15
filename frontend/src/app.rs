@@ -11,7 +11,7 @@ use crate::{
     utils::Utils,
 };
 
-pub struct App {
+pub(crate) struct App {
     page: Page,
     screen_reader_state: bool,
     pages: Pages,
