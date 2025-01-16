@@ -48,14 +48,5 @@ pub async fn github_callback(
             .build(),
     );
 
-    // get_http_client()
-    //     .get("https://api.github.com/user")
-    //     .bearer_auth(&token)
-    //     .header("User-Agent", "xBIM")
-    //     .send()
-    //     .await?
-    //     .json()
-    //     .await?;
-
     Ok(Redirect::to("/"))
 }
