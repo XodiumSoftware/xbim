@@ -7,6 +7,7 @@
 #![forbid(unsafe_code)]
 
 use crate::utils::Utils;
+use egui::{CentralPanel, Context, RichText};
 
 #[derive(PartialEq)]
 pub enum Page {
@@ -29,11 +30,11 @@ impl Pages {
     /// # Arguments
     ///
     /// * `ctx` - The `Context` struct.
-    pub fn home(&mut self, ctx: &egui::Context) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    pub fn home(&mut self, ctx: &Context) {
+        CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.heading(
-                    egui::RichText::new(Self::HOME_TITLE)
+                    RichText::new(Self::HOME_TITLE)
                         .color(Utils::hex_color(Self::HOME_TITLE_COLOR))
                         .strong(),
                 );
@@ -47,8 +48,8 @@ impl Pages {
     /// # Arguments
     ///
     /// * `ctx` - The `Context` struct.
-    pub fn control_panel(&mut self, ctx: &egui::Context) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    pub fn control_panel(&mut self, ctx: &Context) {
+        CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.heading(Self::CONTROL_PANEL_TITLE);
                 // TODO: Add control panel UI elements here

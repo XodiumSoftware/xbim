@@ -12,7 +12,7 @@ pub mod api {
 }
 
 use crate::api::github::{github_callback, github_login, GitHub};
-use rocket::{launch, routes};
+use rocket::{build, launch, routes, Build, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::OAuth2;
 
@@ -21,8 +21,8 @@ use rocket_oauth2::OAuth2;
 /// # Returns
 /// A Rocket instance.
 #[launch]
-async fn rocket() -> rocket::Rocket<rocket::Build> {
-    rocket::build()
+async fn rocket() -> Rocket<Build> {
+    build()
         .mount("/", routes![github_login, github_callback])
         .attach(
             CorsOptions::default()

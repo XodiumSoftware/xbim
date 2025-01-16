@@ -6,9 +6,12 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use crate::{
-    modules::pages::{Page, Pages},
-    utils::Utils,
+use crate::modules::pages::{Page, Pages};
+use crate::utils::Utils;
+use eframe::Frame;
+use egui::{
+    menu, special_emojis, warn_if_debug_build, widgets, Align, Color32, Context, Layout, RichText,
+    TopBottomPanel,
 };
 
 pub(crate) struct App {
@@ -34,7 +37,7 @@ impl eframe::App for App {
     ///
     /// * `ctx` - A reference to the `egui::Context`.
     /// * `frame` - A reference to the `eframe::Frame`.
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         ctx.options_mut(|o| o.screen_reader = self.screen_reader_state);
 
         self.header(ctx);
@@ -59,22 +62,22 @@ impl App {
     /// # Arguments
     ///
     /// * `ctx` - A reference to the `egui::Context`.
-    fn header(&mut self, ctx: &egui::Context) {
-        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            egui::menu::bar(ui, |ui| {
+    fn header(&mut self, ctx: &Context) {
+        TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            menu::bar(ui, |ui| {
                 ui.columns(2, |cols| {
-                    cols[0].with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                    cols[0].with_layout(Layout::left_to_right(Align::Center), |ui| {
                         ui.heading(
-                            egui::RichText::new("Xodium")
-                                .color(egui::Color32::from_hex("#CB2D3E").unwrap())
+                            RichText::new("Xodium")
+                                .color(Color32::from_hex("#CB2D3E").unwrap())
                                 .strong(),
                         );
                         ui.hyperlink_to(
-                            egui::special_emojis::GITHUB.to_string(),
+                            special_emojis::GITHUB.to_string(),
                             Self::XODIUM_REPOSITORY_URL,
                         )
                         .on_hover_text("Github Repo");
-                        egui::warn_if_debug_build(ui);
+                        warn_if_debug_build(ui);
                         ui.add_space(15.0);
                         if self.page == Page::Home {
                             ui.menu_button("Projects", |ui| {
@@ -96,7 +99,7 @@ impl App {
                             });
                         }
                     });
-                    cols[1].with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    cols[1].with_layout(Layout::right_to_left(Align::Center), |ui| {
                         // TODO: make settings better.
                         ui.menu_button("⚙", |ui| {
                             ui.label("Settings");
@@ -107,7 +110,7 @@ impl App {
                             });
                             ui.horizontal(|ui| {
                                 ui.label("Theme Preference:");
-                                egui::widgets::global_theme_preference_switch(ui);
+                                widgets::global_theme_preference_switch(ui);
                             });
                         });
                         ui.button("⎆")
@@ -125,7 +128,7 @@ impl App {
     /// # Arguments
     ///
     /// * `ctx` - A reference to the `egui::Context`.
-    fn body(&mut self, ctx: &egui::Context) {
+    fn body(&mut self, ctx: &Context) {
         match self.page {
             Page::Home => self.pages.home(ctx),
             Page::ControlPanel => self.pages.control_panel(ctx),
@@ -137,12 +140,12 @@ impl App {
     /// # Arguments
     ///
     /// * `ctx` - A reference to the `egui::Context`.
-    fn footer(&self, ctx: &egui::Context) {
+    fn footer(&self, ctx: &Context) {
         // TODO: make bottom_panel vertically stacked when the window is too narrow.
         // TODO: fix layout.
-        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+        TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
             ui.columns(3, |cols| {
-                cols[0].with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                cols[0].with_layout(Layout::left_to_right(Align::Min), |ui| {
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = 0.0;
                         ui.label("© 2024 ");
@@ -150,7 +153,7 @@ impl App {
                         ui.label(". Open-Source (CAD) Software Company.");
                     });
                 });
-                cols[1].with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                cols[1].with_layout(Layout::left_to_right(Align::Min), |ui| {
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = 0.0;
                         ui.label("Powered by ");
@@ -160,7 +163,7 @@ impl App {
                         ui.label(".");
                     });
                 });
-                cols[2].with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                cols[2].with_layout(Layout::left_to_right(Align::Min), |ui| {
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = 16.0;
                         ui.hyperlink_to("About", Self::XODIUM_REPOSITORY_URL);
