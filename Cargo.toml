@@ -1,8 +1,8 @@
 [package]
-name = "backend"
+name = "xBIM"
 version = "1.0.0"
 edition = "2021"
-include = ["LICENSE.md", "**/*.rs", "Cargo.toml"]
+include = ["CODE_OF_CONDUCT.md", "CONTRIBUTING.md", "LICENSE.md", "README.md", "SECURITY.md", "**/*.rs", "Cargo.toml"]
 authors = ["XodiumSoftware <https://xodium.org/>"]
 description = "All-in solution to BIM models, written in Rust"
 license = "AGPL-3.0"
