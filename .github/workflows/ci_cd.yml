@@ -33,7 +33,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8
         with:
           toolchain: stable
 
@@ -78,7 +78,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8
         with:
           toolchain: stable
 
