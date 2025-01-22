@@ -33,7 +33,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@97db979bf844c838b06022f305ca480d01b4d5fe
         with:
           toolchain: stable
 
@@ -78,7 +78,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@97db979bf844c838b06022f305ca480d01b4d5fe
         with:
           toolchain: stable
 
@@ -101,7 +101,7 @@ jobs:
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@v2.1.0
+        uses: softprops/action-gh-release@1fd6f3f2b1b859145679a1892abda586ef982a84
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
