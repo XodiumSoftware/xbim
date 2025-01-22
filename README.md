@@ -27,7 +27,6 @@
 - [Code of Conduct][code_of_conduct_url]
 - [Contributing][contributing_url]
 - [License][license_url]
-- [Security][security_url]
 
 ## About The Project
 
@@ -83,4 +82,3 @@ Feel free to dive into the documentation to kickstart your journey with xBIM.
 [license_url]: https://github.com/XodiumSoftware/xBIM?tab=AGPL-3.0-1-ov-file
 [roadmap_shield_url]: https://img.shields.io/badge/Roadmap-Click%20Me!-purple.svg?style=for-the-badge
 [roadmap_url]: https://github.com/orgs/XodiumSoftware/projects/4
-[security_url]: https://github.com/XodiumSoftware/xBIM?tab=security-ov-file
