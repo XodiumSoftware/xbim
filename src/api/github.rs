@@ -6,8 +6,6 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-// TEST2
-
 use once_cell::sync::OnceCell;
 use reqwest::{Client, Error};
 use rocket::get;
