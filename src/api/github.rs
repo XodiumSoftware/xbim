@@ -38,15 +38,12 @@ pub async fn github_callback(
     token: TokenResponse<GitHub>,
     cookies: &CookieJar<'_>,
 ) -> Result<Redirect, Debug<Error>> {
-    let token = token.access_token().to_string();
-
     cookies.add_private(
-        Cookie::build(("token", token.clone()))
+        Cookie::build(("token", token.access_token().to_string().clone()))
             .same_site(SameSite::Lax)
             .http_only(true)
             .secure(true)
             .build(),
     );
-
     Ok(Redirect::to("/"))
 }
