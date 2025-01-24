@@ -40,7 +40,7 @@ jobs:
 
       - id: get_version
         name: Get Version
-        run: echo "VERSION=$(toml get xbim/Cargo.toml package.version)" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(toml get Cargo.toml package.version)" >> $GITHUB_OUTPUT
 
       - id: upload_artifact
         name: Upload Artifact
