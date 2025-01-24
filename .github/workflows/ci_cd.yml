@@ -2,9 +2,7 @@ name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
 on:
-  push:
-    branches: [ main ]
-    paths: [ 'src/**' ]
+  push: { branches: [ main ], paths: [ 'src/**' ] }
   workflow_dispatch:
 
 permissions: { contents: write, packages: write }
