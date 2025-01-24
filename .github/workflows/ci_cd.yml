@@ -47,7 +47,7 @@ jobs:
       - id: upload_artifact
         name: Upload Artifact
         uses: actions/upload-artifact@v4
-        with: { name: xbim, path: target/release/xBIM.* }
+        with: { name: root, path: . }
 
   test:
     needs: [ build ]
@@ -57,7 +57,7 @@ jobs:
       - id: download_artifact
         name: Download Artifact
         uses: actions/download-artifact@v4.1.8
-        with: { name: xbim }
+        with: { name: root }
 
       - id: setup_rust
         name: Setup Rust
@@ -67,6 +67,11 @@ jobs:
       - id: run_tests
         name: Run Tests
         run: cargo test --all
+
+      - id: upload_artifact
+        name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: { name: xbim, path: target/release/xBIM.* }
 
   release:
     needs: [ build, test ]
