@@ -67,4 +67,4 @@ jobs:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, '.pre') }}
-          tag_name: ${{ needs.build.outputs.VERSION }}
+          tag_name: v${{ needs.build.outputs.VERSION }}
