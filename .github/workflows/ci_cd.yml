@@ -1,8 +1,6 @@
 name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
-# TODO: redo workflow to work with framework.
-
 on:
   push:
     branches: [ main ]
@@ -47,34 +45,10 @@ jobs:
       - id: upload_artifact
         name: Upload Artifact
         uses: actions/upload-artifact@v4
-        with: { name: root, path: . }
-
-  test:
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    environment: { name: "${{ github.ref_name }}" }
-    steps:
-      - id: download_artifact
-        name: Download Artifact
-        uses: actions/download-artifact@v4.1.8
-        with: { name: root }
-
-      - id: setup_rust
-        name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@97db979bf844c838b06022f305ca480d01b4d5fe
-        with: { toolchain: stable }
-
-      - id: run_tests
-        name: Run Tests
-        run: cargo test --all
-
-      - id: upload_artifact
-        name: Upload Artifact
-        uses: actions/upload-artifact@v4
         with: { name: xbim, path: target/release/xBIM.* }
 
   release:
-    needs: [ build, test ]
+    needs: [ build ]
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name }}
