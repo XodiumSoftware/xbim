@@ -11,10 +11,12 @@ pub mod api {
     pub mod github;
 }
 
+use crate::api::database::Database;
 use crate::api::github::{github_callback, github_login, GitHub};
 use rocket::{build, launch, routes, Build, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::OAuth2;
+use surrealdb::engine::remote::ws::Client;
 
 /// Launches the Rocket application.
 ///
@@ -23,7 +25,7 @@ use rocket_oauth2::OAuth2;
 #[launch]
 async fn rocket() -> Rocket<Build> {
     build()
-        .manage()
+        .manage(Database::new(Client("ws://localhost:8000").await.unwrap()))
         .mount("/", routes![github_login, github_callback])
         .attach(
             CorsOptions::default()
