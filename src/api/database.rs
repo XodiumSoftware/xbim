@@ -40,7 +40,7 @@ impl Database {
         Self {
             client,
             config,
-            session_token: Uuid::new_v4(),
+            session_token: Uuid::new(),
         }
     }
 
