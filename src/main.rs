@@ -16,7 +16,8 @@ use crate::api::github::{github_callback, github_login, GitHub};
 use rocket::{build, launch, routes, Build, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::OAuth2;
-use surrealdb::engine::remote::ws::Client;
+use surrealdb::engine::remote::ws::Ws;
+use surrealdb::Surreal;
 
 /// Launches the Rocket application.
 ///
@@ -25,7 +26,9 @@ use surrealdb::engine::remote::ws::Client;
 #[launch]
 async fn rocket() -> Rocket<Build> {
     build()
-        .manage(Database::new(Client("ws://localhost:8000").await.unwrap()))
+        .manage(Database::new(
+            Surreal::new::<Ws>("localhost:8000").await.unwrap(),
+        ))
         .mount("/", routes![github_login, github_callback])
         .attach(
             CorsOptions::default()
