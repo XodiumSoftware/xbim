@@ -12,7 +12,7 @@ pub mod api {
 }
 
 use crate::api::github::{github_callback, github_login, GitHub};
-use rocket::{build, catch, catchers, launch, routes, Build, Rocket};
+use rocket::{build, launch, routes, Build, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::OAuth2;
 
@@ -31,14 +31,4 @@ async fn rocket() -> Rocket<Build> {
                 .expect("Failed to build CORS"),
         )
         .attach(OAuth2::<GitHub>::fairing("github"))
-        .register("/", catchers![not_found])
-}
-
-/// Handles 404 Not Found errors.
-///
-/// # Returns
-/// A static string response indicating the resource was not found.
-#[catch(404)]
-async fn not_found() -> &'static str {
-    "404 - Not Found"
 }

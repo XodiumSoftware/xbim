@@ -1,5 +1,5 @@
-[default]
-secret_key = "..."
+#[default]
+#secret_key = "..."
 
 [default.oauth.github]
 provider = "GitHub"

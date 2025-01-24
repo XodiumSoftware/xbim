@@ -6,23 +6,11 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use once_cell::sync::OnceCell;
-use reqwest::{Client, Error};
+use reqwest::Error;
 use rocket::get;
 use rocket::http::{Cookie, CookieJar, SameSite};
 use rocket::response::{Debug, Redirect};
 use rocket_oauth2::{OAuth2, TokenResponse};
-
-static HTTP_CLIENT: OnceCell<Client> = OnceCell::new();
-
-pub fn get_http_client() -> &'static Client {
-    HTTP_CLIENT.get_or_init(|| {
-        Client::builder()
-            .user_agent("xBIM")
-            .build()
-            .expect("Failed to initialize HTTP client")
-    })
-}
 
 pub struct GitHub;
 
