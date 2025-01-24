@@ -1,22 +1,16 @@
 name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
-on:
-  push: { branches: [ main ], paths: [ 'src/**' ] }
-  workflow_dispatch:
+on: { push: { branches: [ main ], paths: [ 'src/**' ] }, workflow_dispatch: }
 
 permissions: { contents: write, packages: write }
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+concurrency: { group: "${{ github.workflow }}-${{ github.ref }}", cancel-in-progress: true }
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
-      url: ${{ steps.upload_artifact.outputs.artifact-url }}
+    environment: { name: "${{ github.ref_name }}", url: "${{ steps.upload_artifact.outputs.artifact-url }}" }
     outputs: { VERSION: "${{ steps.get_version.outputs.VERSION }}" }
     steps:
       - id: checkout
@@ -48,9 +42,7 @@ jobs:
   release:
     needs: [ build ]
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
-      url: ${{ steps.create_release.outputs.url }}
+    environment: { name: "${{ github.ref_name }}", url: "${{ steps.create_release.outputs.url }}" }
     steps:
       - id: download_artifact
         name: Download Artifact
