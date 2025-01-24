@@ -44,7 +44,7 @@ jobs:
 
       - id: upload_artifact
         name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with: { name: xbim, path: target/release/xBIM.* }
 
   release:
@@ -56,7 +56,7 @@ jobs:
     steps:
       - id: download_artifact
         name: Download Artifact
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@main
         with: { name: xbim }
 
       - id: create_release
