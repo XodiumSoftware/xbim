@@ -23,6 +23,7 @@ use rocket_oauth2::OAuth2;
 #[launch]
 async fn rocket() -> Rocket<Build> {
     build()
+        .manage()
         .mount("/", routes![github_login, github_callback])
         .attach(
             CorsOptions::default()

@@ -10,17 +10,9 @@ use surrealdb::engine::remote::ws::Client;
 use surrealdb::sql::Uuid;
 use surrealdb::Surreal;
 
-/// Configuration for the database connection.
-pub struct DatabaseConfig {
-    pub host: String,
-    pub port: u16,
-    pub db_name: String,
-}
-
 /// Represents the database operations.
 pub struct Database {
     pub client: Surreal<Client>,
-    pub config: DatabaseConfig,
     pub session_token: Uuid,
 }
 
@@ -30,16 +22,14 @@ impl Database {
     /// # Arguments
     ///
     /// * `client` - A `Surreal<Client>` instance for database operations.
-    /// * `config` - A `DatabaseConfig` instance containing the database configuration.
     /// * `session_token` - A `Uuid` instance for the session token.
     ///
     /// # Returns
     ///
     /// A new `Database` instance.
-    pub fn new(client: Surreal<Client>, config: DatabaseConfig) -> Self {
+    pub fn new(client: Surreal<Client>) -> Self {
         Self {
             client,
-            config,
             session_token: Uuid::new(),
         }
     }
