@@ -6,13 +6,10 @@ run-name: "Xodium CI/CD"
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'xbim/**'
+    paths: [ 'xbim/**' ]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  packages: write
+permissions: { contents: write, packages: write }
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,8 +21,7 @@ jobs:
     environment:
       name: ${{ github.ref_name }}
       url: ${{ steps.upload_artifact.outputs.artifact-url }}
-    outputs:
-      VERSION: ${{ steps.get_version.outputs.VERSION }}
+    outputs: { VERSION: "${{ steps.get_version.outputs.VERSION }}" }
     steps:
       - id: checkout
         name: Checkout
@@ -34,20 +30,11 @@ jobs:
       - id: setup_rust
         name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@97db979bf844c838b06022f305ca480d01b4d5fe
-        with:
-          toolchain: stable
+        with: { toolchain: stable }
 
-      #      - id: install_deps
-      #        name: Install Dependencies
-      #        run: |
-      #          sudo apt update && sudo apt install clang
-      #          cargo install trunk
-      #          rustup target add wasm32-unknown-unknown
-      #
-      #      - id: build_artifact
-      #        name: Build Artifact
-      #        run: trunk build
-      #        working-directory: xbim
+      - id: build_artifact
+        name: Build Artifact
+        run: cargo build --release
 
       - id: install_toml_cli
         name: Install toml-cli
@@ -60,27 +47,22 @@ jobs:
       - id: upload_artifact
         name: Upload Artifact
         uses: actions/upload-artifact@v4
-        with:
-          name: xbim
-          path: xbim/dist/
+        with: { name: xbim, path: target/release/xBIM.* }
 
   test:
     needs: [ build ]
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
+    environment: { name: "${{ github.ref_name }}" }
     steps:
       - id: download_artifact
         name: Download Artifact
         uses: actions/download-artifact@v4.1.8
-        with:
-          name: xbim
+        with: { name: xbim }
 
       - id: setup_rust
         name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@97db979bf844c838b06022f305ca480d01b4d5fe
-        with:
-          toolchain: stable
+        with: { toolchain: stable }
 
       - id: run_tests
         name: Run Tests
@@ -96,14 +78,12 @@ jobs:
       - id: download_artifact
         name: Download Artifact
         uses: actions/download-artifact@v4.1.8
-        with:
-          name: xbim
+        with: { name: xbim }
 
       - id: create_release
         name: Create Release
         uses: softprops/action-gh-release@1fd6f3f2b1b859145679a1892abda586ef982a84
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
           generate_release_notes: true
