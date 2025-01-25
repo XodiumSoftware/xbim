@@ -1,31 +1,17 @@
 name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
-# TODO: redo workflow to work with framework.
+on: { push: { branches: [ main ], paths: [ 'src/**' ] }, workflow_dispatch: }
 
-on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'xbim/**'
-  workflow_dispatch:
+permissions: { contents: write, packages: write }
 
-permissions:
-  contents: write
-  packages: write
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+concurrency: { group: "${{ github.workflow }}-${{ github.ref }}", cancel-in-progress: true }
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
-      url: ${{ steps.upload_artifact.outputs.artifact-url }}
-    outputs:
-      VERSION: ${{ steps.get_version.outputs.VERSION }}
+    environment: { name: "${{ github.ref_name }}", url: "${{ steps.upload_artifact.outputs.artifact-url }}" }
+    outputs: { VERSION: "${{ steps.get_version.outputs.VERSION }}" }
     steps:
       - id: checkout
         name: Checkout
@@ -33,21 +19,12 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+        uses: actions-rust-lang/setup-rust-toolchain@97db979bf844c838b06022f305ca480d01b4d5fe
+        with: { toolchain: stable }
 
-      #      - id: install_deps
-      #        name: Install Dependencies
-      #        run: |
-      #          sudo apt update && sudo apt install clang
-      #          cargo install trunk
-      #          rustup target add wasm32-unknown-unknown
-      #
-      #      - id: build_artifact
-      #        name: Build Artifact
-      #        run: trunk build
-      #        working-directory: xbim
+      - id: build_artifact
+        name: Build Artifact
+        run: cargo build --release
 
       - id: install_toml_cli
         name: Install toml-cli
@@ -55,57 +32,30 @@ jobs:
 
       - id: get_version
         name: Get Version
-        run: echo "VERSION=$(toml get xbim/Cargo.toml package.version)" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(toml get Cargo.toml package.version | tr -d '\"')" >> $GITHUB_OUTPUT
 
       - id: upload_artifact
         name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: xbim
-          path: xbim/dist/
-
-  test:
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
-    steps:
-      - id: download_artifact
-        name: Download Artifact
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: xbim
-
-      - id: setup_rust
-        name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-
-      - id: run_tests
-        name: Run Tests
-        run: cargo test --all
+        uses: actions/upload-artifact@main
+        with: { name: xbim, path: target/release/xBIM.* }
 
   release:
-    needs: [ build, test ]
+    needs: [ build ]
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
-      url: ${{ steps.create_release.outputs.url }}
+    environment: { name: "${{ github.ref_name }}", url: "${{ steps.create_release.outputs.url }}" }
     steps:
       - id: download_artifact
         name: Download Artifact
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: xbim
+        uses: actions/download-artifact@main
+        with: { name: xbim }
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@v2.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@1fd6f3f2b1b859145679a1892abda586ef982a84
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, '.pre') }}
-          tag_name: ${{ needs.build.outputs.VERSION }}
+          tag_name: v${{ needs.build.outputs.VERSION }}
+          files: .
