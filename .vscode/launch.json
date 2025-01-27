@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Trunk serve for 'xcad'",
+        "program": "trunk",
+        "args": ["serve"],
+        "cwd": "${workspaceFolder}/xcad",
+        "env": { "RUSTFLAGS": "--cfg=web_sys_unstable_apis" },
+        "console": "integratedTerminal"
+      }
+    ]
+  }
