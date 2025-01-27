@@ -4,11 +4,10 @@
       {
         "type": "lldb",
         "request": "launch",
-        "name": "Trunk serve for 'xcad'",
-        "program": "trunk",
-        "args": ["serve"],
-        "cwd": "${workspaceFolder}/xcad",
-        "env": { "RUSTFLAGS": "--cfg=web_sys_unstable_apis" },
+        "name": "Cargo: RUN",
+        "program": "cargo",
+        "args": ["run"],
+        "cwd": "${workspaceFolder}",
         "console": "integratedTerminal"
       }
     ]

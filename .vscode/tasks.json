@@ -2,13 +2,13 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "Build xcad",
+        "label": "Build xBIM",
         "type": "shell",
-        "command": "trunk",
+        "command": "cargo",
         "args": ["build"],
         "group": "build",
         "problemMatcher": ["$rustc"],
-        "options": { "cwd": "${workspaceFolder}/xcad" }
+        "options": { "cwd": "${workspaceFolder}" }
       }
     ]
   }
