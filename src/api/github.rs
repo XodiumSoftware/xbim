@@ -12,8 +12,14 @@ use rocket::http::{Cookie, CookieJar, SameSite};
 use rocket::response::{Debug, Redirect};
 use rocket_oauth2::{OAuth2, TokenResponse};
 
+/// Represents the GitHub OAuth2 provider.
 pub struct GitHub;
 
+/// Initiates the GitHub OAuth2 login process.
+///
+/// # Errors
+///
+/// This function will return an error if the OAuth2 redirect URL cannot be generated.
 #[get("/login/github")]
 pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Result<Redirect, String> {
     oauth2
@@ -21,6 +27,11 @@ pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Result<R
         .map_err(|e| e.to_string())
 }
 
+/// Handles the callback from GitHub OAuth2 login process.
+///
+/// # Errors
+///
+/// This function will return an error if the token cannot be retrieved or if there is an issue with the HTTP request.
 #[get("/auth/github")]
 pub async fn github_callback(
     token: TokenResponse<GitHub>,
