@@ -52,7 +52,7 @@ pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Result<R
 ///
 /// # Returns
 ///
-/// * `Ok(Redirect)` directing the user to the home page if the authentication succeeds.
+/// * `Ok(Redirect)` directing the user to the dashboard page after successful authentication.
 /// * `Err(Debug<Error>)` if an error occurs during token retrieval or cookie manipulation.
 #[get("/auth/github")]
 pub async fn github_callback(
@@ -65,7 +65,7 @@ pub async fn github_callback(
             .http_only(true)
             .secure(true),
     );
-    Ok(Redirect::to("/"))
+    Ok(Redirect::to("/dashboard"))
 }
 
 /// Logs the user out by clearing authentication-related cookies.

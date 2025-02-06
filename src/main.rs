@@ -11,6 +11,10 @@ pub mod api {
     pub mod database;
 }
 
+pub mod middleware {
+    pub mod csrf;
+}
+
 use crate::api::auth::{github_callback, github_login, GitHub};
 use crate::api::database::Database;
 use rocket::{build, launch, routes, Build, Rocket};
