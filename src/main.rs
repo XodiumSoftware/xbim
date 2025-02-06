@@ -7,12 +7,12 @@
 #![forbid(unsafe_code)]
 
 pub mod api {
+    pub mod auth;
     pub mod database;
-    pub mod github;
 }
 
+use crate::api::auth::{github_callback, github_login, GitHub};
 use crate::api::database::Database;
-use crate::api::github::{github_callback, github_login, GitHub};
 use rocket::{build, launch, routes, Build, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::OAuth2;
