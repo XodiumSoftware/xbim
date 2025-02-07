@@ -12,7 +12,7 @@ use rocket::http::{Cookie, CookieJar, SameSite};
 use rocket::response::{Debug, Redirect};
 use rocket_oauth2::{OAuth2, TokenResponse};
 
-const COOKIE_TOKEN: &str = "token";
+pub const COOKIE_TOKEN: &str = "token";
 
 /// Represents the GitHub OAuth2 provider.
 pub struct GitHub;
@@ -32,8 +32,8 @@ pub struct GitHub;
 ///
 /// * `Ok(Redirect)` if the redirect URL is successfully generated.
 /// * `Err(String)` if there is an error generating the redirect URL.
-#[get("/login/github")]
-pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Result<Redirect, String> {
+#[get("/login")]
+pub fn login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Result<Redirect, String> {
     oauth2
         .get_redirect(cookies, &["user:read"])
         .map_err(|e| e.to_string())
@@ -54,8 +54,8 @@ pub fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Result<R
 ///
 /// * `Ok(Redirect)` directing the user to the dashboard page after successful authentication.
 /// * `Err(Debug<Error>)` if an error occurs during token retrieval or cookie manipulation.
-#[get("/auth/github")]
-pub async fn github_callback(
+#[get("/auth")]
+pub async fn callback(
     token: TokenResponse<GitHub>,
     cookies: &CookieJar<'_>,
 ) -> Result<Redirect, Debug<Error>> {
@@ -82,7 +82,7 @@ pub async fn github_callback(
 /// * `Ok(Redirect)` directing the user to the home page after logging out.
 /// * `Err(Debug<Error>)` if an error occurs during cookie manipulation.
 #[get("/logout")]
-pub fn github_logout(cookies: &CookieJar<'_>) -> Result<Redirect, Debug<Error>> {
+pub fn logout(cookies: &CookieJar<'_>) -> Result<Redirect, Debug<Error>> {
     cookies.remove_private(Cookie::build(COOKIE_TOKEN));
     Ok(Redirect::to("/"))
 }

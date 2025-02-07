@@ -8,14 +8,12 @@
 
 pub mod api {
     pub mod auth;
+    pub mod dashboard;
     pub mod database;
 }
 
-pub mod middleware {
-    pub mod csrf;
-}
-
-use crate::api::auth::{github_callback, github_login, GitHub};
+use crate::api::auth::{callback, login, logout, GitHub};
+use crate::api::dashboard::dashboard;
 use crate::api::database::Database;
 use rocket::{build, launch, routes, Build, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
@@ -33,7 +31,7 @@ async fn rocket() -> Rocket<Build> {
         .manage(Database::new(
             Surreal::new::<Ws>("localhost:8000").await.unwrap(),
         ))
-        .mount("/", routes![github_login, github_callback])
+        .mount("/", routes![login, callback, logout, dashboard])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
