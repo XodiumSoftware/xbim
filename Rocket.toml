@@ -1,7 +1,4 @@
-#[default]
-#secret_key = "..."
-
 [default.oauth.github]
 provider = "GitHub"
-client_id = "..."
-client_secret = "..."
+client_id = "${GITHUB_CLIENT_ID}"
+client_secret = "${GITHUB_CLIENT_SECRET}"
