@@ -13,7 +13,9 @@ pub mod api {
 
 use crate::api::database::Database;
 use api::health::health;
-use rocket::{build, launch, routes, Build, Config, Rocket};
+use rocket::fs::{relative, FileServer};
+use rocket::response::Redirect;
+use rocket::{build, catch, catchers, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use surrealdb::engine::remote::ws::Ws;
 use surrealdb::opt::auth::Root;
@@ -30,6 +32,15 @@ const SURREALDB_USERNAME: &str = "root";
 
 /// SurrealDB password for authentication
 const SURREALDB_PASSWORD: &str = "root";
+
+/// Redirects to the 404 page.
+///
+/// # Returns
+/// A redirect to the 404 page.
+#[catch(404)]
+fn not_found() -> Redirect {
+    Redirect::to("https://xodium.org/404")
+}
 
 /// Launches the Rocket application.
 ///
@@ -54,10 +65,12 @@ async fn rocket() -> Rocket<Build> {
         })
         .manage(Database::new(db))
         .mount("/api", routes![health])
+        .mount("/", FileServer::from(relative!("src/static")))
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
+        .register("/", catchers![not_found])
 }

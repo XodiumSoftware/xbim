@@ -20,12 +20,10 @@ impl Database {
     /// Creates a new `Database` instance.
     ///
     /// # Arguments
-    ///
     /// * `client` - A `Surreal<Client>` instance for database operations.
     /// * `session_token` - A `Uuid` instance for the session token.
     ///
     /// # Returns
-    ///
     /// A new `Database` instance.
     pub fn new(client: Surreal<Client>) -> Self {
         Self {
