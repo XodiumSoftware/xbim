@@ -8,10 +8,12 @@
 
 pub mod api {
     pub mod database;
+    pub mod health;
 }
 
 use crate::api::database::Database;
-use rocket::{build, launch, Build, Config, Rocket};
+use api::health::health;
+use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use surrealdb::engine::remote::ws::Ws;
 use surrealdb::opt::auth::Root;
@@ -51,6 +53,7 @@ async fn rocket() -> Rocket<Build> {
             ..Config::debug_default()
         })
         .manage(Database::new(db))
+        .mount("/api", routes![health])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())

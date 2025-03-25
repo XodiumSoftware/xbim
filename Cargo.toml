@@ -21,6 +21,7 @@ publish = false
 all-features = true
 
 [dependencies]
+chrono = "0.4.40"
 rocket = { version = "0.5.1", features = ["json"] }
 rocket_cors = "0.6.0"
 surrealdb = { version = "2.1.4", features = ["http"] }
