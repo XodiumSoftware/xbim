@@ -16,6 +16,9 @@ use rocket_cors::{AllowedOrigins, CorsOptions};
 use surrealdb::engine::remote::ws::Ws;
 use surrealdb::Surreal;
 
+/// SurrealDB connection URL
+const SURREALDB_URL: &str = "localhost:8000";
+
 /// Launches the Rocket application.
 ///
 /// # Returns
@@ -24,7 +27,10 @@ use surrealdb::Surreal;
 async fn rocket() -> Rocket<Build> {
     build()
         .manage(Database::new(
-            Surreal::new::<Ws>("localhost:8000").await.unwrap(),
+            Surreal::new::<Ws>(SURREALDB_URL).await.expect(&format!(
+                "Failed to connect to SurrealDB at {}",
+                SURREALDB_URL
+            )),
         ))
         .attach(
             CorsOptions::default()
