@@ -5,3 +5,6 @@ Cargo.lock
 # Environment files
 src/.env
 .env.*
+
+# Debug folder
+debug/
