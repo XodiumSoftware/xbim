@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "start-surrealdb",
+      "type": "shell",
+      "command": "start-surrealdb",
+      "presentation": { "reveal": "silent", "panel": "shared" }
+    },
+    {
+      "label": "check-api-health",
+      "type": "shell",
+      "command": "curl -s http://localhost:8080/api/health",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "stop-surrealdb",
+      "type": "shell",
+      "command": "stop-surrealdb",
+      "presentation": { "reveal": "silent", "panel": "shared" }
+    }
+  ]
+}

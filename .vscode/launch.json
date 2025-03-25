@@ -8,7 +8,9 @@
       "program": "cargo",
       "args": ["run"],
       "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "preLaunchTask": "start-surrealdb",
+      "postDebugTask": "stop-surrealdb"
     }
   ]
 }
