@@ -11,11 +11,14 @@ pub mod api {
 }
 
 use crate::api::database::Database;
-use rocket::{build, launch, Build, Rocket};
+use rocket::{build, launch, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use surrealdb::engine::remote::ws::Ws;
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
+
+/// Rocket connection Port
+const ROCKET_PORT: u16 = 8080;
 
 /// SurrealDB connection URL
 const SURREALDB_URL: &str = "localhost:8000";
@@ -42,10 +45,16 @@ async fn rocket() -> Rocket<Build> {
     })
     .await
     .expect("Failed to sign in to SurrealDB");
-    build().manage(Database::new(db)).attach(
-        CorsOptions::default()
-            .allowed_origins(AllowedOrigins::all())
-            .to_cors()
-            .expect("Failed to build CORS"),
-    )
+    build()
+        .configure(Config {
+            port: ROCKET_PORT,
+            ..Config::debug_default()
+        })
+        .manage(Database::new(db))
+        .attach(
+            CorsOptions::default()
+                .allowed_origins(AllowedOrigins::all())
+                .to_cors()
+                .expect("Failed to build CORS"),
+        )
 }
