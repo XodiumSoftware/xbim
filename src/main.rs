@@ -13,6 +13,7 @@ pub mod api {
 
 use crate::api::database::Database;
 use api::health::health;
+use rocket::http::Status;
 use rocket::response::Redirect;
 use rocket::{build, catch, catchers, get, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
@@ -50,6 +51,18 @@ fn index() -> Redirect {
     Redirect::to("https://xodium.org")
 }
 
+/// Handle Flutter service worker requests
+///
+/// # Arguments
+/// * `_v` - The version of the service worker.
+///
+/// # Returns
+/// A 204 No Content status.
+#[get("/flutter_service_worker.js?<_v>")]
+fn flutter_service_worker(_v: Option<String>) -> Status {
+    Status::NoContent
+}
+
 /// Launches the Rocket application.
 ///
 /// # Returns
@@ -72,7 +85,7 @@ async fn rocket() -> Rocket<Build> {
             ..Config::debug_default()
         })
         .manage(Database::new(db))
-        .mount("/", routes![index])
+        .mount("/", routes![index, flutter_service_worker])
         .mount("/api", routes![health])
         .attach(
             CorsOptions::default()
