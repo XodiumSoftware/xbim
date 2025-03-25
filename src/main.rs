@@ -13,9 +13,8 @@ pub mod api {
 
 use crate::api::database::Database;
 use api::health::health;
-use rocket::fs::{relative, FileServer};
 use rocket::response::Redirect;
-use rocket::{build, catch, catchers, launch, routes, Build, Config, Rocket};
+use rocket::{build, catch, catchers, get, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use surrealdb::engine::remote::ws::Ws;
 use surrealdb::opt::auth::Root;
@@ -42,6 +41,15 @@ fn not_found() -> Redirect {
     Redirect::to("https://xodium.org/404")
 }
 
+/// Redirects to the main page.
+///
+/// # Returns
+/// A redirect to the main page.
+#[get("/")]
+fn index() -> Redirect {
+    Redirect::to("https://xodium.org")
+}
+
 /// Launches the Rocket application.
 ///
 /// # Returns
@@ -64,8 +72,8 @@ async fn rocket() -> Rocket<Build> {
             ..Config::debug_default()
         })
         .manage(Database::new(db))
+        .mount("/", routes![index])
         .mount("/api", routes![health])
-        .mount("/", FileServer::from(relative!("src/static")))
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
