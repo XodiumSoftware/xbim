@@ -6,26 +6,26 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-pub mod api {
+pub mod middleware {
+    pub mod auth;
+}
+
+pub mod routes {
     pub mod flutter_service_worker;
     pub mod health;
     pub mod index;
-}
-
-pub mod middleware {
-    pub mod auth;
 }
 
 pub mod constants;
 pub mod database;
 pub mod errors;
 
-use api::{flutter_service_worker::flutter_service_worker, health::health, index::index};
 use constants::ROCKET_PORT;
 use database::Database;
 use errors::catchers;
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
+use routes::{flutter_service_worker::flutter_service_worker, health::health, index::index};
 
 /// Launches the Rocket application.
 ///
@@ -40,7 +40,7 @@ async fn rocket() -> Rocket<Build> {
         })
         .manage(Database::new().await)
         .mount("/", routes![index, flutter_service_worker])
-        .mount("/api", routes![health])
+        .mount("api", routes![health])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
