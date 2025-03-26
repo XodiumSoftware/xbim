@@ -6,7 +6,7 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-pub mod middleware {
+pub mod middlewares {
     pub mod auth;
 }
 
@@ -14,6 +14,10 @@ pub mod routes {
     pub mod flutter_service_worker;
     pub mod health;
     pub mod index;
+}
+
+pub mod schemas {
+    pub mod bim;
 }
 
 pub mod constants;
