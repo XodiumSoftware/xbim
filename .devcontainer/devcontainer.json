@@ -29,7 +29,7 @@
     "1-install-system-deps": "sudo apt update -y && sudo apt install -y clang",
     "2-install-surrealdb": "curl -sSf https://install.surrealdb.com | sh",
     "3-create-db-dir": "mkdir -p /workspaces/xBIM/debug/db",
-    "4-create-startup-script": "echo '#!/bin/bash\\nsurreal start --bind 0.0.0.0:8000 --log debug rocksdb:///workspaces/xBIM/debug/db/database.db &' > /usr/local/bin/start-surrealdb && chmod +x /usr/local/bin/start-surrealdb",
+    "4-create-startup-script": "echo '#!/bin/bash\\nsurreal start --user root --pass root --bind 0.0.0.0:8000 --log debug rocksdb:///workspaces/xBIM/debug/db/database.db &' > /usr/local/bin/start-surrealdb && chmod +x /usr/local/bin/start-surrealdb",
     "5-create-stop-script": "echo '#!/bin/bash\\nPID=$(pgrep -f \"surreal start\")\\nif [ -z \"$PID\" ]; then\\n  echo \"SurrealDB is not running\"\\n  exit 0\\nfi\\necho \"Stopping SurrealDB (PID: $PID)...\"\\nkill $PID\\nsleep 2\\nif ps -p $PID > /dev/null; then\\n  echo \"SurrealDB did not terminate gracefully, forcing...\"\\n  kill -9 $PID\\nfi\\necho \"SurrealDB stopped successfully\"' > /usr/local/bin/stop-surrealdb && chmod +x /usr/local/bin/stop-surrealdb"
   },
   "postStartCommand": "start-surrealdb",
