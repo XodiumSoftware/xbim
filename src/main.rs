@@ -7,7 +7,9 @@
 #![forbid(unsafe_code)]
 
 pub mod api {
+    pub mod flutter_service_worker;
     pub mod health;
+    pub mod index;
 }
 
 pub mod middleware {
@@ -18,35 +20,12 @@ pub mod constants;
 pub mod database;
 pub mod errors;
 
-use api::health::health;
+use api::{flutter_service_worker::flutter_service_worker, health::health, index::index};
 use constants::ROCKET_PORT;
 use database::Database;
-use errors::{err_400, err_401, err_403, err_404, err_405, err_500, err_503};
-use rocket::{
-    build, catchers, get, http::Status, launch, response::Redirect, routes, Build, Config, Rocket,
-};
+use errors::catchers;
+use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-
-/// Redirects to the main page.
-///
-/// # Returns
-/// A redirect to the main page.
-#[get("/")]
-fn index() -> Redirect {
-    Redirect::to("https://xodium.org")
-}
-
-/// Handle Flutter service worker requests
-///
-/// # Arguments
-/// * `_v` - The version of the service worker.
-///
-/// # Returns
-/// A 204 No Content status.
-#[get("/flutter_service_worker.js?<_v>")]
-fn flutter_service_worker(_v: Option<String>) -> Status {
-    Status::NoContent
-}
 
 /// Launches the Rocket application.
 ///
@@ -68,8 +47,5 @@ async fn rocket() -> Rocket<Build> {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .register(
-            "/",
-            catchers![err_400, err_401, err_403, err_404, err_405, err_500, err_503],
-        )
+        .register("/", catchers())
 }

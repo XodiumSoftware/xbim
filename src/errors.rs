@@ -3,11 +3,19 @@
 + All rights reserved.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-use rocket::{catch, serde::json::Json};
+use rocket::{catch, catchers, serde::json::Json};
 use serde::Serialize;
 
+/// Returns a list of catchers for the application.
+///
+/// # Returns
+/// A vector of catchers.
+pub fn catchers() -> Vec<rocket::Catcher> {
+    catchers![err_400, err_401, err_403, err_404, err_405, err_500, err_503]
+}
+
 #[derive(Serialize)]
-pub struct Response {
+struct Response {
     status: &'static str,
     code: &'static str,
     message: &'static str,
@@ -18,7 +26,7 @@ pub struct Response {
 /// # Returns
 /// A JSON response with an error message.
 #[catch(400)]
-pub fn err_400() -> Json<Response> {
+fn err_400() -> Json<Response> {
     Json(Response {
         status: "error",
         code: "400",
@@ -31,7 +39,7 @@ pub fn err_400() -> Json<Response> {
 /// # Returns
 /// A JSON response with an error message.
 #[catch(401)]
-pub fn err_401() -> Json<Response> {
+fn err_401() -> Json<Response> {
     Json(Response {
         status: "error",
         code: "401",
@@ -44,7 +52,7 @@ pub fn err_401() -> Json<Response> {
 /// # Returns
 /// A JSON response with an error message.
 #[catch(403)]
-pub fn err_403() -> Json<Response> {
+fn err_403() -> Json<Response> {
     Json(Response {
         status: "error",
         code: "403",
@@ -57,11 +65,11 @@ pub fn err_403() -> Json<Response> {
 /// # Returns
 /// A JSON response with an error message.
 #[catch(404)]
-pub fn err_404() -> Json<Response> {
+fn err_404() -> Json<Response> {
     Json(Response {
         status: "error",
-        code: "403",
-        message: "Access forbidden - You don't have permission to access this resource",
+        code: "404",
+        message: "Resource not found",
     })
 }
 
@@ -70,7 +78,7 @@ pub fn err_404() -> Json<Response> {
 /// # Returns
 /// A JSON response with an error message.
 #[catch(405)]
-pub fn err_405() -> Json<Response> {
+fn err_405() -> Json<Response> {
     Json(Response {
         status: "error",
         code: "405",
@@ -83,7 +91,7 @@ pub fn err_405() -> Json<Response> {
 /// # Returns
 /// A JSON response with an error message.
 #[catch(500)]
-pub fn err_500() -> Json<Response> {
+fn err_500() -> Json<Response> {
     Json(Response {
         status: "error",
         code: "500",
@@ -96,7 +104,7 @@ pub fn err_500() -> Json<Response> {
 /// # Returns
 /// A JSON response with an error message.
 #[catch(503)]
-pub fn err_503() -> Json<Response> {
+fn err_503() -> Json<Response> {
     Json(Response {
         status: "error",
         code: "503",
