@@ -24,4 +24,5 @@ all-features = true
 chrono = "0.4.40"
 rocket = { version = "0.5.1", features = ["json"] }
 rocket_cors = "0.6.0"
+serde = { version = "1.0.219", features = ["derive"] }
 surrealdb = { version = "2.1.4", features = ["http"] }

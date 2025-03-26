@@ -7,40 +7,22 @@
 #![forbid(unsafe_code)]
 
 pub mod api {
+    pub mod auth;
     pub mod database;
     pub mod health;
 }
 
-use crate::api::database::Database;
-use api::health::health;
-use rocket::http::Status;
-use rocket::response::Redirect;
-use rocket::{build, catch, catchers, get, launch, routes, Build, Config, Rocket};
+pub mod constants;
+pub mod errors;
+
+use api::{database::Database, health::health};
+use constants::{ROCKET_PORT, SURREALDB_PASSWORD, SURREALDB_URL, SURREALDB_USERNAME};
+use errors::{err_400, err_401, err_403, err_404, err_405, err_500, err_503};
+use rocket::{
+    build, catchers, get, http::Status, launch, response::Redirect, routes, Build, Config, Rocket,
+};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use surrealdb::engine::remote::ws::Ws;
-use surrealdb::opt::auth::Root;
-use surrealdb::Surreal;
-
-/// Rocket connection Port
-const ROCKET_PORT: u16 = 8080;
-
-/// SurrealDB connection URL
-const SURREALDB_URL: &str = "localhost:8000";
-
-/// SurrealDB username for authentication
-const SURREALDB_USERNAME: &str = "root";
-
-/// SurrealDB password for authentication
-const SURREALDB_PASSWORD: &str = "root";
-
-/// Redirects to the 404 page.
-///
-/// # Returns
-/// A redirect to the 404 page.
-#[catch(404)]
-fn not_found() -> Redirect {
-    Redirect::to("https://xodium.org/404")
-}
+use surrealdb::{engine::remote::ws::Ws, opt::auth::Root, Surreal};
 
 /// Redirects to the main page.
 ///
@@ -95,5 +77,8 @@ async fn rocket() -> Rocket<Build> {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .register("/", catchers![not_found])
+        .register(
+            "/",
+            catchers![err_400, err_401, err_403, err_404, err_405, err_500, err_503],
+        )
 }

@@ -10,7 +10,7 @@
     {
       "label": "check-api-health",
       "type": "shell",
-      "command": "curl -s http://localhost:8080/api/health",
+      "command": "curl -H \"X-API-Key: xBIM-api-key-2025\" http://localhost:8080/api/health",
       "presentation": { "reveal": "always", "panel": "shared" }
     },
     {

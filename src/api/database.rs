@@ -6,9 +6,7 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::sql::Uuid;
-use surrealdb::Surreal;
+use surrealdb::{engine::remote::ws::Client, sql::Uuid, Surreal};
 
 /// Represents the database operations.
 pub struct Database {

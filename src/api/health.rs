@@ -3,19 +3,31 @@
 + All rights reserved.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use rocket::{get, serde::json::Json};
-use std::collections::HashMap;
+use serde::Serialize;
+
+use super::auth::Auth;
+
+#[derive(Serialize)]
+pub struct Response {
+    status: &'static str,
+    version: &'static str,
+    timestamp: DateTime<Utc>,
+}
 
 /// Health check endpoint to confirm the service is running.
+///
+/// # Arguments
+/// * `_auth` - The authentication guard for the request.
 ///
 /// # Returns
 /// A JSON response with the status, version, and timestamp.
 #[get("/health")]
-pub fn health() -> Json<HashMap<String, String>> {
-    Json(HashMap::from([
-        ("status".to_string(), "ok".to_string()),
-        ("version".to_string(), env!("CARGO_PKG_VERSION").to_string()),
-        ("timestamp".to_string(), Utc::now().to_rfc3339()),
-    ]))
+pub fn health(_auth: Auth) -> Json<Response> {
+    Json(Response {
+        status: "ok",
+        version: env!("CARGO_PKG_VERSION"),
+        timestamp: Utc::now(),
+    })
 }
