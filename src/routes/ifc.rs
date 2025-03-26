@@ -7,9 +7,8 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::{get, post, State};
 
-use crate::database::Database;
+use crate::database::{Database, StoredIfcModel};
 use crate::middlewares::auth::Auth;
-use crate::schemas::ifc::{IfcModel, IfcModelUpload};
 
 /// Upload a new IFC model to the database.
 ///
@@ -24,9 +23,9 @@ use crate::schemas::ifc::{IfcModel, IfcModelUpload};
 pub async fn upload_ifc_model(
     db: &State<Database>,
     _auth: Auth,
-    model: Json<IfcModelUpload>,
-) -> Result<Json<IfcModel>, Status> {
-    match db.save_ifc_model(model.into_inner()).await {
+    model: Json<StoredIfcModel>,
+) -> Result<Json<StoredIfcModel>, Status> {
+    match db.save_ifc_model(model.into_inner().into()).await {
         Ok(saved_model) => Ok(Json(saved_model)),
         Err(_) => Err(Status::InternalServerError),
     }
@@ -46,29 +45,9 @@ pub async fn get_ifc_model(
     db: &State<Database>,
     _auth: Auth,
     id: String,
-) -> Result<Json<IfcModel>, Status> {
-    match db.get_ifc_model(&id).await {
-        Ok(Some(model)) => Ok(Json(model)),
-        Ok(None) => Err(Status::NotFound),
-        Err(_) => Err(Status::InternalServerError),
-    }
-}
-
-/// List all IFC models.
-///
-/// # Arguments
-/// * `db` - The database instance.
-/// * `_auth` - Authentication guard.
-///
-/// # Returns
-/// A list of all IFC models.
-#[get("/ifc")]
-pub async fn list_ifc_models(
-    db: &State<Database>,
-    _auth: Auth,
-) -> Result<Json<Vec<IfcModel>>, Status> {
-    match db.list_ifc_models().await {
-        Ok(models) => Ok(Json(models)),
-        Err(_) => Err(Status::InternalServerError),
+) -> Result<Json<StoredIfcModel>, Status> {
+    match db.get_ifc_model(id).await {
+        Ok(model) => Ok(Json(model)),
+        Err(_) => Err(Status::NotFound),
     }
 }

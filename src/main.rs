@@ -29,7 +29,7 @@ use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{
     flutter_service_worker::flutter_service_worker,
     health::health,
-    ifc::{get_ifc_model, list_ifc_models, upload_ifc_model},
+    ifc::{get_ifc_model, upload_ifc_model},
     index::index,
 };
 
@@ -52,8 +52,7 @@ async fn rocket() -> Rocket<Build> {
                 flutter_service_worker,
                 index,
                 upload_ifc_model,
-                get_ifc_model,
-                list_ifc_models
+                get_ifc_model
             ],
         )
         .attach(

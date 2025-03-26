@@ -63,17 +63,6 @@ impl Database {
         }
     }
 
-    /// Runs a query on the database.
-    ///
-    /// # Arguments
-    /// * `query` - A string slice that holds the query to be executed.
-    ///
-    /// # Returns
-    /// A `Result` which is `Ok` if the query was successful, or an error if it failed.
-    async fn run_query(&self, query: &str) -> surrealdb::Result<()> {
-        self.client.query(query).await.map(|_| ())
-    }
-
     /// Saves an IFC model to the database.
     ///
     /// # Arguments
@@ -101,6 +90,25 @@ impl Database {
             .ok_or_else(|| {
                 Error::Api(Api::ParseError(String::from(
                     "Failed to retrieve created IFC model",
+                )))
+            })
+    }
+
+    /// Retrieves an IFC model from the database by its ID.
+    ///
+    /// # Arguments
+    /// * `id` - The ID of the IFC model to retrieve.
+    ///
+    /// # Returns
+    /// A `Result` containing the retrieved IFC model, or an error if not found.
+    pub async fn get_ifc_model(&self, id: String) -> surrealdb::Result<StoredIfcModel> {
+        self.client
+            .select(("ifc_models", id))
+            .await?
+            .take(0)
+            .ok_or_else(|| {
+                Error::Api(Api::ParseError(String::from(
+                    "Failed to retrieve IFC model",
                 )))
             })
     }
