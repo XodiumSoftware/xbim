@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 use rocket::{get, serde::json::Json};
 use serde::Serialize;
 
-use super::auth::Auth;
+use crate::middleware::auth::Auth;
 
 #[derive(Serialize)]
 pub struct Response {

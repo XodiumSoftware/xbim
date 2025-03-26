@@ -6,7 +6,14 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use surrealdb::{engine::remote::ws::Client, sql::Uuid, Surreal};
+use surrealdb::{
+    engine::remote::ws::{Client, Ws},
+    opt::auth::Root,
+    sql::Uuid,
+    Surreal,
+};
+
+use crate::constants::{SURREALDB_PASSWORD, SURREALDB_URL, SURREALDB_USERNAME};
 
 /// Represents the database operations.
 pub struct Database {
@@ -17,13 +24,22 @@ pub struct Database {
 impl Database {
     /// Creates a new `Database` instance.
     ///
-    /// # Arguments
-    /// * `client` - A `Surreal<Client>` instance for database operations.
-    /// * `session_token` - A `Uuid` instance for the session token.
-    ///
     /// # Returns
     /// A new `Database` instance.
-    pub fn new(client: Surreal<Client>) -> Self {
+    pub async fn new() -> Self {
+        let client = Surreal::new::<Ws>(SURREALDB_URL).await.expect(&format!(
+            "Failed to connect to SurrealDB at {}",
+            SURREALDB_URL
+        ));
+
+        client
+            .signin(Root {
+                username: SURREALDB_USERNAME,
+                password: SURREALDB_PASSWORD,
+            })
+            .await
+            .expect("Failed to sign in to SurrealDB");
+
         Self {
             client,
             session_token: Uuid::new(),

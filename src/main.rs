@@ -7,22 +7,25 @@
 #![forbid(unsafe_code)]
 
 pub mod api {
-    pub mod auth;
-    pub mod database;
     pub mod health;
 }
 
+pub mod middleware {
+    pub mod auth;
+}
+
 pub mod constants;
+pub mod database;
 pub mod errors;
 
-use api::{database::Database, health::health};
-use constants::{ROCKET_PORT, SURREALDB_PASSWORD, SURREALDB_URL, SURREALDB_USERNAME};
+use api::health::health;
+use constants::ROCKET_PORT;
+use database::Database;
 use errors::{err_400, err_401, err_403, err_404, err_405, err_500, err_503};
 use rocket::{
     build, catchers, get, http::Status, launch, response::Redirect, routes, Build, Config, Rocket,
 };
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use surrealdb::{engine::remote::ws::Ws, opt::auth::Root, Surreal};
 
 /// Redirects to the main page.
 ///
@@ -51,24 +54,12 @@ fn flutter_service_worker(_v: Option<String>) -> Status {
 /// A Rocket instance.
 #[launch]
 async fn rocket() -> Rocket<Build> {
-    let db = Surreal::new::<Ws>(SURREALDB_URL).await.expect(&format!(
-        "Failed to connect to SurrealDB at {}",
-        SURREALDB_URL
-    ));
-
-    db.signin(Root {
-        username: SURREALDB_USERNAME,
-        password: SURREALDB_PASSWORD,
-    })
-    .await
-    .expect("Failed to sign in to SurrealDB");
-
     build()
         .configure(Config {
             port: ROCKET_PORT,
             ..Config::debug_default()
         })
-        .manage(Database::new(db))
+        .manage(Database::new().await)
         .mount("/", routes![index, flutter_service_worker])
         .mount("/api", routes![health])
         .attach(
