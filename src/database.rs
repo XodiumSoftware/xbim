@@ -105,7 +105,7 @@ impl Database {
         self.client
             .select(("ifc_models", id))
             .await?
-            .take(0)
+            .take()
             .ok_or_else(|| {
                 Error::Api(Api::ParseError(String::from(
                     "Failed to retrieve IFC model",
