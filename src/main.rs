@@ -13,11 +13,12 @@ pub mod middlewares {
 pub mod routes {
     pub mod flutter_service_worker;
     pub mod health;
+    pub mod ifc;
     pub mod index;
 }
 
 pub mod schemas {
-    pub mod bim;
+    pub mod ifc;
 }
 
 pub mod constants;
@@ -29,7 +30,12 @@ use database::Database;
 use errors::catchers;
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use routes::{flutter_service_worker::flutter_service_worker, health::health, index::index};
+use routes::{
+    flutter_service_worker::flutter_service_worker,
+    health::health,
+    ifc::{get_ifc_model, list_ifc_models, upload_ifc_model},
+    index::index,
+};
 
 /// Launches the Rocket application.
 ///
@@ -43,7 +49,17 @@ async fn rocket() -> Rocket<Build> {
             ..Config::debug_default()
         })
         .manage(Database::new().await)
-        .mount("/api", routes![health, flutter_service_worker, index])
+        .mount(
+            "/api",
+            routes![
+                health,
+                flutter_service_worker,
+                index,
+                upload_ifc_model,
+                get_ifc_model,
+                list_ifc_models
+            ],
+        )
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
