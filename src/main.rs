@@ -73,12 +73,14 @@ async fn rocket() -> Rocket<Build> {
         "Failed to connect to SurrealDB at {}",
         SURREALDB_URL
     ));
+
     db.signin(Root {
         username: SURREALDB_USERNAME,
         password: SURREALDB_PASSWORD,
     })
     .await
     .expect("Failed to sign in to SurrealDB");
+
     build()
         .configure(Config {
             port: ROCKET_PORT,
