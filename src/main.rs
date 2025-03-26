@@ -39,13 +39,12 @@ async fn rocket() -> Rocket<Build> {
             ..Config::debug_default()
         })
         .manage(Database::new().await)
-        .mount("/", routes![index, flutter_service_worker])
-        .mount("api", routes![health])
+        .mount("/api", routes![health, flutter_service_worker, index])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .register("/", catchers())
+        .register("/api", catchers())
 }
