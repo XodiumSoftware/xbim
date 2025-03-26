@@ -17,10 +17,6 @@ pub mod routes {
     pub mod index;
 }
 
-pub mod schemas {
-    pub mod ifc;
-}
-
 pub mod constants;
 pub mod database;
 pub mod errors;
