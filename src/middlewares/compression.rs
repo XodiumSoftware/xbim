@@ -10,6 +10,7 @@ use rocket::{
     async_trait,
     fairing::{Fairing, Info, Kind},
     http::Header,
+    tokio::io::AsyncReadExt,
     Request, Response,
 };
 
