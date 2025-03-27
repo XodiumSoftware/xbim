@@ -20,32 +20,30 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             server_port: 8080,
-            database_url: "localhost:8000".to_string(),
-            database_username: "".to_string(),
-            database_password: "".to_string(),
-            api_key: "".to_string(),
+            database_url: String::new(),
+            database_username: String::new(),
+            database_password: String::new(),
+            api_key: String::new(),
         }
     }
 }
 
 impl Config {
-    /// Initializes the configuration from a file.
     pub fn init() -> Result<Self, Box<dyn error::Error>> {
-        let exe_path = env::current_exe()?;
-        let exe_dir = exe_path
+        let config_path = env::current_exe()?
             .parent()
-            .ok_or("Failed to get executable directory")?;
-        let config_path = exe_dir.join("config.toml");
+            .ok_or("Failed to get executable directory")?
+            .join("config.toml");
 
         match fs::read_to_string(&config_path) {
             Ok(content) => Ok(toml::from_str(&content)?),
             Err(e) if e.kind() == io::ErrorKind::NotFound => {
-                let default_config = Self::default();
-                fs::write(&config_path, toml::to_string_pretty(&default_config)?)?;
+                let config = Self::default();
+                fs::write(&config_path, toml::to_string_pretty(&config)?)?;
                 println!("Created new config file at: {}", config_path.display());
-                Ok(default_config)
+                Ok(config)
             }
-            Err(e) => Err(Box::new(e)),
+            Err(e) => Err(e.into()),
         }
     }
 }
