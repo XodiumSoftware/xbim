@@ -53,7 +53,9 @@ mod tests {
     fn test_valid_api_key() {
         let config = Config::default();
         let api_key = config.api_key.clone();
-        let rocket = rocket::build().mount("/", routes![protected]);
+        let rocket = rocket::build()
+            .manage(config)
+            .mount("/", routes![protected]);
         let client = Client::tracked(rocket).expect("valid rocket instance");
         let response = client
             .get("/protected")
@@ -66,7 +68,10 @@ mod tests {
 
     #[test]
     fn test_invalid_api_key() {
-        let rocket = rocket::build().mount("/", routes![protected]);
+        let config = Config::default();
+        let rocket = rocket::build()
+            .manage(config)
+            .mount("/", routes![protected]);
         let client = Client::tracked(rocket).expect("valid rocket instance");
         let response = client
             .get("/protected")
