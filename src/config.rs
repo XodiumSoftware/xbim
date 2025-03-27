@@ -20,7 +20,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             server_port: 8001,
-            database_url: "localhost:8000".to_string(),
+            database_url: "db.xodium.org".to_string(),
             database_username: String::new(),
             database_password: String::new(),
             api_key: String::new(),
