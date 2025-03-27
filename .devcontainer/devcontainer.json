@@ -26,6 +26,5 @@
     }
   },
   "onCreateCommand": "sudo apt update -y && sudo apt install -y clang",
-  "postStartCommand": "start-surrealdb",
   "shutdownAction": "stopContainer"
 }
