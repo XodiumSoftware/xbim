@@ -54,3 +54,39 @@ impl Fairing for Logger {
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rocket::{get, http::Status, local::blocking::Client, routes, Build, Rocket};
+
+    #[get("/test")]
+    fn test_endpoint() -> &'static str {
+        "Test successful"
+    }
+
+    fn rocket() -> Rocket<Build> {
+        rocket::build()
+            .attach(Logger)
+            .mount("/", routes![test_endpoint])
+    }
+
+    #[test]
+    fn test_logger_fairing_doesnt_interfere_with_requests() {
+        let client = Client::tracked(rocket()).expect("valid rocket instance");
+        let response = client.get("/test").dispatch();
+
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(response.into_string().unwrap(), "Test successful");
+    }
+
+    #[test]
+    fn test_logger_info() {
+        let logger = Logger;
+        let info = logger.info();
+
+        assert_eq!(info.name, "Request Logger");
+        assert!(info.kind.is(Kind::Request));
+        assert!(info.kind.is(Kind::Response));
+    }
+}

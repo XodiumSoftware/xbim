@@ -33,3 +33,41 @@ impl<'r> FromRequest<'r> for Authenticator {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rocket::http::Header;
+    use rocket::local::blocking::Client;
+    use rocket::{get, routes};
+
+    #[get("/protected")]
+    fn protected(_auth: Authenticator) -> &'static str {
+        "Protected content"
+    }
+
+    #[test]
+    fn test_valid_api_key() {
+        let rocket = rocket::build().mount("/", routes![protected]);
+        let client = Client::tracked(rocket).expect("valid rocket instance");
+        let response = client
+            .get("/protected")
+            .header(Header::new("X-API-Key", crate::constants::API_KEY))
+            .dispatch();
+
+        assert_eq!(response.status(), rocket::http::Status::Ok);
+        assert_eq!(response.into_string().unwrap(), "Protected content");
+    }
+
+    #[test]
+    fn test_invalid_api_key() {
+        let rocket = rocket::build().mount("/", routes![protected]);
+        let client = Client::tracked(rocket).expect("valid rocket instance");
+        let response = client
+            .get("/protected")
+            .header(Header::new("X-API-Key", "invalid-key"))
+            .dispatch();
+
+        assert_eq!(response.status(), rocket::http::Status::Unauthorized);
+    }
+}
