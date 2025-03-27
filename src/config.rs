@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::{env, error, fs, io};
 
 /// Configuration settings for the application.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub server_port: u16,
     pub database_url: String,

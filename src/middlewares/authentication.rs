@@ -11,7 +11,7 @@ use rocket::{
     Request,
 };
 
-/// Authentication guard for protected routes middleware
+/// Authentication Guard
 pub struct Authenticator;
 
 #[async_trait]

@@ -50,6 +50,7 @@ async fn rocket() -> Rocket<Build> {
             port: config.server_port,
             ..Config::debug_default()
         })
+        .manage(config.clone())
         .manage(Database::new(&config).await)
         .mount("/", routes![health, upload_ifc_model, get_ifc_model])
         .attach(
