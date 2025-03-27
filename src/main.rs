@@ -50,7 +50,7 @@ async fn rocket() -> Rocket<Build> {
             ..Config::debug_default()
         })
         .manage(Database::new(&config).await)
-        .mount("/api", routes![health, upload_ifc_model, get_ifc_model])
+        .mount("/", routes![health, upload_ifc_model, get_ifc_model])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
@@ -59,5 +59,5 @@ async fn rocket() -> Rocket<Build> {
         )
         .attach(Compressor)
         .attach(Logger)
-        .register("/api", catchers())
+        .register("/", catchers())
 }
