@@ -21,9 +21,9 @@ impl Default for Config {
         Self {
             server_port: 8080,
             database_url: "localhost:8000".to_string(),
-            database_username: "root".to_string(),
-            database_password: "root".to_string(),
-            api_key: "xBIM-api-key-2025".to_string(),
+            database_username: "".to_string(),
+            database_password: "".to_string(),
+            api_key: "".to_string(),
         }
     }
 }
