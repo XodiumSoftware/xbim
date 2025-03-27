@@ -4,7 +4,7 @@
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 use serde::{Deserialize, Serialize};
-use std::{fs, io::ErrorKind, path::Path};
+use std::{env, error, fs, io};
 
 /// Configuration settings for the application.
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,9 +16,8 @@ pub struct Config {
     pub api_key: String,
 }
 
-impl Config {
-    /// Returns a new instance of the configuration with default values.
-    pub fn default() -> Self {
+impl Default for Config {
+    fn default() -> Self {
         Self {
             server_port: 8080,
             database_url: "localhost:8000".to_string(),
@@ -27,39 +26,26 @@ impl Config {
             api_key: "xBIM-api-key-2025".to_string(),
         }
     }
+}
 
-    /// Returns the path to the configuration file.
-    pub fn get_config_path() -> std::path::PathBuf {
-        match dirs::config_dir() {
-            Some(config_dir) => config_dir.join("xbim").join("config.toml"),
-            None => Path::new("config.toml").to_path_buf(),
-        }
-    }
-
-    /// Initializes the configuration by reading from the configuration file.
-    pub fn init() -> Result<Self, Box<dyn std::error::Error>> {
-        let config_path = Self::get_config_path();
-        if let Some(parent) = config_path.parent() {
-            if !parent.exists() {
-                fs::create_dir_all(parent)?;
-            }
-        }
+impl Config {
+    /// Initializes the configuration from a file.
+    pub fn init() -> Result<Self, Box<dyn error::Error>> {
+        let exe_path = env::current_exe()?;
+        let exe_dir = exe_path
+            .parent()
+            .ok_or("Failed to get executable directory")?;
+        let config_path = exe_dir.join("config.toml");
 
         match fs::read_to_string(&config_path) {
             Ok(content) => Ok(toml::from_str(&content)?),
-            Err(e) if e.kind() == ErrorKind::NotFound => {
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {
                 let default_config = Self::default();
-                fs::write(config_path, toml::to_string_pretty(&default_config)?)?;
-                println!("Created new config file with default settings");
+                fs::write(&config_path, toml::to_string_pretty(&default_config)?)?;
+                println!("Created new config file at: {}", config_path.display());
                 Ok(default_config)
             }
             Err(e) => Err(Box::new(e)),
         }
-    }
-
-    /// Saves the configuration to the configuration file.
-    pub fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
-        fs::write(Self::get_config_path(), toml::to_string_pretty(self)?)?;
-        Ok(())
     }
 }
