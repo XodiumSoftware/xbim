@@ -8,7 +8,7 @@ use rocket::serde::json::Json;
 use rocket::{get, post, State};
 
 use crate::database::{Database, StoredIfcModel};
-use crate::middlewares::auth::Auth;
+use crate::middlewares::auth::Authenticator;
 
 /// Upload a new IFC model to the database.
 ///
@@ -22,7 +22,7 @@ use crate::middlewares::auth::Auth;
 #[post("/ifc", data = "<model>")]
 pub async fn upload_ifc_model(
     db: &State<Database>,
-    _auth: Auth,
+    _auth: Authenticator,
     model: Json<StoredIfcModel>,
 ) -> Result<Json<StoredIfcModel>, Status> {
     match db.save_ifc_model(model.into_inner().into()).await {
@@ -43,7 +43,7 @@ pub async fn upload_ifc_model(
 #[get("/ifc/<id>")]
 pub async fn get_ifc_model(
     db: &State<Database>,
-    _auth: Auth,
+    _auth: Authenticator,
     id: String,
 ) -> Result<Json<StoredIfcModel>, Status> {
     match db.get_ifc_model(id).await {

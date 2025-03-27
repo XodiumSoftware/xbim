@@ -10,10 +10,12 @@ use rocket::{
     Data, Request, Response,
 };
 
-pub struct RequestLogger;
+/// Request and response logging middleware
+pub struct Logger;
 
 #[async_trait]
-impl Fairing for RequestLogger {
+impl Fairing for Logger {
+    /// Returns the name and kind of the middleware
     fn info(&self) -> Info {
         Info {
             name: "Request Logger",
@@ -21,6 +23,11 @@ impl Fairing for RequestLogger {
         }
     }
 
+    /// Logs incoming requests
+    ///
+    /// # Arguments
+    /// * `req` - The incoming request
+    /// * `_data` - The request data
     async fn on_request(&self, req: &mut Request<'_>, _data: &mut Data<'_>) {
         println!(
             "{} - Incoming request: {} {} from {}",
@@ -32,6 +39,11 @@ impl Fairing for RequestLogger {
         );
     }
 
+    /// Logs outgoing responses
+    ///
+    /// # Arguments
+    /// * `req` - The incoming request
+    /// * `res` - The outgoing response
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
         println!(
             "{} - Outgoing response: {} {} - Status: {}",

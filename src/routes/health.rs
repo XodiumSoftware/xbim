@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 use rocket::{get, serde::json::Json};
 use serde::Serialize;
 
-use crate::middlewares::auth::Auth;
+use crate::middlewares::auth::Authenticator;
 
 #[derive(Serialize)]
 pub struct Response {
@@ -24,7 +24,7 @@ pub struct Response {
 /// # Returns
 /// A JSON response with the status, version, and timestamp.
 #[get("/health")]
-pub fn health(_auth: Auth) -> Json<Response> {
+pub fn health(_auth: Authenticator) -> Json<Response> {
     Json(Response {
         status: "ok",
         version: env!("CARGO_PKG_VERSION"),
