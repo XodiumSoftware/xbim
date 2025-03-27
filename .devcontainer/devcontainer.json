@@ -18,6 +18,7 @@
         "gruntfuggly.todo-tree",
         "jock.svg",
         "pkief.material-icon-theme",
+        "swellaby.vscode-rust-test-adapter",
         "tamasfe.even-better-toml",
         "usernamehw.errorlens",
         "vsls-contrib.gistfs"
