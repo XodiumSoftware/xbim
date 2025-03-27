@@ -18,13 +18,6 @@ pub struct Authenticator;
 impl<'r> FromRequest<'r> for Authenticator {
     type Error = ();
 
-    /// Validates the API key in the request header
-    ///
-    /// # Arguments
-    /// * `request` - The request to validate
-    ///
-    /// # Returns
-    /// An `Outcome` with `ApiAuth` if the API key is valid, or an error if it is not
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let config = request
             .rocket()

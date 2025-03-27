@@ -15,7 +15,6 @@ pub struct Logger;
 
 #[async_trait]
 impl Fairing for Logger {
-    /// Returns the name and kind of the middleware
     fn info(&self) -> Info {
         Info {
             name: "Request Logger",
@@ -23,11 +22,6 @@ impl Fairing for Logger {
         }
     }
 
-    /// Logs incoming requests
-    ///
-    /// # Arguments
-    /// * `req` - The incoming request
-    /// * `_data` - The request data
     async fn on_request(&self, req: &mut Request<'_>, _data: &mut Data<'_>) {
         println!(
             "{} - Incoming request: {} {} from {}",
@@ -39,11 +33,6 @@ impl Fairing for Logger {
         );
     }
 
-    /// Logs outgoing responses
-    ///
-    /// # Arguments
-    /// * `req` - The incoming request
-    /// * `res` - The outgoing response
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
         println!(
             "{} - Outgoing response: {} {} - Status: {}",

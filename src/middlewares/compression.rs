@@ -18,7 +18,6 @@ pub struct Compressor;
 
 #[async_trait]
 impl Fairing for Compressor {
-    /// Returns the name and kind of the middleware
     fn info(&self) -> Info {
         Info {
             name: "Response Compression",
@@ -26,11 +25,6 @@ impl Fairing for Compressor {
         }
     }
 
-    /// Compresses the response body with Gzip
-    ///
-    /// # Arguments
-    /// * `req` - The incoming request
-    /// * `res` - The outgoing response
     async fn on_response<'r>(&self, _: &'r Request<'_>, res: &mut Response<'r>) {
         if !res.headers().contains("Content-Encoding") {
             let mut body = res.body_mut().take();
