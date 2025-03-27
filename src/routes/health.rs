@@ -3,11 +3,10 @@
 + All rights reserved.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
+use crate::middlewares::authentication::Authenticator;
 use chrono::{DateTime, Utc};
 use rocket::{get, serde::json::Json};
 use serde::Serialize;
-
-use crate::middlewares::authentication::Authenticator;
 
 #[derive(Serialize)]
 pub struct Response {

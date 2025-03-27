@@ -6,10 +6,10 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use std::collections::HashMap;
-
+use crate::config::Config;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
     error::Api,
@@ -17,8 +17,6 @@ use surrealdb::{
     sql::Uuid,
     Error, Surreal,
 };
-
-use crate::constants::{SURREALDB_PASSWORD, SURREALDB_URL, SURREALDB_USERNAME};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StoredIfcModel {
@@ -41,18 +39,23 @@ pub struct Database {
 impl Database {
     /// Creates a new `Database` instance.
     ///
+    /// # Arguments
+    /// * `config` - The application configuration.
+    ///
     /// # Returns
     /// A new `Database` instance.
-    pub async fn new() -> Self {
-        let client = Surreal::new::<Ws>(SURREALDB_URL).await.expect(&format!(
-            "Failed to connect to SurrealDB at {}",
-            SURREALDB_URL
-        ));
+    pub async fn new(config: &Config) -> Self {
+        let client = Surreal::new::<Ws>(&config.database_url)
+            .await
+            .expect(&format!(
+                "Failed to connect to SurrealDB at {}",
+                config.database_url
+            ));
 
         client
             .signin(Root {
-                username: SURREALDB_USERNAME,
-                password: SURREALDB_PASSWORD,
+                username: &config.database_username,
+                password: &config.database_password,
             })
             .await
             .expect("Failed to sign in to SurrealDB");

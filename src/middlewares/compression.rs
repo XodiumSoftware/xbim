@@ -3,8 +3,6 @@
 + All rights reserved.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-use std::io::{copy, Cursor};
-
 use flate2::{write::GzEncoder, Compression};
 use rocket::{
     async_trait,
@@ -13,6 +11,7 @@ use rocket::{
     tokio::io::AsyncReadExt,
     Request, Response,
 };
+use std::io::{copy, Cursor};
 
 /// Response compression middleware
 pub struct Compressor;

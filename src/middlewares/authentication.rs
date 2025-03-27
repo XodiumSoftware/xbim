@@ -3,14 +3,13 @@
 + All rights reserved.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
+use crate::config::Config;
 use rocket::{
     async_trait,
     http::Status,
     request::{FromRequest, Outcome},
     Request,
 };
-
-use crate::constants::API_KEY;
 
 /// Authentication guard for protected routes middleware
 pub struct Authenticator;
@@ -27,8 +26,12 @@ impl<'r> FromRequest<'r> for Authenticator {
     /// # Returns
     /// An `Outcome` with `ApiAuth` if the API key is valid, or an error if it is not
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        let config = request
+            .rocket()
+            .state::<Config>()
+            .expect("Config not found in Rocket state");
         match request.headers().get_one("X-API-Key") {
-            Some(key) if key == API_KEY => Outcome::Success(Authenticator),
+            Some(key) if key == config.api_key => Outcome::Success(Authenticator),
             _ => Outcome::Error((Status::Unauthorized, ())),
         }
     }
@@ -48,11 +51,13 @@ mod tests {
 
     #[test]
     fn test_valid_api_key() {
+        let config = Config::default();
+        let api_key = config.api_key.clone();
         let rocket = rocket::build().mount("/", routes![protected]);
         let client = Client::tracked(rocket).expect("valid rocket instance");
         let response = client
             .get("/protected")
-            .header(Header::new("X-API-Key", crate::constants::API_KEY))
+            .header(Header::new("X-API-Key", api_key))
             .dispatch();
 
         assert_eq!(response.status(), rocket::http::Status::Ok);

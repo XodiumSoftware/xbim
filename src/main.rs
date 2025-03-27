@@ -17,11 +17,10 @@ pub mod routes {
     pub mod ifc;
 }
 
-pub mod constants;
+pub mod config;
 pub mod database;
 pub mod errors;
 
-use constants::ROCKET_PORT;
 use database::Database;
 use errors::catchers;
 use middlewares::{compression::Compressor, logging::Logger};
@@ -38,12 +37,19 @@ use routes::{
 /// A Rocket instance.
 #[launch]
 async fn rocket() -> Rocket<Build> {
+    let config = match config::Config::init() {
+        Ok(cfg) => cfg,
+        Err(e) => {
+            eprintln!("Failed to load configuration: {}", e);
+            std::process::exit(1);
+        }
+    };
     build()
         .configure(Config {
-            port: ROCKET_PORT,
+            port: config.server_port,
             ..Config::debug_default()
         })
-        .manage(Database::new().await)
+        .manage(Database::new(&config).await)
         .mount("/api", routes![health, upload_ifc_model, get_ifc_model])
         .attach(
             CorsOptions::default()
