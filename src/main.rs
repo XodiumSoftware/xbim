@@ -7,7 +7,7 @@
 #![forbid(unsafe_code)]
 
 pub mod middlewares {
-    pub mod auth;
+    pub mod authentication;
     pub mod compression;
     pub mod logging;
 }

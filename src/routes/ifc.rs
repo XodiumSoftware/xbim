@@ -8,7 +8,7 @@ use rocket::serde::json::Json;
 use rocket::{get, post, State};
 
 use crate::database::{Database, StoredIfcModel};
-use crate::middlewares::auth::Authenticator;
+use crate::middlewares::authentication::Authenticator;
 
 /// Upload a new IFC model to the database.
 ///
