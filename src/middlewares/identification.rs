@@ -22,7 +22,7 @@ impl Fairing for Identificator {
     }
 
     async fn on_request(&self, request: &mut Request<'_>, _data: &mut Data<'_>) {
-        request.local_cache(|| Uuid::new_v4().to_string().clone());
+        request.local_cache(|| Uuid::new_v4().to_string());
     }
 
     async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
