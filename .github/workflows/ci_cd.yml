@@ -47,8 +47,30 @@ jobs:
         uses: actions/upload-artifact@main
         with: { name: xbim, path: target/release/xBIM.* }
 
-  release:
+  test:
     needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      {
+        name: "${{ github.ref_name }}",
+        url: "${{ steps.upload_artifact.outputs.artifact-url }}",
+      }
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@main
+
+      - id: setup_rust
+        name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@9399c7bb15d4c7d47b27263d024f0a4978346ba4
+        with: { toolchain: stable }
+
+      - id: run_tests
+        name: Run Tests
+        run: cargo test --all
+
+  release:
+    needs: [build, test]
     runs-on: ubuntu-latest
     environment:
       {
