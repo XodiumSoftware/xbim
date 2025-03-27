@@ -46,3 +46,68 @@ impl<'r> FromRequest<'r> for IdGuard {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rocket::http::Status;
+    use rocket::local::blocking::Client;
+    use rocket::{routes, Build, Rocket};
+
+    fn rocket() -> Rocket<Build> {
+        rocket::build()
+            .attach(Identificator)
+            .mount("/", routes![test_endpoint, guard_endpoint])
+    }
+
+    #[rocket::get("/test")]
+    fn test_endpoint() -> &'static str {
+        "Hello, world!"
+    }
+
+    #[rocket::get("/guard")]
+    fn guard_endpoint(id_guard: IdGuard) -> String {
+        format!("Request ID: {}", id_guard.0)
+    }
+
+    #[test]
+    fn test_request_id_header() {
+        let client = Client::tracked(rocket()).expect("valid rocket instance");
+        let response = client.get("/test").dispatch();
+
+        assert_eq!(response.status(), Status::Ok);
+        assert!(response.headers().get_one("X-Request-ID").is_some());
+
+        let request_id = response.headers().get_one("X-Request-ID").unwrap();
+        assert!(!request_id.is_empty());
+
+        assert_eq!(request_id.len(), 36);
+    }
+
+    #[test]
+    fn test_multiple_requests_different_ids() {
+        let client = Client::tracked(rocket()).expect("valid rocket instance");
+
+        let response1 = client.get("/test").dispatch();
+        let response2 = client.get("/test").dispatch();
+
+        let id1 = response1.headers().get_one("X-Request-ID").unwrap();
+        let id2 = response2.headers().get_one("X-Request-ID").unwrap();
+
+        assert_ne!(id1, id2, "Different requests should have different IDs");
+    }
+
+    #[test]
+    fn test_id_guard() {
+        let client = Client::tracked(rocket()).expect("valid rocket instance");
+        let response = client.get("/guard").dispatch();
+
+        assert_eq!(response.status(), Status::Ok);
+
+        let body = response.into_string().unwrap();
+        assert!(body.starts_with("Request ID: "));
+
+        let request_id = body.strip_prefix("Request ID: ").unwrap();
+        assert_eq!(request_id.len(), 36);
+    }
+}
