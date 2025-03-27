@@ -6,15 +6,30 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-pub mod api {
-    pub mod database;
-    pub mod github;
+pub mod middlewares {
+    pub mod authentication;
+    pub mod compression;
+    pub mod logging;
 }
 
-use crate::api::github::{github_callback, github_login, GitHub};
-use rocket::{build, launch, routes, Build, Rocket};
+pub mod routes {
+    pub mod health;
+    pub mod ifc;
+}
+
+pub mod config;
+pub mod database;
+pub mod errors;
+
+use database::Database;
+use errors::catchers;
+use middlewares::{compression::Compressor, logging::Logger};
+use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use rocket_oauth2::OAuth2;
+use routes::{
+    health::health,
+    ifc::{get_ifc_model, upload_ifc_model},
+};
 
 /// Launches the Rocket application.
 ///
@@ -22,13 +37,27 @@ use rocket_oauth2::OAuth2;
 /// A Rocket instance.
 #[launch]
 async fn rocket() -> Rocket<Build> {
+    let config = match config::Config::init() {
+        Ok(cfg) => cfg,
+        Err(e) => {
+            eprintln!("Failed to load configuration: {}", e);
+            std::process::exit(1);
+        }
+    };
     build()
-        .mount("/", routes![github_login, github_callback])
+        .configure(Config {
+            port: config.server_port,
+            ..Config::debug_default()
+        })
+        .manage(Database::new(&config).await)
+        .mount("/api", routes![health, upload_ifc_model, get_ifc_model])
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .attach(OAuth2::<GitHub>::fairing("github"))
+        .attach(Compressor)
+        .attach(Logger)
+        .register("/api", catchers())
 }
