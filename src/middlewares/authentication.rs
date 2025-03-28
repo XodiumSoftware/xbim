@@ -34,43 +34,49 @@ impl<'r> FromRequest<'r> for RAG {
 mod tests {
     use super::*;
     use rocket::http::Header;
-    use rocket::local::blocking::Client;
-    use rocket::{get, routes};
+    use rocket::local::blocking::{Client, LocalResponse};
+    use rocket::{build, get, routes};
 
     #[get("/protected")]
-    fn protected(_auth: RAG) -> &'static str {
+    fn protected_endpoint(_auth: RAG) -> &'static str {
         "Protected content"
     }
 
-    #[test]
-    fn test_valid_api_key() {
-        let config = Config::default();
-        let api_key = config.api_key.clone();
-        let rocket = rocket::build()
-            .manage(config)
-            .mount("/", routes![protected]);
-        let client = Client::tracked(rocket).expect("valid rocket instance");
-        let response = client
-            .get("/protected")
-            .header(Header::new("X-API-Key", api_key))
-            .dispatch();
+    struct TestContext {
+        client: Client,
+        api_key: String,
+    }
 
-        assert_eq!(response.status(), rocket::http::Status::Ok);
-        assert_eq!(response.into_string().unwrap(), "Protected content");
+    impl TestContext {
+        fn new() -> Self {
+            let config = Config::default();
+            let api_key = config.api_key.clone();
+            let rocket = build()
+                .manage(config)
+                .mount("/", routes![protected_endpoint]);
+            let client = Client::tracked(rocket).expect("valid rocket instance");
+            TestContext { client, api_key }
+        }
+
+        fn request_with_key(&self, key: &str) -> LocalResponse<'_> {
+            self.client
+                .get("/protected")
+                .header(Header::new("X-API-Key", key.to_string()))
+                .dispatch()
+        }
     }
 
     #[test]
-    fn test_invalid_api_key() {
-        let config = Config::default();
-        let rocket = rocket::build()
-            .manage(config)
-            .mount("/", routes![protected]);
-        let client = Client::tracked(rocket).expect("valid rocket instance");
-        let response = client
-            .get("/protected")
-            .header(Header::new("X-API-Key", "invalid-key"))
-            .dispatch();
+    fn test_api_key_authentication() {
+        let ctx = TestContext::new();
 
-        assert_eq!(response.status(), rocket::http::Status::Unauthorized);
+        // Test valid key
+        let valid_response = ctx.request_with_key(&ctx.api_key);
+        assert_eq!(valid_response.status(), Status::Ok);
+        assert_eq!(valid_response.into_string().unwrap(), "Protected content");
+
+        // Test invalid key
+        let invalid_response = ctx.request_with_key("invalid-key");
+        assert_eq!(invalid_response.status(), Status::Unauthorized);
     }
 }

@@ -47,35 +47,49 @@ impl Fairing for RRLM {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rocket::{get, http::Status, local::blocking::Client, routes, Build, Rocket};
+    use rocket::{
+        build, get,
+        http::Status,
+        local::blocking::{Client, LocalResponse},
+        routes,
+    };
 
     #[get("/test")]
     fn test_endpoint() -> &'static str {
         "Test successful"
     }
 
-    fn rocket() -> Rocket<Build> {
-        rocket::build()
-            .attach(RRLM)
-            .mount("/", routes![test_endpoint])
+    struct TestContext {
+        client: Client,
+        logger: RRLM,
+    }
+
+    impl TestContext {
+        fn new() -> Self {
+            let logger = RRLM;
+            let rocket = build().attach(RRLM).mount("/", routes![test_endpoint]);
+            let client = Client::tracked(rocket).expect("valid rocket instance");
+            TestContext { client, logger }
+        }
+
+        fn request<'a>(&'a self, path: &'a str) -> LocalResponse<'a> {
+            self.client.get(path).dispatch()
+        }
     }
 
     #[test]
-    fn test_logger_fairing_doesnt_interfere_with_requests() {
-        let client = Client::tracked(rocket()).expect("valid rocket instance");
-        let response = client.get("/test").dispatch();
+    fn test_logger_functionality() {
+        let ctx = TestContext::new();
 
-        assert_eq!(response.status(), Status::Ok);
-        assert_eq!(response.into_string().unwrap(), "Test successful");
-    }
-
-    #[test]
-    fn test_logger_info() {
-        let logger = RRLM;
-        let info = logger.info();
-
+        // Test logger info
+        let info = ctx.logger.info();
         assert_eq!(info.name, "Request and Response Logging");
         assert!(info.kind.is(Kind::Request));
         assert!(info.kind.is(Kind::Response));
+
+        // Test fairing doesn't interfere with requests
+        let response = ctx.request("/test");
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(response.into_string().unwrap(), "Test successful");
     }
 }

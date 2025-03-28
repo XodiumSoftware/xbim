@@ -74,8 +74,63 @@ impl Fairing for RSHM {
 mod tests {
     use super::*;
     use rocket::http::Status;
-    use rocket::local::asynchronous::Client;
+    use rocket::local::asynchronous::{Client, LocalResponse};
     use rocket::{async_test, build, get, routes};
+
+    #[get("/")]
+    fn index() -> &'static str {
+        "Hello, world!"
+    }
+
+    struct TestContext {
+        client: Client,
+    }
+
+    impl TestContext {
+        async fn new(middleware: RSHM) -> Self {
+            let rocket = build()
+                .attach(middleware.clone())
+                .mount("/", routes![index]);
+            let client = Client::tracked(rocket)
+                .await
+                .expect("valid rocket instance");
+            TestContext { client }
+        }
+
+        async fn default() -> Self {
+            Self::new(RSHM::default()).await
+        }
+
+        async fn custom() -> Self {
+            let custom_middleware = RSHM {
+                content_security_policy: Some("default-src 'self' https://example.com".to_string()),
+                xss_protection: None,
+                content_type_options: Some("nosniff".to_string()),
+                frame_options: Some("SAMEORIGIN".to_string()),
+                referrer_policy: None,
+                strict_transport_security: Some("max-age=63072000".to_string()),
+                permissions_policy: None,
+            };
+            Self::new(custom_middleware).await
+        }
+
+        async fn no_headers() -> Self {
+            let no_headers = RSHM {
+                content_security_policy: None,
+                xss_protection: None,
+                content_type_options: None,
+                frame_options: None,
+                referrer_policy: None,
+                strict_transport_security: None,
+                permissions_policy: None,
+            };
+            Self::new(no_headers).await
+        }
+
+        async fn get<'a>(&'a self, path: &'a str) -> LocalResponse<'a> {
+            self.client.get(path).dispatch().await
+        }
+    }
 
     #[test]
     fn test_fairing_info() {
@@ -85,17 +140,10 @@ mod tests {
         assert!(info.kind.is(Kind::Response));
     }
 
-    #[get("/")]
-    fn index() -> &'static str {
-        "Hello, world!"
-    }
-
     #[async_test]
     async fn test_default_security_headers() {
-        let rocket = build().attach(RSHM::default()).mount("/", routes![index]);
-
-        let client = Client::tracked(rocket).await.unwrap();
-        let response = client.get("/").dispatch().await;
+        let ctx = TestContext::default().await;
+        let response = ctx.get("/").await;
 
         assert_eq!(response.status(), Status::Ok);
 
@@ -123,20 +171,8 @@ mod tests {
 
     #[async_test]
     async fn test_custom_security_headers() {
-        let custom_rshm = RSHM {
-            content_security_policy: Some("default-src 'self' https://example.com".to_string()),
-            xss_protection: None,
-            content_type_options: Some("nosniff".to_string()),
-            frame_options: Some("SAMEORIGIN".to_string()),
-            referrer_policy: None,
-            strict_transport_security: Some("max-age=63072000".to_string()),
-            permissions_policy: None,
-        };
-
-        let rocket = build().attach(custom_rshm).mount("/", routes![index]);
-
-        let client = Client::tracked(rocket).await.unwrap();
-        let response = client.get("/").dispatch().await;
+        let ctx = TestContext::custom().await;
+        let response = ctx.get("/").await;
 
         assert_eq!(response.status(), Status::Ok);
 
@@ -158,20 +194,8 @@ mod tests {
 
     #[async_test]
     async fn test_no_security_headers() {
-        let no_headers_rshm = RSHM {
-            content_security_policy: None,
-            xss_protection: None,
-            content_type_options: None,
-            frame_options: None,
-            referrer_policy: None,
-            strict_transport_security: None,
-            permissions_policy: None,
-        };
-
-        let rocket = build().attach(no_headers_rshm).mount("/", routes![index]);
-
-        let client = Client::tracked(rocket).await.unwrap();
-        let response = client.get("/").dispatch().await;
+        let ctx = TestContext::no_headers().await;
+        let response = ctx.get("/").await;
 
         assert_eq!(response.status(), Status::Ok);
 

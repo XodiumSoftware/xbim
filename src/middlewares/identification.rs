@@ -51,14 +51,8 @@ impl<'r> FromRequest<'r> for RIG {
 mod tests {
     use super::*;
     use rocket::http::Status;
-    use rocket::local::blocking::Client;
-    use rocket::{routes, Build, Rocket};
-
-    fn rocket() -> Rocket<Build> {
-        rocket::build()
-            .attach(RRIM)
-            .mount("/", routes![test_endpoint, guard_endpoint])
-    }
+    use rocket::local::blocking::{Client, LocalResponse};
+    use rocket::{build, routes};
 
     #[rocket::get("/test")]
     fn test_endpoint() -> &'static str {
@@ -70,26 +64,43 @@ mod tests {
         format!("Request ID: {}", id_guard.0)
     }
 
+    struct TestContext {
+        client: Client,
+    }
+
+    impl TestContext {
+        fn new() -> Self {
+            let rocket = build()
+                .attach(RRIM)
+                .mount("/", routes![test_endpoint, guard_endpoint]);
+            let client = Client::tracked(rocket).expect("valid rocket instance");
+            TestContext { client }
+        }
+
+        fn get<'a>(&'a self, path: &'a str) -> LocalResponse<'a> {
+            self.client.get(path).dispatch()
+        }
+    }
+
     #[test]
     fn test_request_id_header() {
-        let client = Client::tracked(rocket()).expect("valid rocket instance");
-        let response = client.get("/test").dispatch();
+        let ctx = TestContext::new();
+        let response = ctx.get("/test");
 
         assert_eq!(response.status(), Status::Ok);
         assert!(response.headers().get_one("X-Request-ID").is_some());
 
         let request_id = response.headers().get_one("X-Request-ID").unwrap();
         assert!(!request_id.is_empty());
-
         assert_eq!(request_id.len(), 36);
     }
 
     #[test]
     fn test_multiple_requests_different_ids() {
-        let client = Client::tracked(rocket()).expect("valid rocket instance");
+        let ctx = TestContext::new();
 
-        let response1 = client.get("/test").dispatch();
-        let response2 = client.get("/test").dispatch();
+        let response1 = ctx.get("/test");
+        let response2 = ctx.get("/test");
 
         let id1 = response1.headers().get_one("X-Request-ID").unwrap();
         let id2 = response2.headers().get_one("X-Request-ID").unwrap();
@@ -99,8 +110,8 @@ mod tests {
 
     #[test]
     fn test_id_guard() {
-        let client = Client::tracked(rocket()).expect("valid rocket instance");
-        let response = client.get("/guard").dispatch();
+        let ctx = TestContext::new();
+        let response = ctx.get("/guard");
 
         assert_eq!(response.status(), Status::Ok);
 
