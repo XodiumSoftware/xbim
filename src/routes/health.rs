@@ -10,8 +10,8 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct Response {
-    status: &'static str,
-    version: &'static str,
+    status: String,
+    version: String,
     timestamp: DateTime<Utc>,
     request_id: String,
 }
@@ -28,8 +28,8 @@ pub struct Response {
 pub fn health(rig: RIG, _rag: RAG) -> Json<Response> {
     println!("Health check requested with request ID: {}", rig.0);
     Json(Response {
-        status: "ok",
-        version: env!("CARGO_PKG_VERSION"),
+        status: "ok".to_string(),
+        version: env!("CARGO_PKG_VERSION").to_string(),
         timestamp: Utc::now(),
         request_id: rig.0,
     })
