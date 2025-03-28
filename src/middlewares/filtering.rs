@@ -9,13 +9,9 @@ use rocket::{
     http::{Method, Status},
     Data, Request, Response,
 };
-use std::collections::HashSet;
-use std::net::IpAddr;
+use std::{collections::HashSet, net::IpAddr};
 
 /// Request IP Filtering Middleware
-///
-/// This middleware controls access to the API based on client IP addresses.
-/// It allows configuration of allowed and denied IP addresses/ranges.
 #[derive(Debug, Clone)]
 pub struct RIFM {
     pub allowed_ips: HashSet<IpAddr>,

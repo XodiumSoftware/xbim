@@ -11,11 +11,11 @@ use rocket::{
     Request,
 };
 
-/// Request Authentication Guard
-pub struct RAG;
+/// Authentication Guard
+pub struct AuthGuard;
 
 #[async_trait]
-impl<'r> FromRequest<'r> for RAG {
+impl<'r> FromRequest<'r> for AuthGuard {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
@@ -24,7 +24,7 @@ impl<'r> FromRequest<'r> for RAG {
             .state::<Config>()
             .expect("Config not found in Rocket state");
         match request.headers().get_one("X-API-Key") {
-            Some(key) if key == config.api_key => Outcome::Success(RAG),
+            Some(key) if key == config.api_key => Outcome::Success(AuthGuard),
             _ => Outcome::Error((Status::Unauthorized, ())),
         }
     }
@@ -38,7 +38,7 @@ mod tests {
     use rocket::{build, get, routes};
 
     #[get("/protected")]
-    fn protected_endpoint(_auth: RAG) -> &'static str {
+    fn protected_endpoint(_auth: AuthGuard) -> &'static str {
         "Protected content"
     }
 

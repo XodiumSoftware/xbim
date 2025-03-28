@@ -6,8 +6,12 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-pub mod middlewares {
+pub mod guards {
     pub mod authentication;
+    pub mod identification;
+}
+
+pub mod middlewares {
     pub mod compression;
     pub mod filtering;
     pub mod identification;

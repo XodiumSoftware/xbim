@@ -3,10 +3,12 @@
 + All rights reserved.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Header;
-use rocket::request::{FromRequest, Outcome};
-use rocket::{async_trait, Data, Request, Response};
+use rocket::{
+    async_trait,
+    fairing::{Fairing, Info, Kind},
+    http::Header,
+    Data, Request, Response,
+};
 use uuid::Uuid;
 
 /// Request and Response Identification Middleware
@@ -33,20 +35,6 @@ impl Fairing for RRIM {
     }
 }
 
-/// Request Identification Guard
-pub struct RIG(pub String);
-
-#[async_trait]
-impl<'r> FromRequest<'r> for RIG {
-    type Error = ();
-
-    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        Outcome::Success(RIG(request
-            .local_cache::<String, _>(|| String::new())
-            .clone()))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -59,20 +47,13 @@ mod tests {
         "Hello, world!"
     }
 
-    #[rocket::get("/guard")]
-    fn guard_endpoint(id_guard: RIG) -> String {
-        format!("Request ID: {}", id_guard.0)
-    }
-
     struct TestContext {
         client: Client,
     }
 
     impl TestContext {
         fn new() -> Self {
-            let rocket = build()
-                .attach(RRIM)
-                .mount("/", routes![test_endpoint, guard_endpoint]);
+            let rocket = build().attach(RRIM).mount("/", routes![test_endpoint]);
             let client = Client::tracked(rocket).expect("valid rocket instance");
             TestContext { client }
         }
@@ -106,19 +87,5 @@ mod tests {
         let id2 = response2.headers().get_one("X-Request-ID").unwrap();
 
         assert_ne!(id1, id2, "Different requests should have different IDs");
-    }
-
-    #[test]
-    fn test_id_guard() {
-        let ctx = TestContext::new();
-        let response = ctx.get("/guard");
-
-        assert_eq!(response.status(), Status::Ok);
-
-        let body = response.into_string().unwrap();
-        assert!(body.starts_with("Request ID: "));
-
-        let request_id = body.strip_prefix("Request ID: ").unwrap();
-        assert_eq!(request_id.len(), 36);
     }
 }
