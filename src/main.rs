@@ -9,6 +9,7 @@
 pub mod middlewares {
     pub mod authentication;
     pub mod compression;
+    pub mod filtering;
     pub mod identification;
     pub mod logging;
     pub mod security;
@@ -25,7 +26,9 @@ pub mod errors;
 
 use database::Database;
 use errors::catchers;
-use middlewares::{compression::RCM, identification::RRIM, logging::RRLM, security::RSHM};
+use middlewares::{
+    compression::RCM, filtering::RIFM, identification::RRIM, logging::RRLM, security::RSHM,
+};
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{
@@ -64,5 +67,6 @@ async fn rocket() -> Rocket<Build> {
         .attach(RRIM)
         .attach(RRLM)
         .attach(RSHM::default())
+        .attach(RIFM::default())
         .register("/", catchers())
 }
