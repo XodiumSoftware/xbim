@@ -10,14 +10,14 @@ use rocket::{
     Data, Request, Response,
 };
 
-/// Request and response logging middleware
-pub struct Logger;
+/// Request and Response Logging Middleware
+pub struct RRLM;
 
 #[async_trait]
-impl Fairing for Logger {
+impl Fairing for RRLM {
     fn info(&self) -> Info {
         Info {
-            name: "Request Logger",
+            name: "Request and Response Logging",
             kind: Kind::Request | Kind::Response,
         }
     }
@@ -56,7 +56,7 @@ mod tests {
 
     fn rocket() -> Rocket<Build> {
         rocket::build()
-            .attach(Logger)
+            .attach(RRLM)
             .mount("/", routes![test_endpoint])
     }
 
@@ -71,10 +71,10 @@ mod tests {
 
     #[test]
     fn test_logger_info() {
-        let logger = Logger;
+        let logger = RRLM;
         let info = logger.info();
 
-        assert_eq!(info.name, "Request Logger");
+        assert_eq!(info.name, "Request and Response Logging");
         assert!(info.kind.is(Kind::Request));
         assert!(info.kind.is(Kind::Response));
     }

@@ -9,11 +9,11 @@ use rocket::request::{FromRequest, Outcome};
 use rocket::{async_trait, Data, Request, Response};
 use uuid::Uuid;
 
-/// Request ID middleware
-pub struct Identificator;
+/// Request and Response Identification Middleware
+pub struct RRIM;
 
 #[async_trait]
-impl Fairing for Identificator {
+impl Fairing for RRIM {
     fn info(&self) -> Info {
         Info {
             name: "Request ID",
@@ -33,17 +33,17 @@ impl Fairing for Identificator {
     }
 }
 
-/// Request ID guard
-pub struct IdGuard(pub String);
+/// Request Identification Guard
+pub struct RIG(pub String);
 
 #[async_trait]
-impl<'r> FromRequest<'r> for IdGuard {
+impl<'r> FromRequest<'r> for RIG {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        Outcome::Success(IdGuard(
-            request.local_cache::<String, _>(|| String::new()).clone(),
-        ))
+        Outcome::Success(RIG(request
+            .local_cache::<String, _>(|| String::new())
+            .clone()))
     }
 }
 
@@ -56,7 +56,7 @@ mod tests {
 
     fn rocket() -> Rocket<Build> {
         rocket::build()
-            .attach(Identificator)
+            .attach(RRIM)
             .mount("/", routes![test_endpoint, guard_endpoint])
     }
 
@@ -66,7 +66,7 @@ mod tests {
     }
 
     #[rocket::get("/guard")]
-    fn guard_endpoint(id_guard: IdGuard) -> String {
+    fn guard_endpoint(id_guard: RIG) -> String {
         format!("Request ID: {}", id_guard.0)
     }
 

@@ -4,8 +4,8 @@
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 use crate::database::{Database, StoredIfcModel};
-use crate::middlewares::authentication::Authenticator;
-use crate::middlewares::identification::IdGuard;
+use crate::middlewares::authentication::RAG;
+use crate::middlewares::identification::RIG;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::{get, post, State};
@@ -14,8 +14,8 @@ use rocket::{get, post, State};
 ///
 /// # Arguments
 /// * `db` - The database instance.
-/// * `request_id` - The request ID guard.
-/// * `_auth` - Authentication guard.
+/// * `rig` - Request Identification Guard.
+/// * `_rag` - Request Authentication Guard.
 /// * `model` - The IFC model to upload.
 ///
 /// # Returns
@@ -23,24 +23,18 @@ use rocket::{get, post, State};
 #[post("/ifc", data = "<model>")]
 pub async fn upload_ifc_model(
     db: &State<Database>,
-    request_id: IdGuard,
-    _auth: Authenticator,
+    rig: RIG,
+    _rag: RAG,
     model: Json<StoredIfcModel>,
 ) -> Result<Json<StoredIfcModel>, Status> {
-    println!("Processing IFC upload with request ID: {}", request_id.0);
+    println!("Processing IFC upload with request ID: {}", rig.0);
     match db.save_ifc_model(model.into_inner().into()).await {
         Ok(saved_model) => {
-            println!(
-                "Successfully saved IFC model with request ID: {}",
-                request_id.0
-            );
+            println!("Successfully saved IFC model with request ID: {}", rig.0);
             Ok(Json(saved_model))
         }
         Err(e) => {
-            println!(
-                "Error saving IFC model with request ID {}: {:?}",
-                request_id.0, e
-            );
+            println!("Error saving IFC model with request ID {}: {:?}", rig.0, e);
             Err(Status::InternalServerError)
         }
     }
@@ -50,8 +44,8 @@ pub async fn upload_ifc_model(
 ///
 /// # Arguments
 /// * `db` - The database instance.
-/// * `request_id` - The request ID guard.
-/// * `_auth` - Authentication guard.
+/// * `rig` - Request Identification Guard.
+/// * `_rag` - Request Authentication Guard.
 /// * `id` - The ID of the IFC model to retrieve.
 ///
 /// # Returns
@@ -59,26 +53,23 @@ pub async fn upload_ifc_model(
 #[get("/ifc/<id>")]
 pub async fn get_ifc_model(
     db: &State<Database>,
-    request_id: IdGuard,
-    _auth: Authenticator,
+    rig: RIG,
+    _rag: RAG,
     id: String,
 ) -> Result<Json<StoredIfcModel>, Status> {
-    println!(
-        "Retrieving IFC model {} with request ID: {}",
-        id, request_id.0
-    );
+    println!("Retrieving IFC model {} with request ID: {}", id, rig.0);
     match db.get_ifc_model(id.clone()).await {
         Ok(model) => {
             println!(
                 "Successfully retrieved IFC model {} with request ID: {}",
-                id, request_id.0
+                id, rig.0
             );
             Ok(Json(model))
         }
         Err(e) => {
             println!(
                 "Error retrieving IFC model {} with request ID {}: {:?}",
-                id, request_id.0, e
+                id, rig.0, e
             );
             Err(Status::NotFound)
         }

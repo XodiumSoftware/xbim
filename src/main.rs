@@ -11,6 +11,7 @@ pub mod middlewares {
     pub mod compression;
     pub mod identification;
     pub mod logging;
+    pub mod security;
 }
 
 pub mod routes {
@@ -24,7 +25,7 @@ pub mod errors;
 
 use database::Database;
 use errors::catchers;
-use middlewares::{compression::Compressor, identification::Identificator, logging::Logger};
+use middlewares::{compression::RCM, identification::RRIM, logging::RRLM, security::RSHM};
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{
@@ -59,8 +60,9 @@ async fn rocket() -> Rocket<Build> {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .attach(Compressor)
-        .attach(Identificator)
-        .attach(Logger)
+        .attach(RCM)
+        .attach(RRIM)
+        .attach(RRLM)
+        .attach(RSHM::default())
         .register("/", catchers())
 }

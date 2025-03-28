@@ -3,7 +3,7 @@
 + All rights reserved.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-use crate::middlewares::{authentication::Authenticator, identification::IdGuard};
+use crate::middlewares::{authentication::RAG, identification::RIG};
 use chrono::{DateTime, Utc};
 use rocket::{get, serde::json::Json};
 use serde::Serialize;
@@ -19,18 +19,18 @@ pub struct Response {
 /// Health check endpoint to confirm the service is running.
 ///
 /// # Arguments
-/// * `request_id` - The request ID guard.
-/// * `_auth` - The authentication guard for the request.
+/// * `rig` - Request Identification Guard.
+/// * `_rag` - Request Authentication Guard.
 ///
 /// # Returns
 /// A JSON response with the status, version, and timestamp.
 #[get("/health")]
-pub fn health(request_id: IdGuard, _auth: Authenticator) -> Json<Response> {
-    println!("Health check requested with request ID: {}", request_id.0);
+pub fn health(rig: RIG, _rag: RAG) -> Json<Response> {
+    println!("Health check requested with request ID: {}", rig.0);
     Json(Response {
         status: "ok",
         version: env!("CARGO_PKG_VERSION"),
         timestamp: Utc::now(),
-        request_id: request_id.0,
+        request_id: rig.0,
     })
 }
