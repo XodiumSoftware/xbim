@@ -21,7 +21,7 @@ impl Fairing for LoggingFairing {
         }
     }
 
-    async fn on_request(&self, req: &mut Request<'_>, _data: &mut Data<'_>) {
+    async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
         println!(
             "{} - Incoming request: {} {} from {}",
             Utc::now(),

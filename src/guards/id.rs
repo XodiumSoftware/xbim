@@ -16,10 +16,8 @@ pub struct IdGuard(pub String);
 impl<'r> FromRequest<'r> for IdGuard {
     type Error = ();
 
-    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        Outcome::Success(IdGuard(
-            request.local_cache::<String, _>(String::new).clone(),
-        ))
+    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        Outcome::Success(IdGuard(req.local_cache::<String, _>(String::new).clone()))
     }
 }
 
@@ -37,8 +35,8 @@ mod tests {
     }
 
     #[rocket::get("/guard")]
-    fn guard_endpoint(id_guard: IdGuard) -> String {
-        format!("Request ID: {}", id_guard.0)
+    fn guard_endpoint(ig: IdGuard) -> String {
+        format!("Request ID: {}", ig.0)
     }
 
     struct TestContext {

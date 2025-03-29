@@ -29,6 +29,7 @@ pub mod config;
 pub mod database;
 pub mod errors;
 
+use crate::fairings::limiting::RateLimitingFairing;
 use database::Database;
 use errors::catchers;
 use fairings::{
@@ -68,6 +69,7 @@ async fn rocket() -> Rocket<Build> {
         )
         .attach(CompressionFairing)
         .attach(IdFairing)
+        .attach(RateLimitingFairing::new(100, 60))
         .attach(LoggingFairing)
         .attach(SecurityHeadersFairing::default())
         .attach(IpFilteringFairing::default())
