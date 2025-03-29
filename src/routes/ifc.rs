@@ -28,7 +28,7 @@ pub async fn upload_ifc_model(
     model: Json<StoredIfcModel>,
 ) -> Result<Json<StoredIfcModel>, Status> {
     println!("Processing IFC upload with request ID: {}", ig.0);
-    match db.save_ifc_model(model.into_inner().into()).await {
+    match db.save_ifc_model(model.into_inner()).await {
         Ok(saved_model) => {
             println!("Successfully saved IFC model with request ID: {}", ig.0);
             Ok(Json(saved_model))

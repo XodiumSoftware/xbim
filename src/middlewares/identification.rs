@@ -30,7 +30,7 @@ impl Fairing for RRIM {
     async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
         response.set_header(Header::new(
             "X-Request-ID",
-            request.local_cache::<String, _>(|| String::new()).clone(),
+            request.local_cache::<String, _>(String::new).clone(),
         ));
     }
 }

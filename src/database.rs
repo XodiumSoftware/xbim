@@ -47,10 +47,9 @@ impl Database {
     pub async fn new(config: &Config) -> Self {
         let client = Surreal::new::<Ws>(&config.database_url)
             .await
-            .expect(&format!(
-                "Failed to connect to SurrealDB at {}",
-                config.database_url
-            ));
+            .unwrap_or_else(|_| {
+                panic!("Failed to connect to SurrealDB at {}", config.database_url)
+            });
 
         client
             .signin(Root {

@@ -18,7 +18,7 @@ impl<'r> FromRequest<'r> for IdGuard {
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         Outcome::Success(IdGuard(
-            request.local_cache::<String, _>(|| String::new()).clone(),
+            request.local_cache::<String, _>(String::new).clone(),
         ))
     }
 }
