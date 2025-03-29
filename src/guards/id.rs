@@ -26,7 +26,7 @@ impl<'r> FromRequest<'r> for IdGuard {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::middlewares::identification::RRIM;
+    use crate::fairings::id::IdFairing;
     use rocket::http::Status;
     use rocket::local::blocking::{Client, LocalResponse};
     use rocket::{build, routes};
@@ -48,7 +48,7 @@ mod tests {
     impl TestContext {
         fn new() -> Self {
             let rocket = build()
-                .attach(RRIM)
+                .attach(IdFairing)
                 .mount("/", routes![test_endpoint, guard_endpoint]);
             let client = Client::tracked(rocket).expect("valid rocket instance");
             TestContext { client }

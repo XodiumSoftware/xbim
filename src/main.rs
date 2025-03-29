@@ -6,17 +6,18 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-pub mod guards {
-    pub mod authentication;
-    pub mod identification;
-}
-
-pub mod middlewares {
+pub mod fairings {
     pub mod compression;
     pub mod filtering;
-    pub mod identification;
+    pub mod id;
+    pub mod limiting;
     pub mod logging;
     pub mod security;
+}
+
+pub mod guards {
+    pub mod auth;
+    pub mod id;
 }
 
 pub mod routes {
@@ -30,8 +31,9 @@ pub mod errors;
 
 use database::Database;
 use errors::catchers;
-use middlewares::{
-    compression::RCM, filtering::RIFM, identification::RRIM, logging::RRLM, security::RSHM,
+use fairings::{
+    compression::CompressionFairing, filtering::IpFilteringFairing, id::IdFairing,
+    logging::LoggingFairing, security::SecurityHeadersFairing,
 };
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
@@ -41,10 +43,6 @@ use routes::{
 };
 use std::process::exit;
 
-/// Launches the Rocket application.
-///
-/// # Returns
-/// A Rocket instance.
 #[launch]
 async fn rocket() -> Rocket<Build> {
     let config = match config::Config::init() {
@@ -68,10 +66,10 @@ async fn rocket() -> Rocket<Build> {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .attach(RCM)
-        .attach(RRIM)
-        .attach(RRLM)
-        .attach(RSHM::default())
-        .attach(RIFM::default())
+        .attach(CompressionFairing)
+        .attach(IdFairing)
+        .attach(LoggingFairing)
+        .attach(SecurityHeadersFairing::default())
+        .attach(IpFilteringFairing::default())
         .register("/", catchers())
 }

@@ -7,7 +7,7 @@
 #![forbid(unsafe_code)]
 
 use crate::config::Config;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use surrealdb::{
@@ -24,13 +24,12 @@ pub struct StoredIfcModel {
     pub name: String,
     pub version: String,
     pub description: Option<String>,
-    pub created_at: chrono::DateTime<Utc>,
-    pub updated_at: chrono::DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub metadata: HashMap<String, String>,
     pub file_content: Option<String>,
 }
 
-/// Represents the database operations.
 pub struct Database {
     pub client: Surreal<Client>,
     pub session_token: Uuid,

@@ -10,11 +10,10 @@ use rocket::{
     Data, Request, Response,
 };
 
-/// Request and Response Logging Middleware
-pub struct RRLM;
+pub struct LoggingFairing;
 
 #[async_trait]
-impl Fairing for RRLM {
+impl Fairing for LoggingFairing {
     fn info(&self) -> Info {
         Info {
             name: "Request and Response Logging",
@@ -61,13 +60,15 @@ mod tests {
 
     struct TestContext {
         client: Client,
-        logger: RRLM,
+        logger: LoggingFairing,
     }
 
     impl TestContext {
         fn new() -> Self {
-            let logger = RRLM;
-            let rocket = build().attach(RRLM).mount("/", routes![test_endpoint]);
+            let logger = LoggingFairing;
+            let rocket = build()
+                .attach(LoggingFairing)
+                .mount("/", routes![test_endpoint]);
             let client = Client::tracked(rocket).expect("valid rocket instance");
             TestContext { client, logger }
         }

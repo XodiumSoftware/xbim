@@ -10,15 +10,13 @@ use rocket::{
     Request, Response,
 };
 
-/// Response Security Headers Middleware
-///
 /// This middleware supplements Rocket's built-in Shield fairing with additional security headers.
 /// Shield provides basic protection with:
 /// - X-Frame-Options: `SAMEORIGIN`
 /// - X-Content-Type-Options: `nosniff`
 /// - Permissions-Policy: `interest-cohort=()`
 #[derive(Clone, Debug)]
-pub struct RSHM {
+pub struct SecurityHeadersFairing {
     pub content_security_policy: Option<String>,
     pub xss_protection: Option<String>,
     pub content_type_options: Option<String>,
@@ -28,7 +26,7 @@ pub struct RSHM {
     pub permissions_policy: Option<String>,
 }
 
-impl Default for RSHM {
+impl Default for SecurityHeadersFairing {
     fn default() -> Self {
         Self {
             content_security_policy: Some(
@@ -45,7 +43,7 @@ impl Default for RSHM {
 }
 
 #[async_trait]
-impl Fairing for RSHM {
+impl Fairing for SecurityHeadersFairing {
     fn info(&self) -> Info {
         Info {
             name: "Response Security Headers",
@@ -87,7 +85,7 @@ mod tests {
     }
 
     impl TestContext {
-        async fn new(middleware: RSHM) -> Self {
+        async fn new(middleware: SecurityHeadersFairing) -> Self {
             let rocket = build()
                 .attach(middleware.clone())
                 .mount("/", routes![index]);
@@ -98,11 +96,11 @@ mod tests {
         }
 
         async fn default() -> Self {
-            Self::new(RSHM::default()).await
+            Self::new(SecurityHeadersFairing::default()).await
         }
 
         async fn custom() -> Self {
-            let custom_middleware = RSHM {
+            let custom_middleware = SecurityHeadersFairing {
                 content_security_policy: Some("default-src 'self' https://example.com".to_string()),
                 xss_protection: None,
                 content_type_options: Some("nosniff".to_string()),
@@ -115,7 +113,7 @@ mod tests {
         }
 
         async fn no_headers() -> Self {
-            let no_headers = RSHM {
+            let no_headers = SecurityHeadersFairing {
                 content_security_policy: None,
                 xss_protection: None,
                 content_type_options: None,
@@ -134,7 +132,7 @@ mod tests {
 
     #[test]
     fn test_fairing_info() {
-        let rshm = RSHM::default();
+        let rshm = SecurityHeadersFairing::default();
         let info = rshm.info();
         assert_eq!(info.name, "Response Security Headers");
         assert!(info.kind.is(Kind::Response));

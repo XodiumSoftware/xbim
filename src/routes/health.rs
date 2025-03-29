@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-use crate::guards::{authentication::AuthGuard, identification::IdGuard};
+use crate::guards::{auth::AuthGuard, id::IdGuard};
 use chrono::{DateTime, Utc};
 use rocket::{get, serde::json::Json};
 use serde::Serialize;

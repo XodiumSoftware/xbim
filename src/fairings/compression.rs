@@ -13,11 +13,10 @@ use rocket::{
 };
 use std::io::{copy, Cursor};
 
-/// Response Compression Middleware
-pub struct RCM;
+pub struct CompressionFairing;
 
 #[async_trait]
-impl Fairing for RCM {
+impl Fairing for CompressionFairing {
     fn info(&self) -> Info {
         Info {
             name: "Response Compression",
@@ -82,14 +81,14 @@ mod tests {
 
     struct TestContext {
         client: Client,
-        compressor: RCM,
+        compressor: CompressionFairing,
     }
 
     impl TestContext {
         fn new() -> Self {
-            let compressor = RCM;
+            let compressor = CompressionFairing;
             let rocket = build()
-                .attach(RCM)
+                .attach(CompressionFairing)
                 .mount("/", routes![large_response, pre_compressed]);
             let client = Client::tracked(rocket).expect("valid rocket instance");
             TestContext { client, compressor }

@@ -11,11 +11,10 @@ use rocket::{
 };
 use uuid::Uuid;
 
-/// Request and Response Identification Middleware
-pub struct RRIM;
+pub struct IdFairing;
 
 #[async_trait]
-impl Fairing for RRIM {
+impl Fairing for IdFairing {
     fn info(&self) -> Info {
         Info {
             name: "Request ID",
@@ -53,7 +52,7 @@ mod tests {
 
     impl TestContext {
         fn new() -> Self {
-            let rocket = build().attach(RRIM).mount("/", routes![test_endpoint]);
+            let rocket = build().attach(IdFairing).mount("/", routes![test_endpoint]);
             let client = Client::tracked(rocket).expect("valid rocket instance");
             TestContext { client }
         }

@@ -5,8 +5,8 @@
 
 use crate::{
     database::{Database, StoredIfcModel},
-    guards::authentication::AuthGuard,
-    guards::identification::IdGuard,
+    guards::auth::AuthGuard,
+    guards::id::IdGuard,
 };
 use rocket::{get, http::Status, post, serde::json::Json, State};
 
