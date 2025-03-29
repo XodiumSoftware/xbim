@@ -6,7 +6,7 @@
 use rocket::{
     async_trait,
     fairing::{Fairing, Info, Kind},
-    http::{Method, Status},
+    http::Status,
     Data, Request, Response,
 };
 use std::{collections::HashSet, net::IpAddr};
@@ -62,13 +62,13 @@ impl Fairing for RIFM {
     fn info(&self) -> Info {
         Info {
             name: "Request IP Filtering",
-            kind: Kind::Request,
+            kind: Kind::Request | Kind::Response,
         }
     }
 
     async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
         if !self.is_ip_allowed(req.client_ip()) {
-            req.set_method(Method::Options);
+            req.local_cache(|| true);
             let ip_str = req
                 .client_ip()
                 .map_or("Unknown".to_string(), |ip| ip.to_string());
@@ -77,7 +77,7 @@ impl Fairing for RIFM {
     }
 
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
-        if req.method() == Method::Options {
+        if *req.local_cache(|| false) {
             res.set_status(Status::Forbidden);
         }
     }
