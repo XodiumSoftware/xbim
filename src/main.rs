@@ -39,6 +39,7 @@ use routes::{
     health::health,
     ifc::{get_ifc_model, upload_ifc_model},
 };
+use std::process::exit;
 
 /// Launches the Rocket application.
 ///
@@ -50,7 +51,7 @@ async fn rocket() -> Rocket<Build> {
         Ok(cfg) => cfg,
         Err(e) => {
             eprintln!("Failed to load configuration: {}", e);
-            std::process::exit(1);
+            exit(1);
         }
     };
     build()
