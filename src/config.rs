@@ -1,7 +1,7 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Copyright (c) 2025. Xodium.
-+ All rights reserved.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/*
+ * Copyright (c) 2025. Xodium.
+ * All rights reserved.
+ */
 
 use serde::{Deserialize, Serialize};
 use std::{env, error, fs, io};
