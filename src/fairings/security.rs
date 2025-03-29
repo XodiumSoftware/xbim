@@ -16,7 +16,7 @@ use rocket::{
 /// - X-Content-Type-Options: `nosniff`
 /// - Permissions-Policy: `interest-cohort=()`
 #[derive(Clone, Debug)]
-pub struct SecurityHeadersFairing {
+pub struct SecurityHeaders {
     pub content_security_policy: Option<String>,
     pub xss_protection: Option<String>,
     pub content_type_options: Option<String>,
@@ -26,7 +26,7 @@ pub struct SecurityHeadersFairing {
     pub permissions_policy: Option<String>,
 }
 
-impl Default for SecurityHeadersFairing {
+impl Default for SecurityHeaders {
     fn default() -> Self {
         Self {
             content_security_policy: Some(
@@ -43,7 +43,7 @@ impl Default for SecurityHeadersFairing {
 }
 
 #[async_trait]
-impl Fairing for SecurityHeadersFairing {
+impl Fairing for SecurityHeaders {
     fn info(&self) -> Info {
         Info {
             name: "Response Security Headers",
@@ -85,7 +85,7 @@ mod tests {
     }
 
     impl TestContext {
-        async fn new(middleware: SecurityHeadersFairing) -> Self {
+        async fn new(middleware: SecurityHeaders) -> Self {
             let rocket = build()
                 .attach(middleware.clone())
                 .mount("/", routes![index]);
@@ -96,11 +96,11 @@ mod tests {
         }
 
         async fn default() -> Self {
-            Self::new(SecurityHeadersFairing::default()).await
+            Self::new(SecurityHeaders::default()).await
         }
 
         async fn custom() -> Self {
-            let custom_middleware = SecurityHeadersFairing {
+            let custom_middleware = SecurityHeaders {
                 content_security_policy: Some("default-src 'self' https://example.com".to_string()),
                 xss_protection: None,
                 content_type_options: Some("nosniff".to_string()),
@@ -113,7 +113,7 @@ mod tests {
         }
 
         async fn no_headers() -> Self {
-            let no_headers = SecurityHeadersFairing {
+            let no_headers = SecurityHeaders {
                 content_security_policy: None,
                 xss_protection: None,
                 content_type_options: None,
@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn test_fairing_info() {
-        let rshm = SecurityHeadersFairing::default();
+        let rshm = SecurityHeaders::default();
         let info = rshm.info();
         assert_eq!(info.name, "Response Security Headers");
         assert!(info.kind.is(Kind::Response));

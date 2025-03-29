@@ -12,13 +12,13 @@ use rocket::{
 use std::{collections::HashSet, net::IpAddr};
 
 #[derive(Debug, Clone)]
-pub struct IpFilteringFairing {
+pub struct IpFilter {
     pub allowed_ips: HashSet<IpAddr>,
     pub denied_ips: HashSet<IpAddr>,
     pub allow_all_by_default: bool,
 }
 
-impl Default for IpFilteringFairing {
+impl Default for IpFilter {
     fn default() -> Self {
         Self {
             allowed_ips: HashSet::new(),
@@ -28,7 +28,7 @@ impl Default for IpFilteringFairing {
     }
 }
 
-impl IpFilteringFairing {
+impl IpFilter {
     pub fn new(
         allowed_ips: HashSet<IpAddr>,
         denied_ips: HashSet<IpAddr>,
@@ -57,10 +57,10 @@ impl IpFilteringFairing {
 }
 
 #[async_trait]
-impl Fairing for IpFilteringFairing {
+impl Fairing for IpFilter {
     fn info(&self) -> Info {
         Info {
-            name: "Request IP Filtering",
+            name: "Request IP Filter",
             kind: Kind::Request | Kind::Response,
         }
     }
@@ -98,7 +98,7 @@ mod tests {
     }
 
     impl TestContext {
-        async fn with_filter(filter: IpFilteringFairing) -> Self {
+        async fn with_filter(filter: IpFilter) -> Self {
             let rocket = build().attach(filter).mount("/", routes![index]);
             let client = Client::tracked(rocket)
                 .await
@@ -107,7 +107,7 @@ mod tests {
         }
 
         async fn default() -> Self {
-            Self::with_filter(IpFilteringFairing::default()).await
+            Self::with_filter(IpFilter::default()).await
         }
 
         async fn test_ip(&self, ip: Option<IpAddr>) -> Status {
@@ -137,7 +137,7 @@ mod tests {
         let mut denied_ips = HashSet::new();
         denied_ips.insert(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)));
 
-        let filter = IpFilteringFairing::new(HashSet::new(), denied_ips, true);
+        let filter = IpFilter::new(HashSet::new(), denied_ips, true);
         let ctx = TestContext::with_filter(filter).await;
 
         assert_eq!(
@@ -158,7 +158,7 @@ mod tests {
         let mut allowed_ips = HashSet::new();
         allowed_ips.insert(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)));
 
-        let filter = IpFilteringFairing::new(allowed_ips, HashSet::new(), false);
+        let filter = IpFilter::new(allowed_ips, HashSet::new(), false);
         let ctx = TestContext::with_filter(filter).await;
 
         assert_eq!(
@@ -182,7 +182,7 @@ mod tests {
         let mut denied_ips = HashSet::new();
         denied_ips.insert(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)));
 
-        let filter = IpFilteringFairing::new(allowed_ips, denied_ips, true);
+        let filter = IpFilter::new(allowed_ips, denied_ips, true);
         let ctx = TestContext::with_filter(filter).await;
 
         assert_eq!(
@@ -200,7 +200,7 @@ mod tests {
         let mut denied_ips = HashSet::new();
         denied_ips.insert(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)));
 
-        let filter = IpFilteringFairing::new(allowed_ips, denied_ips, false);
+        let filter = IpFilter::new(allowed_ips, denied_ips, false);
         assert!(filter.is_ip_allowed(Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)))));
         assert!(!filter.is_ip_allowed(Some(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)))));
         assert!(!filter.is_ip_allowed(Some(IpAddr::V4(Ipv4Addr::new(172, 16, 0, 1)))));

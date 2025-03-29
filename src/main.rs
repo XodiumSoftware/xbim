@@ -29,12 +29,12 @@ pub mod config;
 pub mod database;
 pub mod errors;
 
-use crate::fairings::limiting::RateLimitingFairing;
+use crate::fairings::limiting::RateLimiter;
 use database::Database;
 use errors::catchers;
 use fairings::{
-    compression::CompressionFairing, filtering::IpFilteringFairing, id::IdFairing,
-    logging::LoggingFairing, security::SecurityHeadersFairing,
+    compression::Compressor, filtering::IpFilter, id::IdFairing, logging::Logger,
+    security::SecurityHeaders,
 };
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
@@ -67,11 +67,11 @@ async fn rocket() -> Rocket<Build> {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .attach(CompressionFairing)
+        .attach(Compressor)
         .attach(IdFairing)
-        .attach(RateLimitingFairing::new(100, 60))
-        .attach(LoggingFairing)
-        .attach(SecurityHeadersFairing::default())
-        .attach(IpFilteringFairing::default())
+        .attach(RateLimiter::new(100, 60))
+        .attach(Logger)
+        .attach(SecurityHeaders::default())
+        .attach(IpFilter::default())
         .register("/", catchers())
 }

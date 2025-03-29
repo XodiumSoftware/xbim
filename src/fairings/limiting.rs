@@ -16,40 +16,39 @@ use std::{
     time::{Duration, Instant},
 };
 
-pub struct RateLimitingFairing {
-    clients: Mutex<HashMap<IpAddr, Vec<Instant>>>,
-    rate: usize,
-    per_seconds: u64,
+pub struct RateLimiter {
+    requests: Mutex<HashMap<IpAddr, Vec<Instant>>>,
+    limit: usize,
+    window: Duration,
 }
 
-impl RateLimitingFairing {
-    pub fn new(rate: usize, per_seconds: u64) -> Self {
-        RateLimitingFairing {
-            clients: Mutex::new(HashMap::new()),
-            rate,
-            per_seconds,
+impl RateLimiter {
+    pub fn new(limit: usize, seconds: u64) -> Self {
+        RateLimiter {
+            requests: Mutex::new(HashMap::new()),
+            limit,
+            window: Duration::from_secs(seconds),
         }
     }
 
     fn is_rate_limited(&self, ip: IpAddr) -> bool {
-        let mut clients = self.clients.lock().unwrap();
+        let mut requests = self.requests.lock().unwrap();
         let now = Instant::now();
-        let window_start = now - Duration::from_secs(self.per_seconds);
-        let timestamps = clients.entry(ip).or_default();
+        let window_start = now - self.window;
 
+        let timestamps = requests.entry(ip).or_default();
         timestamps.retain(|&t| t >= window_start);
 
-        if timestamps.len() >= self.rate {
-            return true;
+        let limited = timestamps.len() >= self.limit;
+        if !limited {
+            timestamps.push(now);
         }
-
-        timestamps.push(now);
-        false
+        limited
     }
 }
 
 #[async_trait]
-impl Fairing for RateLimitingFairing {
+impl Fairing for RateLimiter {
     fn info(&self) -> Info {
         Info {
             name: "Rate Limiter",
