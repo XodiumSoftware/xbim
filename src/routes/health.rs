@@ -5,13 +5,14 @@
 
 use crate::guards::{auth::AuthGuard, id::IdGuard};
 use chrono::{DateTime, Utc};
+use rocket::http::Status;
 use rocket::{get, serde::json::Json};
 use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct Response {
-    status: String,
-    version: String,
+struct Response {
+    status: Status,
+    version: &'static str,
     timestamp: DateTime<Utc>,
     request_id: String,
 }
@@ -23,13 +24,13 @@ pub struct Response {
 /// * `_ag` - Authentication Guard.
 ///
 /// # Returns
-/// A JSON response with the status, version, and timestamp.
+/// A JSON response with the status, version, timestamp, and request ID.
 #[get("/health")]
 pub fn health(ig: IdGuard, _ag: AuthGuard) -> Json<Response> {
     println!("Health check requested with request ID: {}", ig.0);
     Json(Response {
-        status: "ok".to_string(),
-        version: env!("CARGO_PKG_VERSION").to_string(),
+        status: Status::Ok,
+        version: env!("CARGO_PKG_VERSION"),
         timestamp: Utc::now(),
         request_id: ig.0,
     })

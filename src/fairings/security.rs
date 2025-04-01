@@ -17,27 +17,27 @@ use rocket::{
 /// - Permissions-Policy: `interest-cohort=()`
 #[derive(Clone, Debug)]
 pub struct SecurityHeaders {
-    pub content_security_policy: Option<String>,
-    pub xss_protection: Option<String>,
-    pub content_type_options: Option<String>,
-    pub frame_options: Option<String>,
-    pub referrer_policy: Option<String>,
-    pub strict_transport_security: Option<String>,
-    pub permissions_policy: Option<String>,
+    pub content_security_policy: Option<&'static str>,
+    pub xss_protection: Option<&'static str>,
+    pub content_type_options: Option<&'static str>,
+    pub frame_options: Option<&'static str>,
+    pub referrer_policy: Option<&'static str>,
+    pub strict_transport_security: Option<&'static str>,
+    pub permissions_policy: Option<&'static str>,
 }
 
 impl Default for SecurityHeaders {
     fn default() -> Self {
         Self {
             content_security_policy: Some(
-                "default-src 'self'; script-src 'self'; object-src 'none';".to_string(),
+                "default-src 'self'; script-src 'self'; object-src 'none';",
             ),
-            xss_protection: Some("1; mode=block".to_string()),
+            xss_protection: Some("1; mode=block"),
             content_type_options: None,
             frame_options: None,
-            referrer_policy: Some("strict-origin-when-cross-origin".to_string()),
-            strict_transport_security: Some("max-age=31536000; includeSubDomains".to_string()),
-            permissions_policy: Some("camera=(), microphone=(), geolocation=()".to_string()),
+            referrer_policy: Some("strict-origin-when-cross-origin"),
+            strict_transport_security: Some("max-age=31536000; includeSubDomains"),
+            permissions_policy: Some("camera=(), microphone=(), geolocation=()"),
         }
     }
 }
@@ -62,7 +62,7 @@ impl Fairing for SecurityHeaders {
             ("Permissions-Policy", &self.permissions_policy),
         ] {
             if let Some(value) = option_value {
-                res.set_header(Header::new(name, value.clone()));
+                res.set_header(Header::new(name, value));
             }
         }
     }
@@ -101,12 +101,12 @@ mod tests {
 
         async fn custom() -> Self {
             let custom_middleware = SecurityHeaders {
-                content_security_policy: Some("default-src 'self' https://example.com".to_string()),
+                content_security_policy: Some("default-src 'self' https://example.com"),
                 xss_protection: None,
-                content_type_options: Some("nosniff".to_string()),
-                frame_options: Some("SAMEORIGIN".to_string()),
+                content_type_options: Some("nosniff"),
+                frame_options: Some("SAMEORIGIN"),
                 referrer_policy: None,
-                strict_transport_security: Some("max-age=63072000".to_string()),
+                strict_transport_security: Some("max-age=63072000"),
                 permissions_policy: None,
             };
             Self::new(custom_middleware).await

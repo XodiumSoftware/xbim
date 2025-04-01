@@ -2,8 +2,15 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
-
+use rocket::serde::json::Json;
+use rocket::serde::Serialize;
 use rocket::{catch, catchers, http::Status, Catcher};
+
+#[derive(Serialize)]
+struct Response {
+    status: Status,
+    message: &'static str,
+}
 
 /// Returns a list of catchers for the application.
 ///
@@ -14,56 +21,65 @@ pub fn catchers() -> Vec<Catcher> {
 }
 
 #[catch(400)]
-fn err_400() -> (Status, &'static str) {
-    (
-        Status::BadRequest,
-        "Bad request format or invalid parameters",
-    )
+fn err_400() -> Json<Response> {
+    Json(Response {
+        status: Status::BadRequest,
+        message: "Bad request format or invalid parameters",
+    })
 }
 
 #[catch(401)]
-fn err_401() -> (Status, &'static str) {
-    (Status::Unauthorized, "Authentication required")
+fn err_401() -> Json<Response> {
+    Json(Response {
+        status: Status::Unauthorized,
+        message: "Authentication required",
+    })
 }
 
 #[catch(403)]
-fn err_403() -> (Status, &'static str) {
-    (
-        Status::Forbidden,
-        "Access forbidden - You don't have permission to access this resource",
-    )
+fn err_403() -> Json<Response> {
+    Json(Response {
+        status: Status::Forbidden,
+        message: "Access forbidden - You don't have permission to access this resource",
+    })
 }
 
 #[catch(404)]
-fn err_404() -> (Status, &'static str) {
-    (Status::NotFound, "Resource not found")
+fn err_404() -> Json<Response> {
+    Json(Response {
+        status: Status::NotFound,
+        message: "Resource not found",
+    })
 }
 
 #[catch(405)]
-fn err_405() -> (Status, &'static str) {
-    (
-        Status::MethodNotAllowed,
-        "Method not allowed for this resource",
-    )
+fn err_405() -> Json<Response> {
+    Json(Response {
+        status: Status::MethodNotAllowed,
+        message: "Method not allowed for this resource",
+    })
 }
 
 #[catch(429)]
-fn err_429() -> (Status, &'static str) {
-    (
-        Status::TooManyRequests,
-        "Rate limit exceeded - Please try again later",
-    )
+fn err_429() -> Json<Response> {
+    Json(Response {
+        status: Status::TooManyRequests,
+        message: "Rate limit exceeded - Please try again later",
+    })
 }
 
 #[catch(500)]
-fn err_500() -> (Status, &'static str) {
-    (Status::InternalServerError, "Internal server error")
+fn err_500() -> Json<Response> {
+    Json(Response {
+        status: Status::InternalServerError,
+        message: "Internal server error",
+    })
 }
 
 #[catch(503)]
-fn err_503() -> (Status, &'static str) {
-    (
-        Status::ServiceUnavailable,
-        "Service temporarily unavailable",
-    )
+fn err_503() -> Json<Response> {
+    Json(Response {
+        status: Status::ServiceUnavailable,
+        message: "Service temporarily unavailable",
+    })
 }
