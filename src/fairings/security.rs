@@ -51,7 +51,7 @@ impl Fairing for SecurityHeaders {
         }
     }
 
-    async fn on_response<'r>(&self, _: &'r Request<'_>, res: &mut Response<'r>) {
+    async fn on_response<'r>(&self, _: &'r Request<'_>, response: &mut Response<'r>) {
         for (name, option_value) in [
             ("Content-Security-Policy", &self.content_security_policy),
             ("X-XSS-Protection", &self.xss_protection),
@@ -62,7 +62,7 @@ impl Fairing for SecurityHeaders {
             ("Permissions-Policy", &self.permissions_policy),
         ] {
             if let Some(value) = option_value {
-                res.set_header(Header::new(name, value));
+                response.set_header(Header::new(name, value));
             }
         }
     }

@@ -21,24 +21,25 @@ impl Fairing for Logger {
         }
     }
 
-    async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
+    async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
         println!(
             "{} - Incoming request: {} {} from {}",
             Utc::now(),
-            req.method(),
-            req.uri(),
-            req.client_ip()
+            request.method(),
+            request.uri(),
+            request
+                .client_ip()
                 .map_or("Unknown".into(), |ip| ip.to_string())
         );
     }
 
-    async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
         println!(
             "{} - Outgoing response: {} {} - Status: {}",
             Utc::now(),
-            req.method(),
-            req.uri(),
-            res.status()
+            request.method(),
+            request.uri(),
+            response.status()
         );
     }
 }

@@ -8,16 +8,21 @@ use rocket::{
     request::{FromRequest, Outcome},
     Request,
 };
+use uuid::Uuid;
 
 /// Identification Guard
-pub struct IdGuard(pub String);
+pub struct IdGuard {
+    pub id: Uuid,
+}
 
 #[async_trait]
 impl<'r> FromRequest<'r> for IdGuard {
     type Error = ();
 
-    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        Outcome::Success(IdGuard(req.local_cache::<String, _>(String::new).clone()))
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        let id_string = request.local_cache::<String, _>(String::new).clone();
+        let id = Uuid::parse_str(&id_string).unwrap_or_else(|_| Uuid::nil());
+        Outcome::Success(IdGuard { id })
     }
 }
 
@@ -36,7 +41,7 @@ mod tests {
 
     #[rocket::get("/guard")]
     fn guard_endpoint(ig: IdGuard) -> String {
-        format!("Request ID: {}", ig.0)
+        format!("Request ID: {}", ig.id)
     }
 
     struct TestContext {

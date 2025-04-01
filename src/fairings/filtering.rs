@@ -65,19 +65,19 @@ impl Fairing for IpFilter {
         }
     }
 
-    async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
-        if !self.is_ip_allowed(req.client_ip()) {
-            req.local_cache(|| true);
-            let ip_str = req
+    async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
+        if !self.is_ip_allowed(request.client_ip()) {
+            request.local_cache(|| true);
+            let ip_str = request
                 .client_ip()
                 .map_or("Unknown".to_string(), |ip| ip.to_string());
             println!("Blocked request from unauthorized IP: {}", ip_str);
         }
     }
 
-    async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
-        if *req.local_cache(|| false) {
-            res.set_status(Status::Forbidden);
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
+        if *request.local_cache(|| false) {
+            response.set_status(Status::Forbidden);
         }
     }
 }
@@ -111,7 +111,7 @@ mod tests {
         }
 
         async fn test_ip(&self, ip: Option<IpAddr>) -> Status {
-            let req = match ip {
+            let request = match ip {
                 Some(ip) => {
                     let socket_addr = SocketAddr::new(ip, 8000);
                     self.client.get("/").remote(socket_addr)
@@ -119,7 +119,7 @@ mod tests {
                 None => self.client.get("/"),
             };
 
-            let response = req.dispatch().await;
+            let response = request.dispatch().await;
             response.status()
         }
     }

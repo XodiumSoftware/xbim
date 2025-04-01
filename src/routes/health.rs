@@ -8,13 +8,14 @@ use chrono::{DateTime, Utc};
 use rocket::http::Status;
 use rocket::{get, serde::json::Json};
 use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Serialize)]
 struct Response {
     status: Status,
+    id: Uuid,
     version: &'static str,
     timestamp: DateTime<Utc>,
-    request_id: String,
 }
 
 /// Health check endpoint to confirm the service is running.
@@ -24,14 +25,14 @@ struct Response {
 /// * `_ag` - Authentication Guard.
 ///
 /// # Returns
-/// A JSON response with the status, version, timestamp, and request ID.
+/// A JSON response with the status, request ID, version, and timestamp.
 #[get("/health")]
-pub fn health(ig: IdGuard, _ag: AuthGuard) -> Json<Response> {
-    println!("Health check requested with request ID: {}", ig.0);
+pub fn health(idguard: IdGuard, _authguard: AuthGuard) -> Json<Response> {
+    println!("Health check requested with request ID: {}", idguard.id);
     Json(Response {
         status: Status::Ok,
+        id: idguard.id,
         version: env!("CARGO_PKG_VERSION"),
         timestamp: Utc::now(),
-        request_id: ig.0,
     })
 }

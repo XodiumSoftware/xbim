@@ -22,14 +22,14 @@ impl Fairing for IdFairing {
         }
     }
 
-    async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
-        req.local_cache(|| Uuid::new_v4().to_string());
+    async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
+        request.local_cache(|| Uuid::new_v4().to_string());
     }
 
-    async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
-        res.set_header(Header::new(
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new(
             "X-Request-ID",
-            req.local_cache::<String, _>(String::new).clone(),
+            request.local_cache::<String, _>(String::new).clone(),
         ));
     }
 }

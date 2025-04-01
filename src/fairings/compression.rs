@@ -24,9 +24,9 @@ impl Fairing for Compressor {
         }
     }
 
-    async fn on_response<'r>(&self, _: &'r Request<'_>, res: &mut Response<'r>) {
-        if !res.headers().contains("Content-Encoding") {
-            let mut body = res.body_mut().take();
+    async fn on_response<'r>(&self, _: &'r Request<'_>, response: &mut Response<'r>) {
+        if !response.headers().contains("Content-Encoding") {
+            let mut body = response.body_mut().take();
             let mut data = Vec::new();
             if body.read_to_end(&mut data).await.is_err() {
                 return;
@@ -38,8 +38,8 @@ impl Fairing for Compressor {
             }
 
             if let Ok(compressed_data) = encoder.finish() {
-                res.set_header(Header::new("Content-Encoding", "gzip"));
-                res.set_sized_body(compressed_data.len(), Cursor::new(compressed_data));
+                response.set_header(Header::new("Content-Encoding", "gzip"));
+                response.set_sized_body(compressed_data.len(), Cursor::new(compressed_data));
             }
         }
     }
