@@ -62,7 +62,7 @@ impl Fairing for SecurityHeaders {
             ("Permissions-Policy", &self.permissions_policy),
         ] {
             if let Some(value) = option_value {
-                response.set_header(Header::new(name, value));
+                response.set_header(Header::new(name, value.to_string()));
             }
         }
     }
