@@ -29,19 +29,15 @@ pub mod config;
 pub mod database;
 pub mod errors;
 
-use crate::fairings::limiting::RateLimiter;
 use database::Database;
 use errors::catchers;
 use fairings::{
-    compression::ContentCompressor, filtering::IpFilter, id::IdGenerator, logging::Logger,
-    security::SecurityHeaders,
+    compression::ContentCompressor, filtering::IpFilter, id::IdGenerator, limiting::RateLimiter,
+    logging::Logger, security::SecurityHeaders,
 };
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use routes::{
-    health::health,
-    ifc::{get_ifc_model, upload_ifc_model},
-};
+use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
 use std::process::exit;
 
 #[launch]
@@ -60,7 +56,10 @@ async fn rocket() -> Rocket<Build> {
         })
         .manage(config.clone())
         .manage(Database::new(&config).await)
-        .mount("/", routes![health, upload_ifc_model, get_ifc_model])
+        .mount(
+            "/",
+            routes![health, upload_ifc, get_ifc, update_ifc, delete_ifc],
+        )
         .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
