@@ -13,13 +13,13 @@ use rocket::{
 };
 use std::io::{copy, Cursor};
 
-pub struct Compressor;
+pub struct ContentCompressor;
 
 #[async_trait]
-impl Fairing for Compressor {
+impl Fairing for ContentCompressor {
     fn info(&self) -> Info {
         Info {
-            name: "Response Compressor",
+            name: "Content Compressor",
             kind: Kind::Response,
         }
     }
@@ -81,14 +81,14 @@ mod tests {
 
     struct TestContext {
         client: Client,
-        compressor: Compressor,
+        compressor: ContentCompressor,
     }
 
     impl TestContext {
         fn new() -> Self {
-            let compressor = Compressor;
+            let compressor = ContentCompressor;
             let rocket = build()
-                .attach(Compressor)
+                .attach(ContentCompressor)
                 .mount("/", routes![large_response, pre_compressed]);
             let client = Client::tracked(rocket).expect("valid rocket instance");
             TestContext { client, compressor }

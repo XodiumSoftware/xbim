@@ -33,7 +33,7 @@ use crate::fairings::limiting::RateLimiter;
 use database::Database;
 use errors::catchers;
 use fairings::{
-    compression::Compressor, filtering::IpFilter, id::IdFairing, logging::Logger,
+    compression::ContentCompressor, filtering::IpFilter, id::IdGenerator, logging::Logger,
     security::SecurityHeaders,
 };
 use rocket::{build, launch, routes, Build, Config, Rocket};
@@ -67,8 +67,8 @@ async fn rocket() -> Rocket<Build> {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .attach(Compressor)
-        .attach(IdFairing)
+        .attach(ContentCompressor)
+        .attach(IdGenerator)
         .attach(RateLimiter::new(100, 60))
         .attach(Logger)
         .attach(SecurityHeaders::default())

@@ -11,10 +11,10 @@ use rocket::{
 };
 use uuid::Uuid;
 
-pub struct IdFairing;
+pub struct IdGenerator;
 
 #[async_trait]
-impl Fairing for IdFairing {
+impl Fairing for IdGenerator {
     fn info(&self) -> Info {
         Info {
             name: "Request ID",
@@ -52,7 +52,9 @@ mod tests {
 
     impl TestContext {
         fn new() -> Self {
-            let rocket = build().attach(IdFairing).mount("/", routes![test_endpoint]);
+            let rocket = build()
+                .attach(IdGenerator)
+                .mount("/", routes![test_endpoint]);
             let client = Client::tracked(rocket).expect("valid rocket instance");
             TestContext { client }
         }
