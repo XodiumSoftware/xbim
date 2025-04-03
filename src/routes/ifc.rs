@@ -2,13 +2,23 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
-
-use crate::{
-    database::{Database, StoredIfcModel},
-    guards::auth::AuthGuard,
-    guards::id::IdGuard,
-};
+use crate::{database::Database, guards::auth::AuthGuard, guards::id::IdGuard};
+use chrono::{DateTime, Utc};
+use rocket::serde::{Deserialize, Serialize};
 use rocket::{get, http::Status, post, serde::json::Json, State};
+use std::collections::HashMap;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct StoredIfcModel {
+    pub id: Option<String>,
+    pub name: String,
+    pub version: String,
+    pub description: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub metadata: HashMap<String, String>,
+    pub file_content: Option<String>,
+}
 
 /// Upload a new IFC model to the database.
 ///
@@ -28,7 +38,7 @@ pub async fn upload_ifc_model(
     model: Json<StoredIfcModel>,
 ) -> Result<Json<StoredIfcModel>, Status> {
     println!("Processing IFC upload with request ID: {}", idguard.id);
-    match database.save_ifc_model(model.into_inner()).await {
+    match database.create("ifc_models", model.into_inner()).await {
         Ok(saved_model) => {
             println!(
                 "Successfully saved IFC model with request ID: {}",
@@ -67,7 +77,7 @@ pub async fn get_ifc_model(
         "Retrieving IFC model {} with request ID: {}",
         id, idguard.id
     );
-    match database.get_ifc_model(id.clone()).await {
+    match database.read::<StoredIfcModel>("ifc_models", &id).await {
         Ok(model) => {
             println!(
                 "Successfully retrieved IFC model {} with request ID: {}",
