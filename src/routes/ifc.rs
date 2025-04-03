@@ -2,6 +2,7 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
+use crate::guards::ratelimit::RateLimitGuard;
 use crate::{database::Database, guards::auth::AuthGuard, guards::id::IdGuard};
 use chrono::{DateTime, Utc};
 use rocket::serde::{Deserialize, Serialize};
@@ -26,6 +27,7 @@ pub struct StoredIFC {
 /// * `database` - The database instance.
 /// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
+/// * `_ratelimitguard` - Rate Limit Guard.
 /// * `model` - The IFC model to upload.
 ///
 /// # Returns
@@ -35,6 +37,7 @@ pub async fn upload_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
+    _ratelimitguard: RateLimitGuard,
     model: Json<StoredIFC>,
 ) -> Result<Json<StoredIFC>, Status> {
     println!("Processing IFC upload with request ID: {}", idguard.id);
@@ -62,6 +65,7 @@ pub async fn upload_ifc(
 /// * `database` - The database instance.
 /// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
+/// * `_ratelimitguard` - Rate Limit Guard.
 /// * `id` - The ID of the IFC model to retrieve.
 ///
 /// # Returns
@@ -71,6 +75,7 @@ pub async fn get_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
+    _ratelimitguard: RateLimitGuard,
     id: String,
 ) -> Result<Json<StoredIFC>, Status> {
     println!(
@@ -101,6 +106,7 @@ pub async fn get_ifc(
 /// * `database` - The database instance.
 /// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
+/// * `_ratelimitguard` - Rate Limit Guard.
 /// * `id` - The ID of the IFC model to update.
 /// * `model` - The updated IFC model data.
 ///
@@ -111,6 +117,7 @@ pub async fn update_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
+    _ratelimitguard: RateLimitGuard,
     id: String,
     model: Json<StoredIFC>,
 ) -> Result<Json<StoredIFC>, Status> {
@@ -139,6 +146,7 @@ pub async fn update_ifc(
 /// * `database` - The database instance.
 /// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
+/// * `_ratelimitguard` - Rate Limit Guard.
 /// * `id` - The ID of the IFC model to delete.
 ///
 /// # Returns
@@ -148,6 +156,7 @@ pub async fn delete_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
+    _ratelimitguard: RateLimitGuard,
     id: String,
 ) -> Status {
     println!("Deleting IFC model {} with request ID: {}", id, idguard.id);

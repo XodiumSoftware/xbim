@@ -18,6 +18,7 @@ pub mod fairings {
 pub mod guards {
     pub mod auth;
     pub mod id;
+    pub mod ratelimit;
 }
 
 pub mod routes {

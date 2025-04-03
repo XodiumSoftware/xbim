@@ -66,7 +66,7 @@ impl Fairing for RateLimiter {
     async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
         if let Some(client_ip) = request.client_ip() {
             if self.is_rate_limited(client_ip) {
-                request.set_error(Status::TooManyRequests);
+                request.local_cache(|| Status::TooManyRequests);
             }
         }
     }
