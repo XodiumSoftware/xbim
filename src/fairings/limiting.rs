@@ -35,15 +35,22 @@ impl RateLimiter {
         let mut requests = self.requests.lock().unwrap();
         let now = Instant::now();
         let window_start = now - self.window;
-
         let timestamps = requests.entry(ip).or_default();
-        timestamps.retain(|&t| t >= window_start);
+        let valid_count =
+            timestamps
+                .iter()
+                .position(|&t| t < window_start)
+                .map_or(timestamps.len(), |pos| {
+                    timestamps.drain(..pos);
+                    timestamps.len()
+                });
 
-        let limited = timestamps.len() >= self.limit;
-        if !limited {
+        if valid_count >= self.limit {
+            true
+        } else {
             timestamps.push(now);
+            false
         }
-        limited
     }
 }
 
