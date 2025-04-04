@@ -9,7 +9,6 @@
 pub mod fairings {
     pub mod filtering;
     pub mod id;
-    pub mod security;
 }
 
 pub mod guards {
@@ -29,7 +28,11 @@ pub mod errors;
 
 use database::Database;
 use errors::catchers;
-use fairings::{filtering::IpFilter, id::IdGenerator, security::SecurityHeaders};
+use fairings::{filtering::IpFilter, id::IdGenerator};
+use rocket::shield::{
+    ExpectCt, Feature, Frame, Hsts, NoSniff, Permission, Prefetch, Referrer, Shield, XssFilter,
+};
+use rocket::time::Duration;
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
@@ -65,6 +68,22 @@ async fn rocket() -> Rocket<Build> {
             routes![health, upload_ifc, get_ifc, update_ifc, delete_ifc],
         )
         .attach(
+            Shield::new()
+                .enable(ExpectCt::Enforce(Duration::days(30)))
+                .enable(
+                    Permission::default()
+                        .block(Feature::Camera)
+                        .block(Feature::Geolocation)
+                        .block(Feature::Microphone),
+                )
+                .enable(Frame::SameOrigin)
+                .enable(Hsts::IncludeSubDomains(Duration::days(365)))
+                .enable(NoSniff::Enable)
+                .enable(Prefetch::On)
+                .enable(Referrer::StrictOriginWhenCrossOrigin)
+                .enable(XssFilter::EnableBlock),
+        )
+        .attach(
             CorsOptions::default()
                 .allowed_origins(AllowedOrigins::all())
                 .to_cors()
@@ -72,7 +91,6 @@ async fn rocket() -> Rocket<Build> {
         )
         .attach(Compression::with_level(CompressionLevel::Default))
         .attach(IdGenerator)
-        .attach(SecurityHeaders::default())
         .attach(IpFilter::default())
         .register("/", catchers())
 }
