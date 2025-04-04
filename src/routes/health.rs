@@ -12,7 +12,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Serialize)]
-struct Response {
+pub struct Response {
     status: Status,
     id: Uuid,
     version: &'static str,
