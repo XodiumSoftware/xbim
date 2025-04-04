@@ -11,7 +11,6 @@ pub mod fairings {
     pub mod filtering;
     pub mod id;
     pub mod limiting;
-    pub mod logging;
     pub mod security;
 }
 
@@ -34,12 +33,15 @@ use database::Database;
 use errors::catchers;
 use fairings::{
     compression::ContentCompressor, filtering::IpFilter, id::IdGenerator, limiting::RateLimiter,
-    logging::Logger, security::SecurityHeaders,
+    security::SecurityHeaders,
 };
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
 use std::process::exit;
+use tracing::subscriber::set_global_default;
+use tracing::Level;
+use tracing_subscriber::FmtSubscriber;
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
@@ -50,6 +52,12 @@ async fn rocket() -> Rocket<Build> {
             exit(1);
         }
     };
+    set_global_default(
+        FmtSubscriber::builder()
+            .with_max_level(Level::INFO)
+            .finish(),
+    )
+    .expect("Failed to set tracing subscriber");
     build()
         .configure(Config {
             port: config.server_port,
@@ -70,7 +78,6 @@ async fn rocket() -> Rocket<Build> {
         .attach(ContentCompressor)
         .attach(IdGenerator)
         .attach(RateLimiter::new(100, 60))
-        .attach(Logger)
         .attach(SecurityHeaders::default())
         .attach(IpFilter::default())
         .register("/", catchers())
