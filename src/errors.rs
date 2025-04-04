@@ -5,6 +5,7 @@
 use rocket::serde::json::Json;
 use rocket::serde::Serialize;
 use rocket::{catch, catchers, http::Status, Catcher};
+use rocket_governor::rocket_governor_catcher;
 
 #[derive(Serialize)]
 struct Response {
@@ -17,7 +18,16 @@ struct Response {
 /// # Returns
 /// A vector of catchers.
 pub fn catchers() -> Vec<Catcher> {
-    catchers![err_400, err_401, err_403, err_404, err_405, err_429, err_500, err_503]
+    catchers![
+        err_400,
+        err_401,
+        err_403,
+        err_404,
+        err_405,
+        rocket_governor_catcher,
+        err_500,
+        err_503
+    ]
 }
 
 #[catch(400)]
@@ -57,14 +67,6 @@ fn err_405() -> Json<Response> {
     Json(Response {
         status: Status::MethodNotAllowed,
         message: "Method not allowed for this resource",
-    })
-}
-
-#[catch(429)]
-fn err_429() -> Json<Response> {
-    Json(Response {
-        status: Status::TooManyRequests,
-        message: "Rate limit exceeded - Please try again later",
     })
 }
 
