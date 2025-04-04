@@ -22,8 +22,8 @@ all-features = true
 
 [dependencies]
 chrono = "0.4.40"
-flate2 = "1.1.1"
 rocket = { version = "0.5.1", features = ["json"] }
+rocket_async_compression = "0.6.1"
 rocket_cors = "0.6.0"
 rocket-governor = "0.2.0-rc.4"
 serde = { version = "1.0.219", features = ["derive"] }
