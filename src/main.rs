@@ -10,7 +10,6 @@ pub mod fairings {
     pub mod compression;
     pub mod filtering;
     pub mod id;
-    pub mod limiting;
     pub mod logging;
     pub mod security;
 }
@@ -33,8 +32,8 @@ pub mod errors;
 use database::Database;
 use errors::catchers;
 use fairings::{
-    compression::ContentCompressor, filtering::IpFilter, id::IdGenerator, limiting::RateLimiter,
-    logging::Logger, security::SecurityHeaders,
+    compression::ContentCompressor, filtering::IpFilter, id::IdGenerator, logging::Logger,
+    security::SecurityHeaders,
 };
 use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_cors::{AllowedOrigins, CorsOptions};
@@ -69,7 +68,6 @@ async fn rocket() -> Rocket<Build> {
         )
         .attach(ContentCompressor)
         .attach(IdGenerator)
-        .attach(RateLimiter::new(100, 60))
         .attach(Logger)
         .attach(SecurityHeaders::default())
         .attach(IpFilter::default())

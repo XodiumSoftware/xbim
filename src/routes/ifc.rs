@@ -7,6 +7,7 @@ use crate::{database::Database, guards::auth::AuthGuard, guards::id::IdGuard};
 use chrono::{DateTime, Utc};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{delete, get, http::Status, post, put, serde::json::Json, State};
+use rocket_governor::RocketGovernor;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -37,7 +38,7 @@ pub async fn upload_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
-    _ratelimitguard: RateLimitGuard,
+    _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     model: Json<StoredIFC>,
 ) -> Result<Json<StoredIFC>, Status> {
     println!("Processing IFC upload with request ID: {}", idguard.id);
@@ -75,7 +76,7 @@ pub async fn get_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
-    _ratelimitguard: RateLimitGuard,
+    _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
 ) -> Result<Json<StoredIFC>, Status> {
     println!(
@@ -117,7 +118,7 @@ pub async fn update_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
-    _ratelimitguard: RateLimitGuard,
+    _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
     model: Json<StoredIFC>,
 ) -> Result<Json<StoredIFC>, Status> {
@@ -156,7 +157,7 @@ pub async fn delete_ifc(
     database: &State<Database>,
     idguard: IdGuard,
     _authguard: AuthGuard,
-    _ratelimitguard: RateLimitGuard,
+    _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
 ) -> Status {
     println!("Deleting IFC model {} with request ID: {}", id, idguard.id);
