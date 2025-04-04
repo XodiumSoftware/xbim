@@ -8,12 +8,10 @@
 
 pub mod fairings {
     pub mod filtering;
-    pub mod id;
 }
 
 pub mod guards {
     pub mod auth;
-    pub mod id;
     pub mod ratelimit;
 }
 
@@ -28,7 +26,7 @@ pub mod errors;
 
 use database::Database;
 use errors::catchers;
-use fairings::{filtering::IpFilter, id::IdGenerator};
+use fairings::filtering::IpFilter;
 use rocket::shield::{
     ExpectCt, Feature, Frame, Hsts, NoSniff, Permission, Prefetch, Referrer, Shield, XssFilter,
 };
@@ -82,7 +80,6 @@ async fn rocket() -> Rocket<Build> {
                 .expect("Failed to build CORS"),
         )
         .attach(Compression::with_level(CompressionLevel::Default))
-        .attach(IdGenerator)
         .attach(IpFilter::default())
         .register("/", catchers())
 }

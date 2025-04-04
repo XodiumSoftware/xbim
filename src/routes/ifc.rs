@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 use crate::guards::ratelimit::RateLimitGuard;
-use crate::{database::Database, guards::auth::AuthGuard, guards::id::IdGuard};
+use crate::{database::Database, guards::auth::AuthGuard};
 use chrono::{DateTime, Utc};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{delete, get, http::Status, post, put, serde::json::Json, State};
@@ -27,7 +27,6 @@ pub struct StoredIFC {
 ///
 /// # Arguments
 /// * `database` - The database instance.
-/// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
 /// * `_ratelimitguard` - Rate Limit Guard.
 /// * `model` - The IFC model to upload.
@@ -37,25 +36,18 @@ pub struct StoredIFC {
 #[post("/ifc", data = "<model>")]
 pub async fn upload_ifc(
     database: &State<Database>,
-    idguard: IdGuard,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     model: Json<StoredIFC>,
 ) -> Result<Json<StoredIFC>, Status> {
-    println!("Processing IFC upload with request ID: {}", idguard.id);
+    println!("Processing IFC upload");
     match database.create("ifc_models", model.into_inner()).await {
         Ok(saved_model) => {
-            println!(
-                "Successfully saved IFC model with request ID: {}",
-                idguard.id
-            );
+            println!("Successfully saved IFC model");
             Ok(Json(saved_model))
         }
         Err(e) => {
-            println!(
-                "Error saving IFC model with request ID {}: {:?}",
-                idguard.id, e
-            );
+            println!("Error saving IFC model: {:?}", e);
             Err(Status::InternalServerError)
         }
     }
@@ -65,7 +57,6 @@ pub async fn upload_ifc(
 ///
 /// # Arguments
 /// * `database` - The database instance.
-/// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
 /// * `_ratelimitguard` - Rate Limit Guard.
 /// * `id` - The ID of the IFC model to retrieve.
@@ -75,28 +66,18 @@ pub async fn upload_ifc(
 #[get("/ifc/<id>")]
 pub async fn get_ifc(
     database: &State<Database>,
-    idguard: IdGuard,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
 ) -> Result<Json<StoredIFC>, Status> {
-    println!(
-        "Retrieving IFC model {} with request ID: {}",
-        id, idguard.id
-    );
+    println!("Retrieving IFC model {}", id);
     match database.read::<StoredIFC>("ifc_models", &id).await {
         Ok(model) => {
-            println!(
-                "Successfully retrieved IFC model {} with request ID: {}",
-                id, idguard.id
-            );
+            println!("Successfully retrieved IFC model {}", id);
             Ok(Json(model))
         }
         Err(e) => {
-            println!(
-                "Error retrieving IFC model {} with request ID {}: {:?}",
-                id, idguard.id, e
-            );
+            println!("Error retrieving IFC model {}: {:?}", id, e);
             Err(Status::NotFound)
         }
     }
@@ -106,7 +87,6 @@ pub async fn get_ifc(
 ///
 /// # Arguments
 /// * `database` - The database instance.
-/// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
 /// * `_ratelimitguard` - Rate Limit Guard.
 /// * `id` - The ID of the IFC model to update.
@@ -117,26 +97,19 @@ pub async fn get_ifc(
 #[put("/ifc/<id>", data = "<model>")]
 pub async fn update_ifc(
     database: &State<Database>,
-    idguard: IdGuard,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
     model: Json<StoredIFC>,
 ) -> Result<Json<StoredIFC>, Status> {
-    println!("Updating IFC model {} with request ID: {}", id, idguard.id);
+    println!("Updating IFC model {}", id);
     match database.update("ifc_models", &id, model.into_inner()).await {
         Ok(updated_model) => {
-            println!(
-                "Successfully updated IFC model {} with request ID: {}",
-                id, idguard.id
-            );
+            println!("Successfully updated IFC model {}", id);
             Ok(Json(updated_model))
         }
         Err(e) => {
-            println!(
-                "Error updating IFC model {} with request ID {}: {:?}",
-                id, idguard.id, e
-            );
+            println!("Error updating IFC model {}: {:?}", id, e);
             Err(Status::InternalServerError)
         }
     }
@@ -146,7 +119,6 @@ pub async fn update_ifc(
 ///
 /// # Arguments
 /// * `database` - The database instance.
-/// * `idguard` - Identification Guard.
 /// * `_authguard` - Authentication Guard.
 /// * `_ratelimitguard` - Rate Limit Guard.
 /// * `id` - The ID of the IFC model to delete.
@@ -156,32 +128,22 @@ pub async fn update_ifc(
 #[delete("/ifc/<id>")]
 pub async fn delete_ifc(
     database: &State<Database>,
-    idguard: IdGuard,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
 ) -> Status {
-    println!("Deleting IFC model {} with request ID: {}", id, idguard.id);
+    println!("Deleting IFC model {}", id);
     match database.delete::<StoredIFC>("ifc_models", &id).await {
         Ok(true) => {
-            println!(
-                "Successfully deleted IFC model {} with request ID: {}",
-                id, idguard.id
-            );
+            println!("Successfully deleted IFC model {}", id);
             Status::NoContent
         }
         Ok(false) => {
-            println!(
-                "IFC model {} not found for deletion, request ID: {}",
-                id, idguard.id
-            );
+            println!("IFC model {} not found for deletion", id);
             Status::NotFound
         }
         Err(e) => {
-            println!(
-                "Error deleting IFC model {} with request ID {}: {:?}",
-                id, idguard.id, e
-            );
+            println!("Error deleting IFC model {}: {:?}", id, e);
             Status::InternalServerError
         }
     }
