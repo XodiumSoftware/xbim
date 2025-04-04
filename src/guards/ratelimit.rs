@@ -3,84 +3,52 @@
  * All rights reserved.
  */
 
-use rocket::http::Status;
-use rocket::request::{FromRequest, Outcome};
-use rocket::{async_trait, Request};
+use rocket_governor::{Method, Quota, RocketGovernable};
 
 /// RateLimit Guard.
 pub struct RateLimitGuard;
 
-#[async_trait]
-impl<'r> FromRequest<'r> for RateLimitGuard {
-    type Error = ();
-
-    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        if let Some(status) = request.local_cache(|| Option::<Status>::None) {
-            return Outcome::Error((*status, ()));
-        }
-        Outcome::Success(RateLimitGuard)
+impl RocketGovernable<'_> for RateLimitGuard {
+    fn quota(_method: Method, _route_name: &str) -> Quota {
+        Quota::per_second(Self::nonzero(1u32))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rocket::http::Status;
-    use rocket::local::blocking::{Client, LocalResponse};
-    use rocket::{build, get, routes};
+    use rocket_governor::{Method, Quota};
+    use std::num::NonZeroU32;
 
-    pub struct RateLimitSetter;
+    #[test]
+    fn test_rate_limit_quota_get() {
+        let quota = RateLimitGuard::quota(Method::Get, "test_route");
+        let expected = Quota::per_second(NonZeroU32::new(1).unwrap());
 
-    #[async_trait]
-    impl<'r> FromRequest<'r> for RateLimitSetter {
-        type Error = ();
-
-        async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-            request.local_cache(|| Some(Status::TooManyRequests));
-            Outcome::Success(RateLimitSetter)
-        }
-    }
-
-    #[get("/ratelimited")]
-    fn ratelimited_endpoint(_guard: RateLimitGuard) -> &'static str {
-        "Rate limit not exceeded"
-    }
-
-    #[get("/simulate_ratelimit")]
-    fn simulate_ratelimit(_setter: RateLimitSetter) -> &'static str {
-        "Rate limit simulation set"
-    }
-
-    struct TestContext {
-        client: Client,
-    }
-
-    impl TestContext {
-        fn new() -> Self {
-            let rocket = build().mount("/", routes![ratelimited_endpoint, simulate_ratelimit]);
-            let client = Client::tracked(rocket).expect("valid rocket instance");
-            TestContext { client }
-        }
-
-        fn get<'a>(&'a self, path: &'a str) -> LocalResponse<'a> {
-            self.client.get(path).dispatch()
-        }
+        assert_eq!(quota, expected);
     }
 
     #[test]
-    fn test_ratelimit_guard() {
-        let ctx = TestContext::new();
+    fn test_rate_limit_quota_different_methods() {
+        let get_quota = RateLimitGuard::quota(Method::Get, "test_route");
+        let post_quota = RateLimitGuard::quota(Method::Post, "test_route");
+        let put_quota = RateLimitGuard::quota(Method::Put, "test_route");
 
-        // Test normal access - should succeed
-        let response = ctx.get("/ratelimited");
-        assert_eq!(response.status(), Status::Ok);
-        assert_eq!(response.into_string().unwrap(), "Rate limit not exceeded");
+        assert_eq!(get_quota, post_quota);
+        assert_eq!(post_quota, put_quota);
+    }
 
-        // Simulate rate limit by setting Status in local cache
-        let _ = ctx.get("/simulate_ratelimit");
+    #[test]
+    fn test_rate_limit_quota_different_routes() {
+        let route1_quota = RateLimitGuard::quota(Method::Get, "route1");
+        let route2_quota = RateLimitGuard::quota(Method::Get, "route2");
 
-        // Next request should be rate limited
-        let response = ctx.get("/ratelimited");
-        assert_eq!(response.status(), Status::TooManyRequests);
+        assert_eq!(route1_quota, route2_quota);
+    }
+
+    #[test]
+    fn test_nonzero_conversion() {
+        assert_eq!(RateLimitGuard::nonzero(5u32), NonZeroU32::new(5).unwrap());
+        assert_eq!(RateLimitGuard::nonzero(1u32), NonZeroU32::new(1).unwrap());
     }
 }

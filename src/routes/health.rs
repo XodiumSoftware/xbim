@@ -8,6 +8,7 @@ use crate::guards::{auth::AuthGuard, id::IdGuard};
 use chrono::{DateTime, Utc};
 use rocket::http::Status;
 use rocket::{get, serde::json::Json};
+use rocket_governor::RocketGovernor;
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -32,7 +33,7 @@ pub struct Response {
 pub fn health(
     idguard: IdGuard,
     _authguard: AuthGuard,
-    _ratelimitguard: RateLimitGuard,
+    _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
 ) -> Json<Response> {
     println!("Health check requested with request ID: {}", idguard.id);
     Json(Response {
