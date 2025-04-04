@@ -7,7 +7,6 @@
 #![forbid(unsafe_code)]
 
 pub mod fairings {
-    pub mod compression;
     pub mod filtering;
     pub mod id;
     pub mod security;
@@ -30,15 +29,13 @@ pub mod errors;
 
 use database::Database;
 use errors::catchers;
-use fairings::{
-    compression::ContentCompressor, filtering::IpFilter, id::IdGenerator, security::SecurityHeaders,
-};
+use fairings::{filtering::IpFilter, id::IdGenerator, security::SecurityHeaders};
 use rocket::{build, launch, routes, Build, Config, Rocket};
+use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
 use std::process::exit;
-use tracing::subscriber::set_global_default;
-use tracing::Level;
+use tracing::{subscriber::set_global_default, Level as TracingLevel};
 use tracing_subscriber::FmtSubscriber;
 
 #[launch]
@@ -52,7 +49,7 @@ async fn rocket() -> Rocket<Build> {
     };
     set_global_default(
         FmtSubscriber::builder()
-            .with_max_level(Level::INFO)
+            .with_max_level(TracingLevel::INFO)
             .finish(),
     )
     .expect("Failed to set tracing subscriber");
@@ -73,7 +70,7 @@ async fn rocket() -> Rocket<Build> {
                 .to_cors()
                 .expect("Failed to build CORS"),
         )
-        .attach(ContentCompressor)
+        .attach(Compression::with_level(CompressionLevel::Default))
         .attach(IdGenerator)
         .attach(SecurityHeaders::default())
         .attach(IpFilter::default())
