@@ -11,6 +11,7 @@ use rocket_governor::RocketGovernor;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct StoredIFC {
     pub id: Option<String>,
     pub name: String,

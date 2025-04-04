@@ -3,11 +3,12 @@
  * All rights reserved.
  */
 
-use serde::{Deserialize, Serialize};
+use rocket::serde::{Deserialize, Serialize};
 use std::{env, error, fs, io};
 
 /// Configuration settings for the application.
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Config {
     pub server_port: u16,
     pub database_url: String,

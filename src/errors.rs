@@ -8,6 +8,7 @@ use rocket::{catch, catchers, http::Status, Catcher};
 use rocket_governor::rocket_governor_catcher;
 
 #[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 struct Response {
     status: Status,
     message: &'static str,
