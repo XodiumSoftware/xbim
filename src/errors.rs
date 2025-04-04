@@ -2,9 +2,8 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
-use rocket::serde::json::Json;
-use rocket::serde::Serialize;
-use rocket::{catch, catchers, http::Status, Catcher};
+
+use rocket::{catch, catchers, http::Status, serde::json::Json, serde::Serialize, Catcher};
 use rocket_governor::rocket_governor_catcher;
 
 #[derive(Serialize)]

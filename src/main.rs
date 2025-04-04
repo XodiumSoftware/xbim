@@ -22,11 +22,11 @@ pub mod errors;
 
 use database::Database;
 use errors::catchers;
-use rocket::shield::{
-    ExpectCt, Feature, Frame, Hsts, NoSniff, Permission, Prefetch, Referrer, Shield, XssFilter,
+use rocket::{
+    build, config::TlsConfig, launch, routes, shield::ExpectCt, shield::Feature, shield::Frame,
+    shield::Hsts, shield::NoSniff, shield::Permission, shield::Prefetch, shield::Referrer,
+    shield::Shield, shield::XssFilter, time::Duration, Build, Config, Rocket,
 };
-use rocket::time::Duration;
-use rocket::{build, launch, routes, Build, Config, Rocket};
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
@@ -41,11 +41,21 @@ async fn rocket() -> Rocket<Build> {
             exit(1);
         }
     };
+    let mut rocket_config = Config {
+        port: config.server_port,
+        ..Config::debug_default()
+    };
+
+    if let (Some(cert_path), Some(key_path)) = (&config.tls_cert_path, &config.tls_key_path) {
+        if !cert_path.is_empty() && !key_path.is_empty() {
+            let tls_config = TlsConfig::from_paths(cert_path, key_path);
+            rocket_config.tls = Some(tls_config);
+            println!("TLS enabled with certificate: {}", cert_path);
+        }
+    }
+
     build()
-        .configure(Config {
-            port: config.server_port,
-            ..Config::debug_default()
-        })
+        .configure(rocket_config)
         .manage(config.clone())
         .manage(Database::new(&config).await)
         .mount(

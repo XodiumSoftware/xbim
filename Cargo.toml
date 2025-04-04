@@ -22,7 +22,7 @@ all-features = true
 
 [dependencies]
 chrono = "0.4.40"
-rocket = { version = "0.5.1", features = ["json", "uuid"] }
+rocket = { version = "0.5.1", features = ["json", "uuid", "tls"] }
 rocket_async_compression = "0.6.1"
 rocket_cors = "0.6.0"
 rocket-governor = "0.2.0-rc.4"

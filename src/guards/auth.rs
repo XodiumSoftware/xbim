@@ -4,9 +4,12 @@
  */
 
 use crate::config::Config;
-use rocket::http::Status;
-use rocket::request::{FromRequest, Outcome};
-use rocket::{async_trait, Request};
+use rocket::{
+    async_trait,
+    http::Status,
+    request::{FromRequest, Outcome},
+    Request,
+};
 
 /// Authentication Guard
 pub struct AuthGuard;
