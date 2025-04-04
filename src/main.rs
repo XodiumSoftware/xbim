@@ -38,8 +38,6 @@ use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
 use std::process::exit;
-use tracing::{subscriber::set_global_default, Level as TracingLevel};
-use tracing_subscriber::FmtSubscriber;
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
@@ -50,12 +48,6 @@ async fn rocket() -> Rocket<Build> {
             exit(1);
         }
     };
-    set_global_default(
-        FmtSubscriber::builder()
-            .with_max_level(TracingLevel::INFO)
-            .finish(),
-    )
-    .expect("Failed to set tracing subscriber");
     build()
         .configure(Config {
             port: config.server_port,
