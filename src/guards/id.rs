@@ -3,9 +3,7 @@
  * All rights reserved.
  */
 
-use rocket::{async_trait, Request};
-use rocket::{request::FromRequest, request::Outcome};
-use uuid::Uuid;
+use rocket::{async_trait, request::FromRequest, request::Outcome, serde::uuid::Uuid, Request};
 
 /// Identification Guard
 pub struct IdGuard {

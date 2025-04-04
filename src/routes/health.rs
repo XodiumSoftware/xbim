@@ -3,14 +3,13 @@
  * All rights reserved.
  */
 
-use crate::guards::ratelimit::RateLimitGuard;
-use crate::guards::{auth::AuthGuard, id::IdGuard};
+use crate::{
+    guards::ratelimit::RateLimitGuard,
+    guards::{auth::AuthGuard, id::IdGuard},
+};
 use chrono::{DateTime, Utc};
-use rocket::http::Status;
-use rocket::serde::Serialize;
-use rocket::{get, serde::json::Json};
+use rocket::{get, http::Status, serde::json::Json, serde::uuid::Uuid, serde::Serialize};
 use rocket_governor::RocketGovernor;
-use uuid::Uuid;
 
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]

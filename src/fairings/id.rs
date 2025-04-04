@@ -7,9 +7,9 @@ use rocket::{
     async_trait,
     fairing::{Fairing, Info, Kind},
     http::Header,
+    serde::uuid::Uuid,
     Data, Request, Response,
 };
-use uuid::Uuid;
 
 pub struct IdGenerator;
 
