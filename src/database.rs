@@ -7,7 +7,7 @@
 #![forbid(unsafe_code)]
 
 use crate::config::Config;
-use serde::{Deserialize, Serialize};
+use rocket::serde::{Deserialize, Serialize};
 use surrealdb::error::Api;
 use surrealdb::{
     engine::remote::ws::{Client, Ws},

@@ -7,12 +7,13 @@ use crate::guards::ratelimit::RateLimitGuard;
 use crate::guards::{auth::AuthGuard, id::IdGuard};
 use chrono::{DateTime, Utc};
 use rocket::http::Status;
+use rocket::serde::Serialize;
 use rocket::{get, serde::json::Json};
 use rocket_governor::RocketGovernor;
-use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Response {
     status: Status,
     id: Uuid,
