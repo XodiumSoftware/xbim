@@ -16,14 +16,18 @@ impl<'r> FromRequest<'r> for AuthGuard {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let config = request
-            .rocket()
-            .state::<Config>()
-            .expect("Config not found in Rocket state");
-        match request.headers().get_one("X-API-Key") {
-            Some(key) if key == config.api_key => Outcome::Success(AuthGuard),
-            _ => Outcome::Error((Status::Unauthorized, ())),
-        }
+        request
+            .headers()
+            .get_one("X-API-Key")
+            .filter(|&key| {
+                key == request
+                    .rocket()
+                    .state::<Config>()
+                    .expect("Config not found in Rocket state")
+                    .api_key
+            })
+            .map(|_| Outcome::Success(AuthGuard))
+            .unwrap_or(Outcome::Error((Status::Unauthorized, ())))
     }
 }
 
