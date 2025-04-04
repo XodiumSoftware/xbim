@@ -29,14 +29,25 @@ mod tests {
     use rocket::local::blocking::{Client, LocalResponse};
     use rocket::{build, get, routes};
 
+    pub struct RateLimitSetter;
+
+    #[async_trait]
+    impl<'r> FromRequest<'r> for RateLimitSetter {
+        type Error = ();
+
+        async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+            request.local_cache(|| Some(Status::TooManyRequests));
+            Outcome::Success(RateLimitSetter)
+        }
+    }
+
     #[get("/ratelimited")]
     fn ratelimited_endpoint(_guard: RateLimitGuard) -> &'static str {
         "Rate limit not exceeded"
     }
 
     #[get("/simulate_ratelimit")]
-    fn simulate_ratelimit(request: &Request<'_>) -> &'static str {
-        request.local_cache(|| Some(Status::TooManyRequests));
+    fn simulate_ratelimit(_setter: RateLimitSetter) -> &'static str {
         "Rate limit simulation set"
     }
 
