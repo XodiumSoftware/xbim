@@ -19,8 +19,10 @@ pub mod routes {
 pub mod config;
 pub mod database;
 pub mod errors;
+mod utils;
 
 use crate::config::AppConfig;
+use crate::utils::get_executable_relative_path;
 use database::Database;
 use errors::catchers;
 use figment::providers::{Format, Serialized, Toml};
@@ -36,8 +38,10 @@ use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
+    let config_path = get_executable_relative_path("config.toml");
+
     let figment =
-        Figment::from(Serialized::defaults(AppConfig::default())).merge(Toml::file("config.toml"));
+        Figment::from(Serialized::defaults(AppConfig::default())).merge(Toml::file(config_path));
 
     let config = figment.extract::<AppConfig>().unwrap_or_else(|err| {
         println!("Configuration error (using defaults): {}", err);
