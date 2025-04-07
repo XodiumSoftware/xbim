@@ -15,6 +15,8 @@ pub struct Config {
     pub database_username: String,
     pub database_password: String,
     pub api_key: String,
+    pub tls_cert_path: Option<String>,
+    pub tls_key_path: Option<String>,
 }
 
 impl Default for Config {
@@ -25,6 +27,8 @@ impl Default for Config {
             database_username: String::new(),
             database_password: String::new(),
             api_key: String::new(),
+            tls_cert_path: None,
+            tls_key_path: None,
         }
     }
 }

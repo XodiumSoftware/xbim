@@ -3,14 +3,11 @@
  * All rights reserved.
  */
 
-#![warn(clippy::all, rust_2018_idioms)]
-#![forbid(unsafe_code)]
-
 use crate::config::Config;
 use rocket::serde::{Deserialize, Serialize};
-use surrealdb::error::Api;
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
+    error::Api,
     opt::auth::Root,
     sql::Uuid,
     Error, Surreal,
