@@ -48,9 +48,7 @@ async fn rocket() -> Rocket<Build> {
 
     if let (Some(cert_path), Some(key_path)) = (&config.tls_cert_path, &config.tls_key_path) {
         if !cert_path.is_empty() && !key_path.is_empty() {
-            let tls_config = TlsConfig::from_paths(cert_path, key_path);
-            rocket_config.tls = Some(tls_config);
-            println!("TLS enabled with certificate: {}", cert_path);
+            rocket_config.tls = Some(TlsConfig::from_paths(cert_path, key_path));
         }
     }
 
