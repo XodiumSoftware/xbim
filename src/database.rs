@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-use crate::config::Config;
+use crate::config::AppConfig;
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
@@ -26,7 +26,7 @@ impl Database {
     ///
     /// # Returns
     /// A new `Database` instance.
-    pub async fn new(config: &Config) -> Self {
+    pub async fn new(config: &AppConfig) -> Self {
         let client = Surreal::new::<Ws>(&config.database_url)
             .await
             .unwrap_or_else(|_| {

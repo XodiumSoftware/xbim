@@ -3,7 +3,8 @@
  * All rights reserved.
  */
 
-use crate::config::Config;
+use crate::config::AppConfig;
+use rocket::serde::uuid::Uuid;
 use rocket::{
     async_trait,
     http::Status,
@@ -22,12 +23,14 @@ impl<'r> FromRequest<'r> for AuthGuard {
         request
             .headers()
             .get_one("X-API-Key")
-            .filter(|&key| {
-                key == request
-                    .rocket()
-                    .state::<Config>()
-                    .expect("Config not found in Rocket state")
-                    .api_key
+            .and_then(|key| Uuid::parse_str(key).ok())
+            .filter(|&parsed_key| {
+                parsed_key
+                    == request
+                        .rocket()
+                        .state::<AppConfig>()
+                        .expect("Config not found in Rocket state")
+                        .api_key
             })
             .map(|_| Outcome::Success(AuthGuard))
             .unwrap_or(Outcome::Error((Status::Unauthorized, ())))
@@ -48,13 +51,13 @@ mod tests {
 
     struct TestContext {
         client: Client,
-        api_key: String,
+        api_key: Uuid,
     }
 
     impl TestContext {
         fn new() -> Self {
-            let config = Config::default();
-            let api_key = config.api_key.clone();
+            let config = AppConfig::default();
+            let api_key = config.api_key;
             let rocket = build()
                 .manage(config)
                 .mount("/", routes![protected_endpoint]);
@@ -62,7 +65,7 @@ mod tests {
             TestContext { client, api_key }
         }
 
-        fn request_with_key(&self, key: &str) -> LocalResponse<'_> {
+        fn request_with_key(&self, key: Uuid) -> LocalResponse<'_> {
             self.client
                 .get("/protected")
                 .header(Header::new("X-API-Key", key.to_string()))
@@ -75,12 +78,21 @@ mod tests {
         let ctx = TestContext::new();
 
         // Test valid key
-        let valid_response = ctx.request_with_key(&ctx.api_key);
+        let valid_response = ctx.request_with_key(ctx.api_key);
         assert_eq!(valid_response.status(), Status::Ok);
         assert_eq!(valid_response.into_string().unwrap(), "Protected content");
 
-        // Test invalid key
-        let invalid_response = ctx.request_with_key("invalid-key");
+        // Test invalid key (different UUID)
+        let invalid_key = Uuid::now_v7();
+        let invalid_response = ctx.request_with_key(invalid_key);
         assert_eq!(invalid_response.status(), Status::Unauthorized);
+
+        // Test malformed key by directly sending a string
+        let malformed_response = ctx
+            .client
+            .get("/protected")
+            .header(Header::new("X-API-Key", "invalid-not-a-uuid"))
+            .dispatch();
+        assert_eq!(malformed_response.status(), Status::Unauthorized);
     }
 }

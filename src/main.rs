@@ -19,7 +19,9 @@ pub mod routes {
 pub mod config;
 pub mod database;
 pub mod errors;
+mod utils;
 
+use crate::config::AppConfig;
 use database::Database;
 use errors::catchers;
 use rocket::{
@@ -30,30 +32,16 @@ use rocket::{
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
-use std::process::exit;
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
-    let config = match config::Config::init() {
-        Ok(cfg) => cfg,
-        Err(e) => {
-            eprintln!("Failed to load configuration: {}", e);
-            exit(1);
-        }
-    };
-    let mut rocket_config = Config {
-        port: config.server_port,
-        ..Config::debug_default()
-    };
-
-    if let (Some(cert_path), Some(key_path)) = (&config.tls_cert_path, &config.tls_key_path) {
-        if !cert_path.is_empty() && !key_path.is_empty() {
-            rocket_config.tls = Some(TlsConfig::from_paths(cert_path, key_path));
-        }
-    }
-
+    let config = AppConfig::new();
     build()
-        .configure(rocket_config)
+        .configure(Config {
+            tls: (!config.tls_cert_path.is_empty() && !config.tls_key_path.is_empty())
+                .then(|| TlsConfig::from_paths(&config.tls_cert_path, &config.tls_key_path)),
+            ..Config::default()
+        })
         .manage(config.clone())
         .manage(Database::new(&config).await)
         .mount(
