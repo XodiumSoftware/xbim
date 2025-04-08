@@ -32,6 +32,7 @@ use rocket::{
 };
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
+use rocket_dyn_templates::Template;
 use routes::{
     health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc, index::index,
 };
@@ -74,5 +75,6 @@ async fn rocket() -> Rocket<Build> {
                 .expect("Failed to build CORS"),
         )
         .attach(Compression::with_level(CompressionLevel::Default))
+        .attach(Template::fairing())
         .register("/", catchers())
 }
