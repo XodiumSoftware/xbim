@@ -13,7 +13,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 /// Configuration settings for the application.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct AppConfig {
     pub database_url: String,
@@ -24,21 +24,6 @@ pub struct AppConfig {
     pub github_redirect_url: String,
     pub tls_cert_path: String,
     pub tls_key_path: String,
-}
-
-impl Default for AppConfig {
-    fn default() -> Self {
-        Self {
-            database_url: "db.xodium.org".to_string(),
-            database_username: String::new(),
-            database_password: String::new(),
-            github_client_id: String::new(),
-            github_client_secret: String::new(),
-            github_redirect_url: String::new(),
-            tls_cert_path: String::new(),
-            tls_key_path: String::new(),
-        }
-    }
 }
 
 impl AppConfig {
