@@ -45,7 +45,7 @@ jobs:
       - id: upload_artifact
         name: Upload Artifact
         uses: actions/upload-artifact@main
-        with: { name: xbim, path: target/release/xBIM.* }
+        with: { name: xbim, path: target/release/xBIM }
 
   test:
     needs: [ build ]
@@ -92,4 +92,4 @@ jobs:
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, '.pre') }}
           tag_name: v${{ needs.build.outputs.VERSION }}
-          files: .
+          files: xBIM
