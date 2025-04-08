@@ -1,49 +1,91 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Copyright (c) 2025. Xodium.
-+ All rights reserved.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/*
+ * Copyright (c) 2025. Xodium.
+ * All rights reserved.
+ */
 
-use serde::{Deserialize, Serialize};
-use std::{env, error, fs, io};
+use crate::utils::Utils;
+use figment::providers::{Format, Serialized, Toml};
+use figment::Figment;
+use rocket::serde::uuid::Uuid;
+use rocket::serde::{Deserialize, Serialize};
+use std::fs;
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
 
 /// Configuration settings for the application.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Config {
-    pub server_port: u16,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AppConfig {
     pub database_url: String,
     pub database_username: String,
     pub database_password: String,
-    pub api_key: String,
+    pub api_key: Uuid,
+    pub tls_cert_path: String,
+    pub tls_key_path: String,
 }
 
-impl Default for Config {
+impl Default for AppConfig {
     fn default() -> Self {
         Self {
-            server_port: 8001,
-            database_url: "localhost:8000".to_string(),
+            database_url: "db.xodium.org".to_string(),
             database_username: String::new(),
             database_password: String::new(),
-            api_key: String::new(),
+            api_key: Uuid::now_v7(),
+            tls_cert_path: String::new(),
+            tls_key_path: String::new(),
         }
     }
 }
 
-impl Config {
-    pub fn init() -> Result<Self, Box<dyn error::Error>> {
-        let config_path = env::current_exe()?
-            .parent()
-            .ok_or("Failed to get executable directory")?
-            .join("config.toml");
+impl AppConfig {
+    /// Creates a new instance of `AppConfig` with default values.
+    ///
+    /// # Returns
+    /// A `Self` instance containing the default configuration.
+    pub fn new() -> Self {
+        Self::load_or_create(&Utils::get_exec_path("config.toml"))
+    }
 
-        match fs::read_to_string(&config_path) {
-            Ok(content) => Ok(toml::from_str(&content)?),
-            Err(e) if e.kind() == io::ErrorKind::NotFound => {
-                let config = Self::default();
-                fs::write(&config_path, toml::to_string_pretty(&config)?)?;
-                println!("Created new config file at: {}", config_path.display());
-                Ok(config)
-            }
-            Err(e) => Err(e.into()),
+    /// Loads the configuration from a file, creating a default one if it doesn't exist.
+    ///
+    /// # Arguments
+    /// * `path` - The path to the configuration file.
+    ///
+    /// # Returns
+    /// A `Self` instance containing the loaded or default configuration.
+    pub fn load_or_create(path: &PathBuf) -> Self {
+        if !path.exists() {
+            println!("Creating default config at: {}", path.display());
+            Self::default()
+                .save_to_file(path)
+                .unwrap_or_else(|err| eprintln!("Failed to create config: {}", err));
         }
+
+        Figment::from(Serialized::defaults(Self::default()))
+            .merge(Toml::file(path))
+            .extract::<Self>()
+            .unwrap_or_else(|err| {
+                eprintln!("Configuration error (using defaults): {}", err);
+                Self::default()
+            })
+    }
+
+    /// Saves the current configuration to a file.
+    ///
+    /// # Arguments
+    /// * `path` - The path to the configuration file.
+    ///
+    /// # Returns
+    /// A `std::io::Result<()>` indicating success or failure.
+    pub fn save_to_file(&self, path: &PathBuf) -> std::io::Result<()> {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        File::create(path)?.write_all(
+            toml::to_string_pretty(self)
+                .expect("Failed to serialize config to TOML")
+                .as_bytes(),
+        )
     }
 }

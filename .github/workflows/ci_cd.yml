@@ -1,7 +1,7 @@
 name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
-on: { push: { branches: [main], paths: ["src/**"] }, workflow_dispatch }
+on: { push: { branches: [ main ], paths: [ "src/**" ] }, workflow_dispatch }
 
 permissions: { contents: write, packages: write }
 
@@ -48,7 +48,7 @@ jobs:
         with: { name: xbim, path: target/release/xBIM.* }
 
   test:
-    needs: [build]
+    needs: [ build ]
     runs-on: ubuntu-latest
     environment:
       {
@@ -70,7 +70,7 @@ jobs:
         run: cargo test --all
 
   release:
-    needs: [build, test]
+    needs: [ build, test ]
     runs-on: ubuntu-latest
     environment:
       {

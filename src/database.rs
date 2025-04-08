@@ -1,15 +1,10 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Copyright (c) 2025. Xodium.
-+ All rights reserved.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/*
+ * Copyright (c) 2025. Xodium.
+ * All rights reserved.
+ */
 
-#![warn(clippy::all, rust_2018_idioms)]
-#![forbid(unsafe_code)]
-
-use crate::config::Config;
-use chrono::Utc;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use crate::config::AppConfig;
+use rocket::serde::{Deserialize, Serialize};
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
     error::Api,
@@ -18,19 +13,6 @@ use surrealdb::{
     Error, Surreal,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct StoredIfcModel {
-    pub id: Option<String>,
-    pub name: String,
-    pub version: String,
-    pub description: Option<String>,
-    pub created_at: chrono::DateTime<Utc>,
-    pub updated_at: chrono::DateTime<Utc>,
-    pub metadata: HashMap<String, String>,
-    pub file_content: Option<String>,
-}
-
-/// Represents the database operations.
 pub struct Database {
     pub client: Surreal<Client>,
     pub session_token: Uuid,
@@ -44,13 +26,12 @@ impl Database {
     ///
     /// # Returns
     /// A new `Database` instance.
-    pub async fn new(config: &Config) -> Self {
+    pub async fn new(config: &AppConfig) -> Self {
         let client = Surreal::new::<Ws>(&config.database_url)
             .await
-            .expect(&format!(
-                "Failed to connect to SurrealDB at {}",
-                config.database_url
-            ));
+            .unwrap_or_else(|_| {
+                panic!("Failed to connect to SurrealDB at {}", config.database_url)
+            });
 
         client
             .signin(Root {
@@ -66,53 +47,79 @@ impl Database {
         }
     }
 
-    /// Saves an IFC model to the database.
+    /// Creates a new record in the specified table.
     ///
     /// # Arguments
-    /// * `model` - The IFC model upload data.
+    /// * `table` - The table name to create the record in.
+    /// * `data` - The data to create.
     ///
     /// # Returns
-    /// A `Result` containing the saved model with its ID.
-    pub async fn save_ifc_model(&self, model: StoredIfcModel) -> surrealdb::Result<StoredIfcModel> {
-        let now = Utc::now();
-        let stored_model = StoredIfcModel {
-            id: None,
-            name: model.name,
-            version: model.version,
-            description: model.description,
-            created_at: now,
-            updated_at: now,
-            metadata: model.metadata,
-            file_content: model.file_content,
-        };
+    /// A `Result` containing the created record with its ID.
+    pub async fn create<T>(&self, table: &str, data: T) -> Result<T, Error>
+    where
+        T: Serialize + for<'a> Deserialize<'a> + 'static,
+    {
         self.client
-            .create("ifc_models")
-            .content(stored_model)
+            .create(table)
+            .content(data)
             .await?
             .take()
-            .ok_or_else(|| {
-                Error::Api(Api::ParseError(String::from(
-                    "Failed to retrieve created IFC model",
-                )))
-            })
+            .ok_or_else(|| Error::Api(Api::ParseError(String::from("Failed to create record"))))
     }
 
-    /// Retrieves an IFC model from the database by its ID.
+    /// Retrieves a record from the specified table by its ID.
     ///
     /// # Arguments
-    /// * `id` - The ID of the IFC model to retrieve.
+    /// * `table` - The table name to retrieve from.
+    /// * `id` - The ID of the record to retrieve.
     ///
     /// # Returns
-    /// A `Result` containing the retrieved IFC model, or an error if not found.
-    pub async fn get_ifc_model(&self, id: String) -> surrealdb::Result<StoredIfcModel> {
+    /// A `Result` containing the retrieved record.
+    pub async fn read<T>(&self, table: &str, id: &str) -> Result<T, Error>
+    where
+        T: for<'a> Deserialize<'a> + 'static,
+    {
         self.client
-            .select(("ifc_models", id))
+            .select((table, id))
             .await?
             .take()
-            .ok_or_else(|| {
-                Error::Api(Api::ParseError(String::from(
-                    "Failed to retrieve IFC model",
-                )))
-            })
+            .ok_or_else(|| Error::Api(Api::ParseError(String::from("Failed to retrieve record"))))
+    }
+
+    /// Updates a record in the specified table.
+    ///
+    /// # Arguments
+    /// * `table` - The table name where the record is stored.
+    /// * `id` - The ID of the record to update.
+    /// * `data` - The updated data.
+    ///
+    /// # Returns
+    /// A `Result` containing the updated record.
+    pub async fn update<T>(&self, table: &str, id: &str, data: T) -> Result<T, Error>
+    where
+        T: Serialize + for<'a> Deserialize<'a> + 'static,
+    {
+        self.client
+            .update((table, id))
+            .content(data)
+            .await?
+            .take()
+            .ok_or_else(|| Error::Api(Api::ParseError(String::from("Failed to update record"))))
+    }
+
+    /// Deletes a record from the specified table.
+    ///
+    /// # Arguments
+    /// * `table` - The table name where the record is stored.
+    /// * `id` - The ID of the record to delete.
+    ///
+    /// # Returns
+    /// A `Result` indicating whether the deletion was successful.
+    pub async fn delete<T>(&self, table: &str, id: &str) -> Result<bool, Error>
+    where
+        T: for<'a> Deserialize<'a> + 'static,
+    {
+        let result: Option<T> = self.client.delete((table, id)).await?.take();
+        Ok(result.is_some())
     }
 }
