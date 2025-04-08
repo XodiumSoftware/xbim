@@ -14,6 +14,7 @@ pub mod guards {
 pub mod routes {
     pub mod health;
     pub mod ifc;
+    pub mod index;
 }
 
 pub mod config;
@@ -31,7 +32,9 @@ use rocket::{
 };
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
+use routes::{
+    health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc, index::index,
+};
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
@@ -46,7 +49,7 @@ async fn rocket() -> Rocket<Build> {
         .manage(Database::new(&config).await)
         .mount(
             "/",
-            routes![health, upload_ifc, get_ifc, update_ifc, delete_ifc],
+            routes![index, health, upload_ifc, get_ifc, update_ifc, delete_ifc],
         )
         .attach(
             Shield::new()

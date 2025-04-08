@@ -25,6 +25,7 @@ chrono = "0.4.40"
 rocket = { version = "0.5.1", features = ["json", "uuid", "tls"] }
 rocket_async_compression = "0.6.1"
 rocket_cors = "0.6.0"
+rocket_dyn_templates = { version = "0.2.0", features = ["tera"] }
 rocket-governor = "0.2.0-rc.4"
 surrealdb = { version = "2.2.1", features = ["http"] }
 figment = { version = "0.10.19", features = ["toml"] }
