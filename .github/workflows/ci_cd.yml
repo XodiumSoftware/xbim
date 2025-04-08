@@ -45,7 +45,7 @@ jobs:
       - id: upload_artifact
         name: Upload Artifact
         uses: actions/upload-artifact@main
-        with: { name: xbim, path: target/release/xBIM.* }
+        with: { name: xbim, path: target/release/xBIM }
 
   test:
     needs: [ build ]
