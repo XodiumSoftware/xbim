@@ -22,7 +22,6 @@ pub mod errors;
 mod utils;
 
 use crate::config::AppConfig;
-use crate::utils::get_executable_relative_path;
 use database::Database;
 use errors::catchers;
 use rocket::{
@@ -36,24 +35,15 @@ use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
-    let config_path = get_executable_relative_path("config.toml");
-    let config = AppConfig::load_or_create(&config_path);
-
-    let mut rocket_config = Config::default();
-
-    if !config.tls_cert_path.is_empty() && !config.tls_key_path.is_empty() {
-        rocket_config.tls = Some(TlsConfig::from_paths(
-            &config.tls_cert_path,
-            &config.tls_key_path,
-        ));
-    }
-
-    let db = Database::new(&config).await;
-
+    let config = AppConfig::new();
     build()
-        .configure(rocket_config)
-        .manage(config)
-        .manage(db)
+        .configure(Config {
+            tls: (!config.tls_cert_path.is_empty() && !config.tls_key_path.is_empty())
+                .then(|| TlsConfig::from_paths(&config.tls_cert_path, &config.tls_key_path)),
+            ..Config::default()
+        })
+        .manage(config.clone())
+        .manage(Database::new(&config).await)
         .mount(
             "/",
             routes![health, upload_ifc, get_ifc, update_ifc, delete_ifc],

@@ -2,6 +2,7 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
+use crate::utils::get_executable_relative_path;
 use figment::providers::{Format, Serialized, Toml};
 use figment::Figment;
 use rocket::serde::uuid::Uuid;
@@ -37,6 +38,14 @@ impl Default for AppConfig {
 }
 
 impl AppConfig {
+    /// Creates a new instance of `AppConfig` with default values.
+    ///
+    /// # Returns
+    /// A `Self` instance containing the default configuration.
+    pub fn new() -> Self {
+        Self::load_or_create(&get_executable_relative_path("config.toml"))
+    }
+
     /// Loads the configuration from a file, creating a default one if it doesn't exist.
     ///
     /// # Arguments
