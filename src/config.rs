@@ -6,7 +6,6 @@
 use crate::utils::Utils;
 use figment::providers::{Format, Serialized, Toml};
 use figment::Figment;
-use rocket::serde::uuid::Uuid;
 use rocket::serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -20,7 +19,9 @@ pub struct AppConfig {
     pub database_url: String,
     pub database_username: String,
     pub database_password: String,
-    pub api_key: Uuid,
+    pub github_client_id: String,
+    pub github_client_secret: String,
+    pub github_redirect_url: String,
     pub tls_cert_path: String,
     pub tls_key_path: String,
 }
@@ -31,7 +32,9 @@ impl Default for AppConfig {
             database_url: "db.xodium.org".to_string(),
             database_username: String::new(),
             database_password: String::new(),
-            api_key: Uuid::now_v7(),
+            github_client_id: String::new(),
+            github_client_secret: String::new(),
+            github_redirect_url: String::new(),
             tls_cert_path: String::new(),
             tls_key_path: String::new(),
         }
