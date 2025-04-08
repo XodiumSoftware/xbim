@@ -28,3 +28,4 @@ rocket_cors = "0.6.0"
 rocket-governor = "0.2.0-rc.4"
 surrealdb = { version = "2.2.1", features = ["http"] }
 figment = { version = "0.10.19", features = ["toml"] }
+toml = "0.8.20"

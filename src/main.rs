@@ -25,8 +25,6 @@ use crate::config::AppConfig;
 use crate::utils::get_executable_relative_path;
 use database::Database;
 use errors::catchers;
-use figment::providers::{Format, Serialized, Toml};
-use figment::Figment;
 use rocket::{
     build, config::TlsConfig, launch, routes, shield::ExpectCt, shield::Feature, shield::Frame,
     shield::Hsts, shield::NoSniff, shield::Permission, shield::Prefetch, shield::Referrer,
@@ -39,21 +37,15 @@ use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc
 #[launch]
 async fn rocket() -> Rocket<Build> {
     let config_path = get_executable_relative_path("config.toml");
-
-    let figment =
-        Figment::from(Serialized::defaults(AppConfig::default())).merge(Toml::file(config_path));
-
-    let config = figment.extract::<AppConfig>().unwrap_or_else(|err| {
-        println!("Configuration error (using defaults): {}", err);
-        AppConfig::default()
-    });
+    let config = AppConfig::load_or_create(&config_path);
 
     let mut rocket_config = Config::default();
 
-    if let (Some(cert_path), Some(key_path)) = (&config.tls_cert_path, &config.tls_key_path) {
-        if !cert_path.is_empty() && !key_path.is_empty() {
-            rocket_config.tls = Some(TlsConfig::from_paths(cert_path, key_path));
-        }
+    if !config.tls_cert_path.is_empty() && !config.tls_key_path.is_empty() {
+        rocket_config.tls = Some(TlsConfig::from_paths(
+            &config.tls_cert_path,
+            &config.tls_key_path,
+        ));
     }
 
     let db = Database::new(&config).await;
