@@ -11,6 +11,10 @@ pub mod guards {
     pub mod ratelimit;
 }
 
+pub mod models {
+    pub mod user;
+}
+
 pub mod routes {
     pub mod github;
     pub mod health;
