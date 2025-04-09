@@ -11,7 +11,12 @@ pub mod guards {
     pub mod ratelimit;
 }
 
+pub mod models {
+    pub mod user;
+}
+
 pub mod routes {
+    pub mod github;
     pub mod health;
     pub mod ifc;
 }
@@ -22,16 +27,20 @@ pub mod errors;
 mod utils;
 
 use crate::config::AppConfig;
+use crate::routes::github::{github_callback, github_login, GitHubUser};
+use crate::routes::health::health;
+use crate::routes::ifc::{ifc_delete, ifc_get, ifc_update, ifc_upload};
 use database::Database;
 use errors::catchers;
+use rocket::routes;
 use rocket::{
-    build, config::TlsConfig, launch, routes, shield::ExpectCt, shield::Feature, shield::Frame,
+    build, config::TlsConfig, launch, shield::ExpectCt, shield::Feature, shield::Frame,
     shield::Hsts, shield::NoSniff, shield::Permission, shield::Prefetch, shield::Referrer,
     shield::Shield, shield::XssFilter, time::Duration, Build, Config, Rocket,
 };
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use routes::{health::health, ifc::delete_ifc, ifc::get_ifc, ifc::update_ifc, ifc::upload_ifc};
+use rocket_oauth2::{HyperRustlsAdapter, OAuth2, OAuthConfig, StaticProvider};
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
@@ -46,7 +55,15 @@ async fn rocket() -> Rocket<Build> {
         .manage(Database::new(&config).await)
         .mount(
             "/",
-            routes![health, upload_ifc, get_ifc, update_ifc, delete_ifc],
+            routes![
+                github_login,
+                github_callback,
+                health,
+                ifc_upload,
+                ifc_get,
+                ifc_update,
+                ifc_delete,
+            ],
         )
         .attach(
             Shield::new()
@@ -71,5 +88,14 @@ async fn rocket() -> Rocket<Build> {
                 .expect("Failed to build CORS"),
         )
         .attach(Compression::with_level(CompressionLevel::Default))
+        .attach(OAuth2::<GitHubUser>::custom(
+            HyperRustlsAdapter::default(),
+            OAuthConfig::new(
+                StaticProvider::GitHub,
+                config.github_client_id.clone(),
+                config.github_client_secret.clone(),
+                Some(config.github_redirect_url.clone()),
+            ),
+        ))
         .register("/", catchers())
 }
