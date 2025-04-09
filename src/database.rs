@@ -27,24 +27,47 @@ impl Database {
     /// # Returns
     /// A new `Database` instance.
     pub async fn new(config: &AppConfig) -> Self {
-        let client = Surreal::new::<Ws>(&config.database_url)
-            .await
-            .unwrap_or_else(|_| {
-                panic!("Failed to connect to SurrealDB at {}", config.database_url)
-            });
-
-        client
-            .signin(Root {
-                username: &config.database_username,
-                password: &config.database_password,
-            })
-            .await
-            .expect("Failed to sign in to SurrealDB");
-
-        Self {
-            client,
-            session_token: Uuid::new(),
+        match Self::connect(config).await {
+            Ok(db) => db,
+            Err(e) => {
+                eprintln!("╭────────────────────────────────────╮");
+                eprintln!("│           DATABASE ERROR           │");
+                eprintln!("╰────────────────────────────────────╯");
+                eprintln!("- Error: {}", e);
+                eprintln!("- URL: {}", config.database_url);
+                if e.to_string().contains("authentication") {
+                    eprintln!("- Problem: Authentication failed");
+                    eprintln!("- Check your database username and password");
+                } else {
+                    eprintln!("- Problem: Connection failed");
+                    eprintln!("- Check if SurrealDB is running and network connectivity");
+                }
+                std::process::exit(1);
+            }
         }
+    }
+
+    /// Connects to the database using the provided configuration.
+    ///
+    /// # Arguments
+    /// * `config` - The application configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing the connected `Database` instance.
+    async fn connect(config: &AppConfig) -> Result<Self, Error> {
+        Ok(Self {
+            client: {
+                let client = Surreal::new::<Ws>(&config.database_url).await?;
+                client
+                    .signin(Root {
+                        username: &config.database_username,
+                        password: &config.database_password,
+                    })
+                    .await?;
+                client
+            },
+            session_token: Uuid::new(),
+        })
     }
 
     /// Creates a new record in the specified table.
