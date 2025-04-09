@@ -34,45 +34,62 @@ impl Utils {
     /// * `error` - The error encountered during database connection.
     /// * `config` - The application configuration containing the database URL.
     pub fn database_err_msg(error: &Error, config: &AppConfig) {
-        let error_message = "DATABASE ERROR";
-        let padding = 6;
-        let total_width = error_message.len() + (padding * 2);
-        let top = format!("╭{}╮", "─".repeat(total_width)).bright_red();
-        let middle = format!(
-            "│{}{}{}│",
-            " ".repeat(padding),
-            error_message,
-            " ".repeat(padding)
-        )
-        .bright_red()
-        .bold();
-        let bottom = format!("╰{}╯", "─".repeat(total_width)).bright_red();
+        const ERROR_TITLE: &str = "DATABASE ERROR";
+        const PADDING: usize = 6;
+        const BULLET: &str = "● ";
+        const LABELS: [&str; 3] = ["URL:", "Problem:", "Note:"];
 
-        eprintln!("{}\n{}\n{}", top, middle, bottom);
-        eprintln!("{} {}", "● URL:".yellow().bold(), config.database_url);
+        let total_width = ERROR_TITLE.len() + (PADDING * 2);
+        let border_line = "─".repeat(total_width);
+        let box_parts = [
+            format!("╭{}╮", border_line),
+            format!(
+                "│{}{}{}│",
+                " ".repeat(PADDING),
+                ERROR_TITLE,
+                " ".repeat(PADDING)
+            ),
+            format!("╰{}╯", border_line),
+        ];
 
-        if error.to_string().contains("authentication") {
+        for (i, part) in box_parts.iter().enumerate() {
             eprintln!(
-                "{} {}",
-                "● Error:".yellow().bold(),
-                "Authentication failed".red()
-            );
-            eprintln!(
-                "{} {}",
-                "● Note:".yellow().bold(),
-                "Check your database username and password".bright_white()
-            );
-        } else {
-            eprintln!(
-                "{} {}",
-                "● Problem:".yellow().bold(),
-                "Connection failed".red()
-            );
-            eprintln!(
-                "{} {}",
-                "● Note:".yellow().bold(),
-                "Check if SurrealDB is running and network connectivity".bright_white()
+                "{}",
+                if i == 1 {
+                    part.bright_red().bold()
+                } else {
+                    part.bright_red()
+                }
             );
         }
+
+        eprintln!(
+            "{} {}",
+            format!("{BULLET} {}", LABELS[0]).yellow().bold(),
+            config.database_url
+        );
+
+        let (problem, note) = if error.to_string().contains("authentication") {
+            (
+                "Authentication failed",
+                "Check your database username and password",
+            )
+        } else {
+            (
+                "Connection failed",
+                "Check if SurrealDB is running and network connectivity",
+            )
+        };
+
+        eprintln!(
+            "{} {}",
+            format!("{BULLET} {}", LABELS[1]).yellow().bold(),
+            problem.red()
+        );
+        eprintln!(
+            "{} {}",
+            format!("{BULLET} {}", LABELS[2]).yellow().bold(),
+            note.bright_white()
+        );
     }
 }
