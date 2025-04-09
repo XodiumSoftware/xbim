@@ -16,6 +16,7 @@ use std::path::PathBuf;
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct AppConfig {
+    pub secret_key: String,
     pub database_url: String,
     pub database_username: String,
     pub database_password: String,

@@ -32,6 +32,7 @@ use crate::routes::health::health;
 use crate::routes::ifc::{ifc_delete, ifc_get, ifc_update, ifc_upload};
 use database::Database;
 use errors::catchers;
+use rocket::config::SecretKey;
 use rocket::routes;
 use rocket::{
     build, config::TlsConfig, launch, shield::ExpectCt, shield::Feature, shield::Frame,
@@ -49,6 +50,7 @@ async fn rocket() -> Rocket<Build> {
         .configure(Config {
             tls: (!config.tls_cert_path.is_empty() && !config.tls_key_path.is_empty())
                 .then(|| TlsConfig::from_paths(&config.tls_cert_path, &config.tls_key_path)),
+            secret_key: SecretKey::derive_from(config.secret_key.as_bytes()),
             ..Config::default()
         })
         .manage(config.clone())
