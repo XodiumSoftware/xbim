@@ -27,7 +27,7 @@ pub mod errors;
 mod utils;
 
 use crate::config::AppConfig;
-use crate::routes::github::{github_callback, github_login};
+use crate::routes::github::{github_callback, github_login, GitHubUser};
 use crate::routes::health::health;
 use crate::routes::ifc::{ifc_delete, ifc_get, ifc_update, ifc_upload};
 use database::Database;
@@ -88,7 +88,7 @@ async fn rocket() -> Rocket<Build> {
                 .expect("Failed to build CORS"),
         )
         .attach(Compression::with_level(CompressionLevel::Default))
-        .attach(OAuth2::<StaticProvider>::custom(
+        .attach(OAuth2::<GitHubUser>::custom(
             HyperRustlsAdapter::default(),
             OAuthConfig::new(
                 StaticProvider::GitHub,
