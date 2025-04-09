@@ -3,8 +3,11 @@
  * All rights reserved.
  */
 
+use crate::config::AppConfig;
+use colored::*;
 use std::env;
 use std::path::PathBuf;
+use surrealdb::Error;
 
 /// A utility struct for common helper functions.
 pub struct Utils;
@@ -23,5 +26,53 @@ impl Utils {
             .parent()
             .expect("Failed to get executable directory")
             .join(filename)
+    }
+
+    /// Displays a formatted error message for database connection issues.
+    ///
+    /// # Arguments
+    /// * `error` - The error encountered during database connection.
+    /// * `config` - The application configuration containing the database URL.
+    pub fn database_err_msg(error: &Error, config: &AppConfig) {
+        let error_message = "DATABASE ERROR";
+        let padding = 6;
+        let total_width = error_message.len() + (padding * 2);
+        let top = format!("╭{}╮", "─".repeat(total_width)).bright_red();
+        let middle = format!(
+            "│{}{}{}│",
+            " ".repeat(padding),
+            error_message,
+            " ".repeat(padding)
+        )
+        .bright_red()
+        .bold();
+        let bottom = format!("╰{}╯", "─".repeat(total_width)).bright_red();
+
+        eprintln!("{}\n{}\n{}", top, middle, bottom);
+        eprintln!("{} {}", "● URL:".yellow().bold(), config.database_url);
+
+        if error.to_string().contains("authentication") {
+            eprintln!(
+                "{} {}",
+                "● Error:".yellow().bold(),
+                "Authentication failed".red()
+            );
+            eprintln!(
+                "{} {}",
+                "● Note:".yellow().bold(),
+                "Check your database username and password".bright_white()
+            );
+        } else {
+            eprintln!(
+                "{} {}",
+                "● Problem:".yellow().bold(),
+                "Connection failed".red()
+            );
+            eprintln!(
+                "{} {}",
+                "● Note:".yellow().bold(),
+                "Check if SurrealDB is running and network connectivity".bright_white()
+            );
+        }
     }
 }

@@ -4,6 +4,7 @@
  */
 
 use crate::config::AppConfig;
+use crate::utils::Utils;
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
@@ -30,18 +31,7 @@ impl Database {
         match Self::connect(config).await {
             Ok(db) => db,
             Err(e) => {
-                eprintln!("╭────────────────────────────────────╮");
-                eprintln!("│           DATABASE ERROR           │");
-                eprintln!("╰────────────────────────────────────╯");
-                eprintln!("- Error: {}", e);
-                eprintln!("- URL: {}", config.database_url);
-                if e.to_string().contains("authentication") {
-                    eprintln!("- Problem: Authentication failed");
-                    eprintln!("- Check your database username and password");
-                } else {
-                    eprintln!("- Problem: Connection failed");
-                    eprintln!("- Check if SurrealDB is running and network connectivity");
-                }
+                Utils::database_err_msg(&e, config);
                 std::process::exit(1);
             }
         }
