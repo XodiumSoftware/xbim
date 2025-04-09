@@ -42,8 +42,7 @@ reading and writing IFC files.
 1. Download the latest version of xBIM from the [release][release_latest] page.
 2. Place it in a directory of your choice.
 3. Run the executable. It will return an error that it cannot connect to the database. This is expected, as the
-   database is not yet set up in the config.toml which will generate on first time run. _(This is a temporary solution
-   until we find a more user friendly solution.)_
+   database is not yet set up in the config.toml which will generate on first time run.
 4. Replace the default values in the config with yours.
 5. Rerun the executable and voila!
 

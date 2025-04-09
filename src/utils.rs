@@ -37,7 +37,7 @@ impl Utils {
         const ERROR_TITLE: &str = "DATABASE ERROR";
         const PADDING: usize = 6;
         const BULLET: &str = "● ";
-        const LABELS: [&str; 3] = ["URL:", "Problem:", "Note:"];
+        const LABELS: [&str; 3] = ["URL:", "Error:", "Note:"];
 
         let total_width = ERROR_TITLE.len() + (PADDING * 2);
         let border_line = "─".repeat(total_width);
@@ -72,12 +72,12 @@ impl Utils {
         let (problem, note) = if error.to_string().contains("authentication") {
             (
                 "Authentication failed",
-                "Check your database username and password",
+                "Check your database username & password in config.toml",
             )
         } else {
             (
                 "Connection failed",
-                "Check if SurrealDB is running and network connectivity",
+                "Check if SurrealDB is running & network connectivity",
             )
         };
 
