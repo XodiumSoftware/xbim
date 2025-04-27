@@ -16,9 +16,9 @@ pub mod models {
 }
 
 pub mod routes {
+    pub mod data;
     pub mod github;
     pub mod health;
-    pub mod ifc;
 }
 
 pub mod config;
@@ -27,9 +27,9 @@ pub mod errors;
 mod utils;
 
 use crate::config::Config;
+use crate::routes::data::{data_delete, data_get, data_update, data_upload};
 use crate::routes::github::{github_callback, github_login, GitHubUser};
 use crate::routes::health::health;
-use crate::routes::ifc::{ifc_delete, ifc_get, ifc_update, ifc_upload};
 use database::Database;
 use errors::catchers;
 use rocket::config::SecretKey;
@@ -61,10 +61,10 @@ async fn rocket() -> Rocket<Build> {
                 github_login,
                 github_callback,
                 health,
-                ifc_upload,
-                ifc_get,
-                ifc_update,
-                ifc_delete,
+                data_upload,
+                data_get,
+                data_update,
+                data_delete,
             ],
         )
         .attach(
