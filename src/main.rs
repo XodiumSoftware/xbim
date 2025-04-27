@@ -26,7 +26,7 @@ pub mod database;
 pub mod errors;
 mod utils;
 
-use crate::config::AppConfig;
+use crate::config::Config;
 use crate::routes::github::{github_callback, github_login, GitHubUser};
 use crate::routes::health::health;
 use crate::routes::ifc::{ifc_delete, ifc_get, ifc_update, ifc_upload};
@@ -37,7 +37,7 @@ use rocket::routes;
 use rocket::{
     build, config::TlsConfig, launch, shield::ExpectCt, shield::Feature, shield::Frame,
     shield::Hsts, shield::NoSniff, shield::Permission, shield::Prefetch, shield::Referrer,
-    shield::Shield, shield::XssFilter, time::Duration, Build, Config, Rocket,
+    shield::Shield, shield::XssFilter, time::Duration, Build, Rocket,
 };
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
@@ -45,13 +45,13 @@ use rocket_oauth2::{HyperRustlsAdapter, OAuth2, OAuthConfig, StaticProvider};
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
-    let config = AppConfig::new();
+    let config = Config::new();
     build()
-        .configure(Config {
+        .configure(rocket::Config {
             tls: (!config.tls_cert_path.is_empty() && !config.tls_key_path.is_empty())
                 .then(|| TlsConfig::from_paths(&config.tls_cert_path, &config.tls_key_path)),
             secret_key: SecretKey::derive_from(config.secret_key.as_bytes()),
-            ..Config::default()
+            ..rocket::Config::default()
         })
         .manage(config.clone())
         .manage(Database::new(&config).await)

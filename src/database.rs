@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-use crate::config::AppConfig;
+use crate::config::Config;
 use crate::utils::Utils;
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::{
@@ -27,7 +27,7 @@ impl Database {
     ///
     /// # Returns
     /// A new `Database` instance.
-    pub async fn new(config: &AppConfig) -> Self {
+    pub async fn new(config: &Config) -> Self {
         match Self::connect(config).await {
             Ok(db) => db,
             Err(e) => {
@@ -44,7 +44,7 @@ impl Database {
     ///
     /// # Returns
     /// A `Result` containing the connected `Database` instance.
-    async fn connect(config: &AppConfig) -> Result<Self, Error> {
+    async fn connect(config: &Config) -> Result<Self, Error> {
         Ok(Self {
             client: {
                 let client = Surreal::new::<Ws>(&config.database_url).await?;

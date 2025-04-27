@@ -15,7 +15,7 @@ use std::path::PathBuf;
 /// Configuration settings for the application.
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct AppConfig {
+pub struct Config {
     pub secret_key: String,
     pub database_url: String,
     pub database_username: String,
@@ -27,7 +27,7 @@ pub struct AppConfig {
     pub tls_key_path: String,
 }
 
-impl AppConfig {
+impl Config {
     /// Creates a new instance of `AppConfig` with default values.
     ///
     /// # Returns

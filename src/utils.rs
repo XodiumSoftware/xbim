@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-use crate::config::AppConfig;
+use crate::config::Config;
 use colored::*;
 use std::env;
 use std::path::PathBuf;
@@ -33,7 +33,7 @@ impl Utils {
     /// # Arguments
     /// * `error` - The error encountered during database connection.
     /// * `config` - The application configuration containing the database URL.
-    pub fn database_err_msg(error: &Error, config: &AppConfig) {
+    pub fn database_err_msg(error: &Error, config: &Config) {
         const ERROR_TITLE: &str = "DATABASE ERROR";
         const PADDING: usize = 6;
         const BULLET: &str = "● ";
