@@ -31,7 +31,7 @@ jobs:
         with: { toolchain: stable }
 
       - id: build_artifact
-        name: Build Artifact
+        name: Build Artefact
         run: cargo build --release
 
       - id: install_toml_cli
@@ -79,7 +79,7 @@ jobs:
       }
     steps:
       - id: download_artifact
-        name: Download Artifact
+        name: Download Artefact
         uses: actions/download-artifact@main
         with: { name: xbim }
 

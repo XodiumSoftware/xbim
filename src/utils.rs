@@ -72,12 +72,12 @@ impl Utils {
         let (problem, note) = if error.to_string().contains("authentication") {
             (
                 "Authentication failed",
-                "Check your database username & password in config.toml",
+                "Check your database username and password in config.toml",
             )
         } else {
             (
                 "Connection failed",
-                "Check if SurrealDB is running & network connectivity",
+                "Check if SurrealDB is running and network connectivity",
             )
         };
 
