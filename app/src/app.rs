@@ -30,22 +30,28 @@ impl Xbim {
     }
 
     fn library(&self, ui: &mut egui::Ui) {
+        let card_data = vec![
+            ("Test1", "Description1"),
+            ("Test2", "Description2"),
+            ("Test3", "Description3"),
+            ("Test4", "Description4"),
+            ("Test5", "Description5"),
+            ("Test6", "Description6"),
+            ("Test7", "Description7"),
+            ("Test8", "Description8"),
+            ("Test9", "Description9"),
+            ("Test10", "Description10"),
+            ("Test11", "Description11"),
+            ("Test12", "Description12"),
+        ];
+
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing.x = 10.0;
 
-                self.card(ui, "Test1", "Description1");
-                self.card(ui, "Test2", "Description2");
-                self.card(ui, "Test3", "Description3");
-                self.card(ui, "Test4", "Description4");
-                self.card(ui, "Test5", "Description5");
-                self.card(ui, "Test6", "Description6");
-                self.card(ui, "Test7", "Description7");
-                self.card(ui, "Test8", "Description8");
-                self.card(ui, "Test9", "Description9");
-                self.card(ui, "Test10", "Description10");
-                self.card(ui, "Test11", "Description11");
-                self.card(ui, "Test12", "Description12");
+                for (title, description) in card_data {
+                    self.card(ui, title, description);
+                }
             });
         });
     }
@@ -74,8 +80,6 @@ impl Xbim {
 
 impl eframe::App for Xbim {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        catppuccin_egui::set_theme(ctx, catppuccin_egui::MOCHA);
-
         egui::SidePanel::left("side_panel")
             .resizable(true)
             .default_width(150.0)
@@ -83,14 +87,11 @@ impl eframe::App for Xbim {
             .show(ctx, |ui| {
                 if ui.button("Dashboard").clicked() {
                     self.selected_page = Page::Dashboard;
-                }
-                if ui.button("Analytics").clicked() {
+                } else if ui.button("Analytics").clicked() {
                     self.selected_page = Page::Analytics;
-                }
-                if ui.button("Library").clicked() {
+                } else if ui.button("Library").clicked() {
                     self.selected_page = Page::Library;
-                }
-                if ui.button("Logout").clicked() {
+                } else if ui.button("Logout").clicked() {
                     self.selected_page = Page::Logout;
                 }
             });

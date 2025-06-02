@@ -6,16 +6,16 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
-use app::Xbim;
-use eframe::{NativeOptions, run_native};
-
 mod app;
 
 fn main() {
-    run_native(
+    eframe::run_native(
         "xBIM",
-        NativeOptions::default(),
-        Box::new(|_cc| Ok(Box::new(Xbim::default()))),
+        eframe::NativeOptions::default(),
+        Box::new(|cc| {
+            catppuccin_egui::set_theme(&cc.egui_ctx, catppuccin_egui::MOCHA);
+            Ok(Box::new(app::Xbim::default()))
+        }),
     )
     .expect("Failed to run native application")
 }
