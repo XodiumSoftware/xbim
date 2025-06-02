@@ -5,10 +5,9 @@
 
 use crate::routes::github::GitHubUser;
 use rocket::{
-    async_trait,
+    Request, async_trait,
     http::Status,
     request::{FromRequest, Outcome},
-    Request,
 };
 
 /// Authentication Guard
@@ -37,7 +36,7 @@ mod tests {
     use super::*;
     use rocket::http::Cookie;
     use rocket::local::asynchronous::Client;
-    use rocket::{get, routes, tokio, Build, Rocket};
+    use rocket::{Build, Rocket, get, routes, tokio};
     use serde_json::json;
 
     #[get("/protected")]
