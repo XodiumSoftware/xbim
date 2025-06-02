@@ -22,5 +22,5 @@ fn main() {
         NativeOptions::default(),
         Box::new(|_cc| Ok(Box::new(Xbim))),
     )
-    .expect("TODO: panic message")
+    .expect("Failed to run native application")
 }
