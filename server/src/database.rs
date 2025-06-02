@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+#![warn(clippy::all)]
+#![forbid(unsafe_code)]
+
 use crate::config::Config;
 use crate::utils::Utils;
 use rocket::serde::{Deserialize, Serialize};

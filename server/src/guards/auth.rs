@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+#![warn(clippy::all)]
+#![forbid(unsafe_code)]
+
 use crate::routes::github::GitHubUser;
 use rocket::{
     Request, async_trait,

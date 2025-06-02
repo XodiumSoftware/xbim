@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+#![warn(clippy::all)]
+#![forbid(unsafe_code)]
+
 use crate::utils::Utils;
 use figment::Figment;
 use figment::providers::{Format, Serialized, Toml};

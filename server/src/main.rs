@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-#![warn(clippy::all, rust_2018_idioms)]
+#![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
 pub mod guards {

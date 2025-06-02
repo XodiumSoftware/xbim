@@ -3,24 +3,19 @@
  * All rights reserved.
  */
 
-use eframe::{App, Frame, NativeOptions, run_native};
-use egui::{CentralPanel, Context};
+#![warn(clippy::all)]
+#![forbid(unsafe_code)]
 
-struct Xbim;
+use app::Xbim;
+use eframe::{NativeOptions, run_native};
 
-impl App for Xbim {
-    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        CentralPanel::default().show(ctx, |ui| {
-            ui.label("Hello, egui!");
-        });
-    }
-}
+mod app;
 
 fn main() {
     run_native(
         "xBIM",
         NativeOptions::default(),
-        Box::new(|_cc| Ok(Box::new(Xbim))),
+        Box::new(|_cc| Ok(Box::new(Xbim::default()))),
     )
     .expect("Failed to run native application")
 }

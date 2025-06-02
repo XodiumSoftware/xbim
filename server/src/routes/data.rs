@@ -2,6 +2,10 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
+
+#![warn(clippy::all)]
+#![forbid(unsafe_code)]
+
 use crate::guards::ratelimit::RateLimitGuard;
 use crate::{database::Database, guards::auth::AuthGuard};
 use chrono::{DateTime, Utc};

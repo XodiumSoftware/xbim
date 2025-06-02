@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+#![warn(clippy::all)]
+#![forbid(unsafe_code)]
+
 use crate::database::Database;
 use crate::models::user::User;
 use reqwest::Client as HttpClient;
