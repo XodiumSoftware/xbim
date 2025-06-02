@@ -6,17 +6,13 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+#[derive(Default)]
 enum Page {
+    #[default]
     Dashboard,
     Analytics,
     Library,
     Logout,
-}
-
-impl Default for Page {
-    fn default() -> Self {
-        Self::Dashboard
-    }
 }
 
 #[derive(Default)]
@@ -78,6 +74,8 @@ impl Xbim {
 
 impl eframe::App for Xbim {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        catppuccin_egui::set_theme(ctx, catppuccin_egui::MOCHA);
+
         egui::SidePanel::left("side_panel")
             .resizable(true)
             .default_width(150.0)
