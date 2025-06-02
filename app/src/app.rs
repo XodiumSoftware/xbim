@@ -13,16 +13,15 @@ enum Page {
     Logout,
 }
 
-pub struct Xbim {
-    selected_button: String,
+impl Default for Page {
+    fn default() -> Self {
+        Self::Dashboard
+    }
 }
 
-impl Default for Xbim {
-    fn default() -> Self {
-        Self {
-            selected_button: "Dashboard".to_string(),
-        }
-    }
+#[derive(Default)]
+pub struct Xbim {
+    selected_page: Page,
 }
 
 impl Xbim {
@@ -85,25 +84,24 @@ impl eframe::App for Xbim {
             .width_range(80.0..=200.0)
             .show(ctx, |ui| {
                 if ui.button("Dashboard").clicked() {
-                    self.selected_button = "Dashboard".to_string();
+                    self.selected_page = Page::Dashboard;
                 }
                 if ui.button("Analytics").clicked() {
-                    self.selected_button = "Analytics".to_string();
+                    self.selected_page = Page::Analytics;
                 }
                 if ui.button("Library").clicked() {
-                    self.selected_button = "Library".to_string();
+                    self.selected_page = Page::Library;
                 }
                 if ui.button("Logout").clicked() {
-                    self.selected_button = "Logout".to_string();
+                    self.selected_page = Page::Logout;
                 }
             });
 
-        egui::CentralPanel::default().show(ctx, |ui| match self.selected_button.as_str() {
-            "Dashboard" => self.dashboard(ui),
-            "Analytics" => self.analytics(ui),
-            "Library" => self.library(ui),
-            "Logout" => self.logout(ui),
-            _ => self.dashboard(ui),
+        egui::CentralPanel::default().show(ctx, |ui| match self.selected_page {
+            Page::Dashboard => self.dashboard(ui),
+            Page::Analytics => self.analytics(ui),
+            Page::Library => self.library(ui),
+            Page::Logout => self.logout(ui),
         });
 
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
