@@ -21,15 +21,18 @@ pub struct Xbim {
 }
 
 impl Xbim {
+    //TODO: implement dashboard functionality.
     fn dashboard(&self, ui: &mut egui::Ui) {
         ui.label("Dashboard Content");
     }
 
+    //TODO: implement analytics functionality.
     fn analytics(&self, ui: &mut egui::Ui) {
         ui.label("Analytics Content");
     }
 
     fn library(&self, ui: &mut egui::Ui) {
+        //TODO: replace with actual data fetching logic.
         let card_data = vec![
             ("Test1", "Description1"),
             ("Test2", "Description2"),
@@ -46,6 +49,7 @@ impl Xbim {
         ];
 
         egui::ScrollArea::vertical().show(ui, |ui| {
+            //TODO: fix cards not wrapping correctly. probably because card is not a widget.
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing.x = 10.0;
 
@@ -56,6 +60,8 @@ impl Xbim {
         });
     }
 
+    //TODO: implement login functionality.
+    //TODO: implement logout functionality.
     fn logout(&self, ui: &mut egui::Ui) {
         ui.label("Logout Content");
     }
@@ -81,18 +87,23 @@ impl Xbim {
 impl eframe::App for Xbim {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::SidePanel::left("side_panel")
+            //TODO: resizable doesnt work properly.
             .resizable(true)
             .default_width(150.0)
             .width_range(80.0..=200.0)
             .show(ctx, |ui| {
-                if ui.button("Dashboard").clicked() {
-                    self.selected_page = Page::Dashboard;
-                } else if ui.button("Analytics").clicked() {
-                    self.selected_page = Page::Analytics;
-                } else if ui.button("Library").clicked() {
-                    self.selected_page = Page::Library;
-                } else if ui.button("Logout").clicked() {
-                    self.selected_page = Page::Logout;
+                //TODO: make the buttons have all the same width.
+                let buttons = [
+                    ("Dashboard", Page::Dashboard),
+                    ("Analytics", Page::Analytics),
+                    ("Library", Page::Library),
+                    ("Logout", Page::Logout),
+                ];
+
+                for (text, page) in buttons {
+                    if ui.button(text).clicked() {
+                        self.selected_page = page;
+                    }
                 }
             });
 
@@ -104,6 +115,7 @@ impl eframe::App for Xbim {
         });
 
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+            //TODO: center the copyright text.
             ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
                 ui.horizontal(|ui| {
                     ui.label("© 2025 ");
