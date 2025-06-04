@@ -6,15 +6,19 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+use crate::app::Xbim;
+use catppuccin_egui::{MOCHA, set_theme};
+use eframe::{NativeOptions, run_native};
+
 mod app;
 
 fn main() {
-    eframe::run_native(
+    run_native(
         "xBIM",
-        eframe::NativeOptions::default(),
+        NativeOptions::default(),
         Box::new(|cc| {
-            catppuccin_egui::set_theme(&cc.egui_ctx, catppuccin_egui::MOCHA);
-            Ok(Box::new(app::Xbim::default()))
+            set_theme(&cc.egui_ctx, MOCHA);
+            Ok(Box::new(Xbim::default()))
         }),
     )
     .expect("Failed to run native application")

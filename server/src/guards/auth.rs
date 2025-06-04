@@ -11,6 +11,7 @@ use rocket::{
     Request, async_trait,
     http::Status,
     request::{FromRequest, Outcome},
+    serde::json::from_str,
 };
 
 /// Authentication Guard
@@ -25,7 +26,7 @@ impl<'r> FromRequest<'r> for AuthGuard {
             .cookies()
             .get_private("user_session")
             .and_then(|cookie| {
-                serde_json::from_str::<GitHubUser>(cookie.value())
+                from_str::<GitHubUser>(cookie.value())
                     .map(|_| AuthGuard)
                     .ok()
             })
