@@ -8,9 +8,10 @@
 
 use eframe::{App, Frame as EframeFrame};
 use egui::{
-    Align, CentralPanel, Color32, Context, Frame as EguiFrame, Layout, Margin, ScrollArea,
+    Align, Button, CentralPanel, Color32, Context, Frame as EguiFrame, Layout, Margin, ScrollArea,
     SidePanel, Stroke, TextEdit, TopBottomPanel, Ui, WidgetText,
 };
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Default)]
 enum Page {
@@ -20,6 +21,19 @@ enum Page {
     Analytics,
     Library,
     Logout,
+}
+
+impl Display for Page {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        let text = match self {
+            Page::Login => "Login",
+            Page::Dashboard => "Dashboard",
+            Page::Analytics => "Analytics",
+            Page::Library => "Library",
+            Page::Logout => "Logout",
+        };
+        write!(f, "{}", text)
+    }
 }
 
 #[derive(Default)]
@@ -116,16 +130,16 @@ impl App for Xbim {
             .default_width(150.0)
             .width_range(80.0..=200.0)
             .show(ctx, |ui| {
-                //TODO: make the buttons have all the same width.
-                let buttons = [
-                    ("Dashboard", Page::Dashboard),
-                    ("Analytics", Page::Analytics),
-                    ("Library", Page::Library),
-                    ("Logout", Page::Logout),
-                ];
-
-                for (text, page) in buttons {
-                    if ui.button(text).clicked() {
+                for page in [
+                    Page::Dashboard,
+                    Page::Analytics,
+                    Page::Library,
+                    Page::Logout,
+                ] {
+                    if ui
+                        .add_sized([120.0, 30.0], Button::new(page.to_string()))
+                        .clicked()
+                    {
                         self.selected_page = page;
                     }
                 }
