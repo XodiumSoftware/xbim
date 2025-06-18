@@ -8,8 +8,8 @@
 
 use eframe::{App, Frame as EframeFrame};
 use egui::{
-    Align, Button, CentralPanel, Color32, Context, Direction, Frame as EguiFrame, Layout, Margin,
-    ScrollArea, SidePanel, Stroke, TextEdit, TopBottomPanel, Ui, WidgetText,
+    Align, Button, CentralPanel, Color32, Context, Frame as EguiFrame, Layout, Margin, ScrollArea,
+    SidePanel, Stroke, TextEdit, TopBottomPanel, Ui, WidgetText,
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
@@ -47,24 +47,22 @@ pub struct Xbim {
 impl Xbim {
     //TODO: implement login functionality.
     fn login(&mut self, ui: &mut Ui) {
-        ui.with_layout(Layout::centered_and_justified(Direction::TopDown), |ui| {
-            ui.heading("Login");
-            ui.label("Username:");
-            ui.text_edit_singleline(&mut self.username);
-            ui.label("Password:");
-            ui.add(TextEdit::singleline(&mut self.password).password(true));
-            if ui.button("Login").clicked() {
-                if self.username == "admin" && self.password == "password" {
-                    self.selected_page = Page::Dashboard;
-                    self.login_error = None;
-                } else {
-                    self.login_error = Some("Invalid credentials".to_owned());
-                }
+        ui.heading("Login");
+        ui.label("Username:");
+        ui.text_edit_singleline(&mut self.username);
+        ui.label("Password:");
+        ui.add(TextEdit::singleline(&mut self.password).password(true));
+        if ui.button("Login").clicked() {
+            if self.username == "admin" && self.password == "password" {
+                self.selected_page = Page::Dashboard;
+                self.login_error = None;
+            } else {
+                self.login_error = Some("Invalid credentials".to_owned());
             }
-            if let Some(ref err) = self.login_error {
-                ui.colored_label(Color32::RED, err);
-            }
-        });
+        }
+        if let Some(ref err) = self.login_error {
+            ui.colored_label(Color32::RED, err);
+        }
     }
 
     //TODO: implement dashboard functionality.
