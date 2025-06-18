@@ -7,6 +7,8 @@
 #![forbid(unsafe_code)]
 
 mod app;
+mod utils;
+
 mod widgets {
     pub mod card;
 }
