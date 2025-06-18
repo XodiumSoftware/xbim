@@ -209,9 +209,22 @@ impl Widget for CardWidget {
             .show(ui, |ui| {
                 ui.set_max_width(300.0);
                 ui.vertical(|ui| {
-                    if let Some(thumbnail) = self.thumbnail {
-                        ui.image(&thumbnail);
-                    }
+                    let thumbnail = self.thumbnail.unwrap_or_else(|| {
+                        ui.ctx().load_texture(
+                            "placeholder",
+                            egui::ColorImage::example(),
+                            egui::TextureOptions::default(),
+                        )
+                    });
+                    egui::Frame::default()
+                        .inner_margin(egui::Margin::same(5))
+                        .stroke(egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY))
+                        .corner_radius(15.0)
+                        .show(ui, |ui| {
+                            ui.set_max_width(50.0);
+                            ui.set_max_height(50.0);
+                            ui.image(&thumbnail);
+                        });
                     ui.horizontal(|ui| {
                         ui.heading(&self.title);
                         ui.label("by");
