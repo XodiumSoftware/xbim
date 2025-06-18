@@ -173,17 +173,22 @@ struct CardWidget {
 impl CardWidget {
     fn format_time_elapsed(last_updated: f64) -> String {
         let elapsed_seconds = (Date::now() - last_updated) / 1000.0;
-        if elapsed_seconds < 60.0 {
-            format!("{:.0} seconds ago", elapsed_seconds)
-        } else if elapsed_seconds < 3600.0 {
-            format!("{:.0} minutes ago", elapsed_seconds / 60.0)
-        } else if elapsed_seconds < 86400.0 {
-            format!("{:.0} hours ago", elapsed_seconds / 3600.0)
-        } else if elapsed_seconds < 31536000.0 {
-            format!("{:.0} days ago", elapsed_seconds / 86400.0)
-        } else {
-            format!("{:.0} years ago", elapsed_seconds / 31536000.0)
+        let time_ranges = [
+            (60.0, "seconds", 1.0),
+            (3600.0, "minutes", 60.0),
+            (86400.0, "hours", 3600.0),
+            (31536000.0, "days", 86400.0),
+            (31536000.0, "months", 2592000.0),
+            (f64::INFINITY, "years", 31536000.0),
+        ];
+
+        for &(limit, unit, divisor) in &time_ranges {
+            if elapsed_seconds < limit {
+                return format!("updated {:.0} {} ago", elapsed_seconds / divisor, unit);
+            }
         }
+
+        unreachable!("Time ranges should cover all cases");
     }
 }
 
