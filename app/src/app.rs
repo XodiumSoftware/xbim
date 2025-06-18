@@ -170,6 +170,23 @@ struct CardWidget {
     last_updated: f64,
 }
 
+impl CardWidget {
+    fn format_time_elapsed(last_updated: f64) -> String {
+        let elapsed_seconds = (Date::now() - last_updated) / 1000.0;
+        if elapsed_seconds < 60.0 {
+            format!("{:.0} seconds ago", elapsed_seconds)
+        } else if elapsed_seconds < 3600.0 {
+            format!("{:.0} minutes ago", elapsed_seconds / 60.0)
+        } else if elapsed_seconds < 86400.0 {
+            format!("{:.0} hours ago", elapsed_seconds / 3600.0)
+        } else if elapsed_seconds < 31536000.0 {
+            format!("{:.0} days ago", elapsed_seconds / 86400.0)
+        } else {
+            format!("{:.0} years ago", elapsed_seconds / 31536000.0)
+        }
+    }
+}
+
 impl Widget for CardWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         egui::Frame::default()
@@ -193,7 +210,7 @@ impl Widget for CardWidget {
                     ui.label(&self.platform);
                     ui.label(format!("📥 {}", self.downloads));
                     ui.label(format!("★ {:.1}", self.rating.clamp(0.0, 10.0)));
-                    ui.label(format!("{:.0} ms ago", self.last_updated));
+                    ui.label(Self::format_time_elapsed(self.last_updated));
                 });
             })
             .response
