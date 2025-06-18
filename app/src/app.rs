@@ -209,13 +209,6 @@ impl Widget for CardWidget {
             .show(ui, |ui| {
                 ui.set_max_width(300.0);
                 ui.vertical(|ui| {
-                    let thumbnail = self.thumbnail.unwrap_or_else(|| {
-                        ui.ctx().load_texture(
-                            "placeholder",
-                            egui::ColorImage::example(),
-                            egui::TextureOptions::default(),
-                        )
-                    });
                     ui.horizontal(|ui| {
                         egui::Frame::default()
                             .inner_margin(egui::Margin::same(5))
@@ -226,9 +219,15 @@ impl Widget for CardWidget {
                                 ui.set_max_width(image_size.x);
                                 ui.set_max_height(image_size.y);
                                 ui.add(
-                                    egui::Image::new(&thumbnail)
-                                        .max_width(image_size.x)
-                                        .max_height(image_size.y),
+                                    egui::Image::new(&self.thumbnail.unwrap_or_else(|| {
+                                        ui.ctx().load_texture(
+                                            "placeholder",
+                                            egui::ColorImage::example(),
+                                            egui::TextureOptions::default(),
+                                        )
+                                    }))
+                                    .max_width(image_size.x)
+                                    .max_height(image_size.y),
                                 );
                             });
                         ui.vertical(|ui| {
