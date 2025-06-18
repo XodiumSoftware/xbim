@@ -216,22 +216,27 @@ impl Widget for CardWidget {
                             egui::TextureOptions::default(),
                         )
                     });
-                    egui::Frame::default()
-                        .inner_margin(egui::Margin::same(5))
-                        .stroke(egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY))
-                        .corner_radius(15.0)
-                        .show(ui, |ui| {
-                            ui.set_max_width(50.0);
-                            ui.set_max_height(50.0);
-                            ui.image(&thumbnail);
-                        });
                     ui.horizontal(|ui| {
-                        ui.heading(&self.title);
-                        ui.label("by");
-                        ui.hyperlink_to(
-                            egui::RichText::new(&self.author).underline(),
-                            format!("https://example.com/author/{}", self.author),
-                        );
+                        egui::Frame::default()
+                            .inner_margin(egui::Margin::same(5))
+                            .stroke(egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY))
+                            .corner_radius(15.0)
+                            .show(ui, |ui| {
+                                let frame_size = egui::vec2(50.0, 50.0);
+                                ui.set_max_width(frame_size.x);
+                                ui.set_max_height(frame_size.y);
+                                ui.image(&thumbnail);
+                            });
+                        ui.vertical(|ui| {
+                            ui.heading(&self.title);
+                            ui.horizontal(|ui| {
+                                ui.label("by");
+                                ui.hyperlink_to(
+                                    egui::RichText::new(&self.author).underline(),
+                                    format!("https://example.com/author/{}", self.author),
+                                );
+                            });
+                        });
                     });
                     ui.label(&self.description);
                     ui.label(&self.platform);
