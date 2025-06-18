@@ -184,11 +184,19 @@ impl CardWidget {
 
         for &(limit, unit, divisor) in &time_ranges {
             if elapsed_seconds < limit {
-                return format!("updated {:.0} {} ago", elapsed_seconds / divisor, unit);
+                return format!("⏳ updated {:.0} {} ago", elapsed_seconds / divisor, unit);
             }
         }
 
         unreachable!("Time ranges should cover all cases");
+    }
+
+    fn format_downloads(downloads: u32) -> String {
+        match downloads {
+            d if d >= 1_000_000 => format!("{:.1}M", d as f64 / 1_000_000.0),
+            d if d >= 1_000 => format!("{:.1}K", d as f64 / 1_000.0),
+            _ => downloads.to_string(),
+        }
     }
 }
 
@@ -199,6 +207,7 @@ impl Widget for CardWidget {
             .stroke(egui::Stroke::new(1.0, egui::Color32::GRAY))
             .corner_radius(egui::CornerRadius::same(10))
             .show(ui, |ui| {
+                ui.set_max_width(300.0);
                 ui.vertical(|ui| {
                     if let Some(thumbnail) = self.thumbnail {
                         ui.image(&thumbnail);
@@ -213,9 +222,11 @@ impl Widget for CardWidget {
                     });
                     ui.label(&self.description);
                     ui.label(&self.platform);
-                    ui.label(format!("📥 {}", self.downloads));
-                    ui.label(format!("★ {:.1}", self.rating.clamp(0.0, 10.0)));
-                    ui.label(Self::format_time_elapsed(self.last_updated));
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        ui.label(Self::format_time_elapsed(self.last_updated));
+                        ui.label(format!("★ {:.1}", self.rating.clamp(0.0, 10.0)));
+                        ui.label(format!("📥 {}", Self::format_downloads(self.downloads)));
+                    });
                 });
             })
             .response
