@@ -222,10 +222,14 @@ impl Widget for CardWidget {
                             .stroke(egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY))
                             .corner_radius(15.0)
                             .show(ui, |ui| {
-                                let frame_size = egui::vec2(50.0, 50.0);
-                                ui.set_max_width(frame_size.x);
-                                ui.set_max_height(frame_size.y);
-                                ui.image(&thumbnail);
+                                let image_size = egui::vec2(50.0, 50.0);
+                                ui.set_max_width(image_size.x);
+                                ui.set_max_height(image_size.y);
+                                ui.add(
+                                    egui::Image::new(&thumbnail)
+                                        .max_width(image_size.x)
+                                        .max_height(image_size.y),
+                                );
                             });
                         ui.vertical(|ui| {
                             ui.heading(&self.title);
