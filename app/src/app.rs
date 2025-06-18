@@ -9,7 +9,7 @@
 use eframe::{App, Frame as EframeFrame};
 use egui::{
     Align, Button, CentralPanel, Color32, Context, Frame as EguiFrame, Layout, Margin, ScrollArea,
-    SidePanel, Stroke, TextEdit, TopBottomPanel, Ui, WidgetText,
+    SidePanel, Stroke, TopBottomPanel, Ui, WidgetText,
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
@@ -39,29 +39,16 @@ impl Display for Page {
 #[derive(Default)]
 pub struct Xbim {
     selected_page: Page,
-    username: String,
-    password: String,
     login_error: Option<String>,
 }
 
 impl Xbim {
-    //TODO: implement login functionality.
     fn login(&mut self, ui: &mut Ui) {
         ui.heading("Login");
-        ui.label("Username:");
-        ui.text_edit_singleline(&mut self.username);
-        ui.label("Password:");
-        ui.add(TextEdit::singleline(&mut self.password).password(true));
-        if ui.button("Login").clicked() {
-            if self.username == "admin" && self.password == "password" {
-                self.selected_page = Page::Dashboard;
-                self.login_error = None;
-            } else {
-                self.login_error = Some("Invalid credentials".to_owned());
-            }
-        }
-        if let Some(ref err) = self.login_error {
-            ui.colored_label(Color32::RED, err);
+        if ui.button("Login with GitHub").clicked() {
+            // TODO: Implement GitHub OAuth login logic here.
+            self.selected_page = Page::Dashboard;
+            self.login_error = None;
         }
     }
 
