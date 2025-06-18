@@ -1,4 +1,4 @@
 # Rust
 /target/
 Cargo.lock
-/dist/
+dist/
