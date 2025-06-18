@@ -7,6 +7,9 @@
 #![forbid(unsafe_code)]
 
 mod app;
+mod widgets {
+    pub mod card;
+}
 
 #[cfg(target_arch = "wasm32")]
 fn main() {
