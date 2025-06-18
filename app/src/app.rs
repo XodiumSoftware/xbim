@@ -16,21 +16,17 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 #[derive(Default, PartialEq)]
 enum Page {
     #[default]
-    Login,
     Dashboard,
     Analytics,
     Library,
-    Logout,
 }
 
 impl Display for Page {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let text = match self {
-            Page::Login => "Login",
             Page::Dashboard => "Dashboard",
             Page::Analytics => "Analytics",
             Page::Library => "Library",
-            Page::Logout => "Logout",
         };
         write!(f, "{}", text)
     }
@@ -39,19 +35,9 @@ impl Display for Page {
 #[derive(Default)]
 pub struct Xbim {
     selected_page: Page,
-    login_error: Option<String>,
 }
 
 impl Xbim {
-    fn login(&mut self, ui: &mut Ui) {
-        ui.heading("Login");
-        if ui.button("Login with GitHub").clicked() {
-            // TODO: Implement GitHub OAuth login logic here.
-            self.selected_page = Page::Dashboard;
-            self.login_error = None;
-        }
-    }
-
     //TODO: implement dashboard functionality.
     fn dashboard(&self, ui: &mut Ui) {
         ui.label("Dashboard Content");
@@ -91,11 +77,6 @@ impl Xbim {
         });
     }
 
-    //TODO: implement logout functionality.
-    fn logout(&self, ui: &mut Ui) {
-        ui.label("Logout Content");
-    }
-
     fn card(&self, ui: &mut Ui, title: impl Into<WidgetText>, description: impl Into<WidgetText>) {
         EguiFrame::default()
             .inner_margin(Margin::same(10i8))
@@ -111,50 +92,37 @@ impl Xbim {
 
 impl App for Xbim {
     fn update(&mut self, ctx: &Context, _frame: &mut EframeFrame) {
-        if self.selected_page == Page::Login {
-            CentralPanel::default().show(ctx, |ui| {
-                self.login(ui);
-            });
-        } else {
-            SidePanel::left("side_panel")
-                //TODO: resizable doesnt work properly.
-                .resizable(true)
-                .default_width(150.0)
-                .width_range(80.0..=200.0)
-                .show(ctx, |ui| {
-                    for page in [
-                        Page::Dashboard,
-                        Page::Analytics,
-                        Page::Library,
-                        Page::Logout,
-                    ] {
-                        if ui
-                            .add_sized([120.0, 30.0], Button::new(page.to_string()))
-                            .clicked()
-                        {
-                            self.selected_page = page;
-                        }
+        SidePanel::left("side_panel")
+            //TODO: resizable doesnt work properly.
+            .resizable(true)
+            .default_width(150.0)
+            .width_range(80.0..=200.0)
+            .show(ctx, |ui| {
+                for page in [Page::Dashboard, Page::Analytics, Page::Library] {
+                    if ui
+                        .add_sized([120.0, 30.0], Button::new(page.to_string()))
+                        .clicked()
+                    {
+                        self.selected_page = page;
                     }
-                });
-
-            CentralPanel::default().show(ctx, |ui| match self.selected_page {
-                Page::Login => self.login(ui),
-                Page::Dashboard => self.dashboard(ui),
-                Page::Analytics => self.analytics(ui),
-                Page::Library => self.library(ui),
-                Page::Logout => self.logout(ui),
+                }
             });
 
-            TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
-                //TODO: center the copyright text.
-                ui.with_layout(Layout::top_down(Align::Center), |ui| {
-                    ui.horizontal(|ui| {
-                        ui.label("© 2025 ");
-                        ui.hyperlink_to("XODIUM™.", "https://xodium.com");
-                        ui.label(" Open-Source (CAD) Software Company.");
-                    });
+        CentralPanel::default().show(ctx, |ui| match self.selected_page {
+            Page::Dashboard => self.dashboard(ui),
+            Page::Analytics => self.analytics(ui),
+            Page::Library => self.library(ui),
+        });
+
+        TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+            //TODO: center the copyright text.
+            ui.with_layout(Layout::top_down(Align::Center), |ui| {
+                ui.horizontal(|ui| {
+                    ui.label("© 2025 ");
+                    ui.hyperlink_to("XODIUM™.", "https://xodium.com");
+                    ui.label(" Open-Source (CAD) Software Company.");
                 });
             });
-        }
+        });
     }
 }
