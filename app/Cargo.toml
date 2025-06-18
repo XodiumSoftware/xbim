@@ -24,3 +24,6 @@ all-features = true
 egui = "0.31.1"
 eframe = "0.31.1"
 catppuccin-egui = { version = "5.5.0", default-features = false, features = ["egui31"] }
+log = "0.4.27"
+wasm-bindgen-futures = "0.4.50"
+web-sys = "0.3.77"

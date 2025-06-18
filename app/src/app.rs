@@ -8,12 +8,12 @@
 
 use eframe::{App, Frame as EframeFrame};
 use egui::{
-    Align, Button, CentralPanel, Color32, Context, Frame as EguiFrame, Layout, Margin, ScrollArea,
-    SidePanel, Stroke, TextEdit, TopBottomPanel, Ui, WidgetText,
+    Align, Button, CentralPanel, Color32, Context, Direction, Frame as EguiFrame, Layout, Margin,
+    ScrollArea, SidePanel, Stroke, TextEdit, TopBottomPanel, Ui, WidgetText,
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 enum Page {
     #[default]
     Login,
@@ -47,22 +47,24 @@ pub struct Xbim {
 impl Xbim {
     //TODO: implement login functionality.
     fn login(&mut self, ui: &mut Ui) {
-        ui.heading("Login");
-        ui.label("Username:");
-        ui.text_edit_singleline(&mut self.username);
-        ui.label("Password:");
-        ui.add(TextEdit::singleline(&mut self.password).password(true));
-        if ui.button("Login").clicked() {
-            if self.username == "admin" && self.password == "password" {
-                self.selected_page = Page::Dashboard;
-                self.login_error = None;
-            } else {
-                self.login_error = Some("Invalid credentials".to_owned());
+        ui.with_layout(Layout::centered_and_justified(Direction::TopDown), |ui| {
+            ui.heading("Login");
+            ui.label("Username:");
+            ui.text_edit_singleline(&mut self.username);
+            ui.label("Password:");
+            ui.add(TextEdit::singleline(&mut self.password).password(true));
+            if ui.button("Login").clicked() {
+                if self.username == "admin" && self.password == "password" {
+                    self.selected_page = Page::Dashboard;
+                    self.login_error = None;
+                } else {
+                    self.login_error = Some("Invalid credentials".to_owned());
+                }
             }
-        }
-        if let Some(ref err) = self.login_error {
-            ui.colored_label(Color32::RED, err);
-        }
+            if let Some(ref err) = self.login_error {
+                ui.colored_label(Color32::RED, err);
+            }
+        });
     }
 
     //TODO: implement dashboard functionality.
@@ -124,44 +126,50 @@ impl Xbim {
 
 impl App for Xbim {
     fn update(&mut self, ctx: &Context, _frame: &mut EframeFrame) {
-        SidePanel::left("side_panel")
-            //TODO: resizable doesnt work properly.
-            .resizable(true)
-            .default_width(150.0)
-            .width_range(80.0..=200.0)
-            .show(ctx, |ui| {
-                for page in [
-                    Page::Dashboard,
-                    Page::Analytics,
-                    Page::Library,
-                    Page::Logout,
-                ] {
-                    if ui
-                        .add_sized([120.0, 30.0], Button::new(page.to_string()))
-                        .clicked()
-                    {
-                        self.selected_page = page;
+        if self.selected_page == Page::Login {
+            CentralPanel::default().show(ctx, |ui| {
+                self.login(ui);
+            });
+        } else {
+            SidePanel::left("side_panel")
+                //TODO: resizable doesnt work properly.
+                .resizable(true)
+                .default_width(150.0)
+                .width_range(80.0..=200.0)
+                .show(ctx, |ui| {
+                    for page in [
+                        Page::Dashboard,
+                        Page::Analytics,
+                        Page::Library,
+                        Page::Logout,
+                    ] {
+                        if ui
+                            .add_sized([120.0, 30.0], Button::new(page.to_string()))
+                            .clicked()
+                        {
+                            self.selected_page = page;
+                        }
                     }
-                }
+                });
+
+            CentralPanel::default().show(ctx, |ui| match self.selected_page {
+                Page::Login => self.login(ui),
+                Page::Dashboard => self.dashboard(ui),
+                Page::Analytics => self.analytics(ui),
+                Page::Library => self.library(ui),
+                Page::Logout => self.logout(ui),
             });
 
-        CentralPanel::default().show(ctx, |ui| match self.selected_page {
-            Page::Login => self.login(ui),
-            Page::Dashboard => self.dashboard(ui),
-            Page::Analytics => self.analytics(ui),
-            Page::Library => self.library(ui),
-            Page::Logout => self.logout(ui),
-        });
-
-        TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
-            //TODO: center the copyright text.
-            ui.with_layout(Layout::top_down(Align::Center), |ui| {
-                ui.horizontal(|ui| {
-                    ui.label("© 2025 ");
-                    ui.hyperlink_to("XODIUM™.", "https://xodium.com");
-                    ui.label(" Open-Source (CAD) Software Company.");
+            TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+                //TODO: center the copyright text.
+                ui.with_layout(Layout::top_down(Align::Center), |ui| {
+                    ui.horizontal(|ui| {
+                        ui.label("© 2025 ");
+                        ui.hyperlink_to("XODIUM™.", "https://xodium.com");
+                        ui.label(" Open-Source (CAD) Software Company.");
+                    });
                 });
             });
-        });
+        }
     }
 }
