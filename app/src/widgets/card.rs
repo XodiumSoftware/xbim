@@ -27,7 +27,13 @@ impl Widget for CardWidget {
             .inner_margin(Margin::same(Style::MARGIN_M))
             .stroke(Stroke::new(1.0, Color32::DARK_GRAY))
             .corner_radius(CornerRadius::same(Style::ROUNDING_M))
-            .shadow(Shadow::NONE)
+            //TODO: fix shadow.
+            .shadow(Shadow {
+                offset: [4, 4],
+                blur: 8,
+                spread: 2,
+                color: Color32::from_gray(10),
+            })
             .show(ui, |ui| {
                 ui.set_max_width(Style::WIDTH_M);
                 ui.vertical(|ui| {

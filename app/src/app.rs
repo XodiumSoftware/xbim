@@ -63,9 +63,8 @@ impl Xbim {
 
     fn library(&self, ui: &mut Ui) {
         ScrollArea::vertical().show(ui, |ui| {
-            //TODO: fix cards not wrapping correctly. probably because card is not a widget.
+            ui.spacing_mut().item_spacing.x = Style::SPACING_M;
             ui.horizontal_wrapped(|ui| {
-                ui.spacing_mut().item_spacing.x = Style::SPACING_M;
                 for (title, description) in Utils::CARD_DATA.iter() {
                     ui.add(CardWidget {
                         thumbnail: None,
@@ -100,8 +99,8 @@ impl App for Xbim {
 
         if self.side_panel_visible {
             SidePanel::left("side_panel")
-                //TODO: resizable doesnt work properly.
                 .default_width(150.0)
+                .resizable(false)
                 .show(ctx, |ui| {
                     for page in [Page::Dashboard, Page::Analytics, Page::Library] {
                         if ui
