@@ -11,7 +11,7 @@ use crate::utils::Utils;
 use crate::widgets::card::CardWidget;
 use eframe::{App, Frame as EframeFrame};
 use egui::{
-    Button, CentralPanel, Context, RichText, ScrollArea, SidePanel, TopBottomPanel, Ui,
+    Button, CentralPanel, Context, RichText, ScrollArea, SidePanel, TopBottomPanel, Ui, Vec2,
     global_theme_preference_switch,
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -85,7 +85,8 @@ impl Xbim {
 impl App for Xbim {
     fn update(&mut self, ctx: &Context, _frame: &mut EframeFrame) {
         TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            ui.spacing_mut().item_spacing.y = Style::SPACING_M;
+            //TODO: fix spacing.
+            ui.spacing_mut().item_spacing = Vec2::new(10.0, 10.0);
             ui.horizontal(|ui| {
                 if ui.button("☰").clicked() { self.side_panel_visible = !self.side_panel_visible }
                 ui.separator();
