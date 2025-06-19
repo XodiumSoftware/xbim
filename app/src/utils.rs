@@ -2,6 +2,7 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
+use web_sys::js_sys::Date;
 
 pub struct Utils;
 
@@ -26,7 +27,7 @@ impl Utils {
     /// println!("{}", formatted); // Output: ⏳ updated X minutes ago
     /// ```
     pub fn format_time_elapsed(last_updated: f64) -> String {
-        let elapsed_seconds = (web_sys::js_sys::Date::now() - last_updated) / 1000.0;
+        let elapsed_seconds = (Date::now() - last_updated) / 1000.0;
         let time_ranges = [
             (60.0, "seconds", 1.0),
             (3600.0, "minutes", 60.0),
