@@ -6,6 +6,7 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+use crate::utils::Utils;
 use crate::widgets::card::CardWidget;
 use eframe::{App, Frame as EframeFrame};
 use egui::{Button, CentralPanel, Context, RichText, ScrollArea, SidePanel, TopBottomPanel, Ui};
@@ -48,63 +49,11 @@ impl Xbim {
     }
 
     fn library(&self, ui: &mut Ui) {
-        //TODO: replace with actual data fetching logic.
-        let card_data = vec![
-            (
-                "Test1",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test2",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test3",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test4",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test5",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test6",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test7",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test8",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test9",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test10",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test11",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-            (
-                "Test12",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            ),
-        ];
-
         ScrollArea::vertical().show(ui, |ui| {
             //TODO: fix cards not wrapping correctly. probably because card is not a widget.
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing.x = 10.0;
-                for (title, description) in card_data {
+                for (title, description) in Utils::CARD_DATA.iter() {
                     ui.add(CardWidget {
                         thumbnail: None,
                         title: title.to_string(),
