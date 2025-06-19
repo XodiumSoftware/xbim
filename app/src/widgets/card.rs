@@ -7,7 +7,7 @@ use crate::style::Style;
 use crate::utils::Utils;
 use egui::{
     Align, Color32, ColorImage, CornerRadius, Frame, Image, Layout, Margin, Response, RichText,
-    Stroke, TextureHandle, TextureOptions, Ui, Widget, vec2,
+    Shadow, Stroke, TextureHandle, TextureOptions, Ui, Widget, vec2,
 };
 
 pub struct CardWidget {
@@ -27,6 +27,7 @@ impl Widget for CardWidget {
             .inner_margin(Margin::same(Style::MARGIN_M))
             .stroke(Stroke::new(1.0, Color32::DARK_GRAY))
             .corner_radius(CornerRadius::same(Style::ROUNDING_M))
+            .shadow(Shadow::NONE)
             .show(ui, |ui| {
                 ui.set_max_width(Style::WIDTH_M);
                 ui.vertical(|ui| {
