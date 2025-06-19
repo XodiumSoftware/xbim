@@ -36,10 +36,18 @@ impl Display for Page {
     }
 }
 
-#[derive(Default)]
 pub struct Xbim {
     selected_page: Page,
     side_panel_visible: bool,
+}
+
+impl Default for Xbim {
+    fn default() -> Self {
+        Self {
+            selected_page: Page::Dashboard,
+            side_panel_visible: true,
+        }
+    }
 }
 
 impl Xbim {
