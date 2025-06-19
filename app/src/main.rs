@@ -35,10 +35,7 @@ fn main() {
             .start(
                 canvas,
                 eframe::WebOptions::default(),
-                Box::new(|cc| {
-                    catppuccin_egui::set_theme(&cc.egui_ctx, catppuccin_egui::MOCHA);
-                    Ok(Box::new(app::Xbim::default()))
-                }),
+                Box::new(|_cc| Ok(Box::new(app::Xbim::default()))),
             )
             .await;
 
