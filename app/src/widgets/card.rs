@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+use crate::style::Style;
 use crate::utils::Utils;
 use egui::{
     Align, Color32, ColorImage, CornerRadius, Frame, Image, Layout, Margin, Response, RichText,
@@ -23,19 +24,19 @@ pub struct CardWidget {
 impl Widget for CardWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         Frame::default()
-            .inner_margin(Margin::same(10))
-            .stroke(Stroke::new(1.0, Color32::GRAY))
-            .corner_radius(CornerRadius::same(10))
+            .inner_margin(Margin::same(Style::MARGIN_M))
+            .stroke(Stroke::new(1.0, Color32::DARK_GRAY))
+            .corner_radius(CornerRadius::same(Style::ROUNDING_M))
             .show(ui, |ui| {
-                ui.set_max_width(300.0);
+                ui.set_max_width(Style::WIDTH_M);
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
                         Frame::default()
-                            .inner_margin(Margin::same(5))
-                            .stroke(Stroke::new(1.0, Color32::LIGHT_GRAY))
-                            .corner_radius(15.0)
+                            .inner_margin(Margin::same(Style::MARGIN_M / 2))
+                            .stroke(Stroke::new(1.0, Color32::DARK_GRAY))
+                            .corner_radius(CornerRadius::same(Style::ROUNDING_M))
                             .show(ui, |ui| {
-                                let image_size = vec2(50.0, 50.0);
+                                let image_size = vec2(Style::IMAGE_SIZE_S, Style::IMAGE_SIZE_S);
                                 ui.set_max_width(image_size.x);
                                 ui.set_max_height(image_size.y);
                                 ui.add(
@@ -56,6 +57,7 @@ impl Widget for CardWidget {
                                 ui.label("by");
                                 ui.hyperlink_to(
                                     RichText::new(&self.author).underline(),
+                                    // TODO: replace with propper url.
                                     format!("https://example.com/author/{}", self.author),
                                 );
                             });
