@@ -6,6 +6,7 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+use crate::style::Style;
 use crate::utils::Utils;
 use crate::widgets::card::CardWidget;
 use eframe::{App, Frame as EframeFrame};
@@ -52,7 +53,7 @@ impl Xbim {
         ScrollArea::vertical().show(ui, |ui| {
             //TODO: fix cards not wrapping correctly. probably because card is not a widget.
             ui.horizontal_wrapped(|ui| {
-                ui.spacing_mut().item_spacing.x = 10.0;
+                ui.spacing_mut().item_spacing.x = Style::SPACING_M;
                 for (title, description) in Utils::CARD_DATA.iter() {
                     ui.add(CardWidget {
                         thumbnail: None,

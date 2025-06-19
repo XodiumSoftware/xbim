@@ -21,6 +21,13 @@ impl Style {
     pub const MARGIN_L: i8 = 12;
     pub const MARGIN_XL: i8 = 16;
 
+    // Spacing constants
+    pub const SPACING_XS: f32 = 2.0;
+    pub const SPACING_S: f32 = 4.0;
+    pub const SPACING_M: f32 = 8.0;
+    pub const SPACING_L: f32 = 12.0;
+    pub const SPACING_XL: f32 = 16.0;
+
     // Width constants
     pub const WIDTH_XS: f32 = 100.0;
     pub const WIDTH_S: f32 = 200.0;
