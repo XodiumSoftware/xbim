@@ -4,7 +4,10 @@
  */
 
 use crate::utils::Utils;
-use egui::{Response, TextureHandle, Ui, Widget};
+use egui::{
+    Align, Color32, ColorImage, CornerRadius, Frame, Image, Layout, Margin, Response, RichText,
+    Stroke, TextureHandle, TextureOptions, Ui, Widget, vec2,
+};
 
 pub struct CardWidget {
     pub thumbnail: Option<TextureHandle>,
@@ -19,28 +22,28 @@ pub struct CardWidget {
 
 impl Widget for CardWidget {
     fn ui(self, ui: &mut Ui) -> Response {
-        egui::Frame::default()
-            .inner_margin(egui::Margin::same(10))
-            .stroke(egui::Stroke::new(1.0, egui::Color32::GRAY))
-            .corner_radius(egui::CornerRadius::same(10))
+        Frame::default()
+            .inner_margin(Margin::same(10))
+            .stroke(Stroke::new(1.0, Color32::GRAY))
+            .corner_radius(CornerRadius::same(10))
             .show(ui, |ui| {
                 ui.set_max_width(300.0);
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
-                        egui::Frame::default()
-                            .inner_margin(egui::Margin::same(5))
-                            .stroke(egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY))
+                        Frame::default()
+                            .inner_margin(Margin::same(5))
+                            .stroke(Stroke::new(1.0, Color32::LIGHT_GRAY))
                             .corner_radius(15.0)
                             .show(ui, |ui| {
-                                let image_size = egui::vec2(50.0, 50.0);
+                                let image_size = vec2(50.0, 50.0);
                                 ui.set_max_width(image_size.x);
                                 ui.set_max_height(image_size.y);
                                 ui.add(
-                                    egui::Image::new(&self.thumbnail.unwrap_or_else(|| {
+                                    Image::new(&self.thumbnail.unwrap_or_else(|| {
                                         ui.ctx().load_texture(
                                             "placeholder",
-                                            egui::ColorImage::example(),
-                                            egui::TextureOptions::default(),
+                                            ColorImage::example(),
+                                            TextureOptions::default(),
                                         )
                                     }))
                                     .max_width(image_size.x)
@@ -52,7 +55,7 @@ impl Widget for CardWidget {
                             ui.horizontal(|ui| {
                                 ui.label("by");
                                 ui.hyperlink_to(
-                                    egui::RichText::new(&self.author).underline(),
+                                    RichText::new(&self.author).underline(),
                                     format!("https://example.com/author/{}", self.author),
                                 );
                             });
@@ -60,7 +63,7 @@ impl Widget for CardWidget {
                     });
                     ui.label(&self.description);
                     ui.label(&self.platform);
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                         ui.label(Utils::format_time_elapsed(self.last_updated));
                         ui.label(format!("★ {:.1}", self.rating.clamp(0.0, 10.0)));
                         ui.label(format!("📥 {}", Utils::format_downloads(self.downloads)));

@@ -6,6 +6,13 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+use app::Xbim;
+use eframe::wasm_bindgen::JsCast as _;
+use eframe::{WebLogger, WebOptions, WebRunner};
+use log::LevelFilter;
+use wasm_bindgen_futures::spawn_local;
+use web_sys::{HtmlCanvasElement, window};
+
 mod app;
 mod utils;
 
@@ -15,12 +22,10 @@ mod widgets {
 
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    use eframe::wasm_bindgen::JsCast as _;
+    WebLogger::init(LevelFilter::Debug).ok();
 
-    eframe::WebLogger::init(log::LevelFilter::Debug).ok();
-
-    wasm_bindgen_futures::spawn_local(async {
-        let document = web_sys::window()
+    spawn_local(async {
+        let document = window()
             .expect("No window")
             .document()
             .expect("No document");
@@ -28,14 +33,14 @@ fn main() {
         let canvas = document
             .get_element_by_id("the_canvas_id")
             .expect("Failed to find the_canvas_id")
-            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .dyn_into::<HtmlCanvasElement>()
             .expect("the_canvas_id was not a HtmlCanvasElement");
 
-        let start_result = eframe::WebRunner::new()
+        let start_result = WebRunner::new()
             .start(
                 canvas,
-                eframe::WebOptions::default(),
-                Box::new(|_cc| Ok(Box::new(app::Xbim::default()))),
+                WebOptions::default(),
+                Box::new(|_cc| Ok(Box::new(Xbim::default()))),
             )
             .await;
 

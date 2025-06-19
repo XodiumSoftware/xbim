@@ -8,7 +8,7 @@
 
 use crate::widgets::card::CardWidget;
 use eframe::{App, Frame as EframeFrame};
-use egui::{Button, CentralPanel, Context, ScrollArea, SidePanel, TopBottomPanel, Ui};
+use egui::{Button, CentralPanel, Context, RichText, ScrollArea, SidePanel, TopBottomPanel, Ui};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use web_sys::js_sys::Date;
 
@@ -147,10 +147,7 @@ impl App for Xbim {
             //TODO: center the copyright text.
             ui.horizontal(|ui| {
                 ui.label("© 2025 ");
-                ui.hyperlink_to(
-                    egui::RichText::new("XODIUM™.").underline(),
-                    "https://xodium.org",
-                );
+                ui.hyperlink_to(RichText::new("XODIUM™.").underline(), "https://xodium.org");
                 ui.label(" Open-Source (CAD) Software Company.");
             });
         });
