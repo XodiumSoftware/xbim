@@ -12,7 +12,7 @@ use crate::widgets::card::CardWidget;
 use eframe::{App, Frame as EframeFrame};
 use egui::{
     Button, CentralPanel, Context, RichText, ScrollArea, SidePanel, TopBottomPanel, Ui, Vec2,
-    global_theme_preference_switch,
+    epaint, global_theme_preference_switch,
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use web_sys::js_sys::Date;
@@ -65,13 +65,13 @@ impl Xbim {
         ScrollArea::vertical().show(ui, |ui| {
             ui.spacing_mut().item_spacing.x = Style::SPACING_M;
             ui.horizontal_wrapped(|ui| {
-                for (title, description) in Utils::CARD_DATA.iter() {
+                for (thumbnail, title, author, description, platform) in Utils::CARD_DATA.iter() {
                     ui.add(CardWidget {
-                        thumbnail: None,
+                        thumbnail: thumbnail.and_then(|t| Some(Xbim::load_texture(t))),
                         title: title.to_string(),
-                        author: "Illyrius".to_string(),
+                        author: author.to_string(),
                         description: description.to_string(),
-                        platform: "Windows".to_string(),
+                        platform: platform.to_string(),
                         downloads: 0,
                         rating: 0.0,
                         last_updated: Date::now(),
@@ -79,6 +79,10 @@ impl Xbim {
                 }
             });
         });
+    }
+
+    fn load_texture(_path: &str) -> epaint::TextureHandle {
+        unimplemented!()
     }
 }
 

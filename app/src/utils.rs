@@ -8,54 +8,47 @@ pub struct Utils;
 
 impl Utils {
     //TODO: replace with actual data fetching logic.
-    pub const CARD_DATA: [(&'static str, &'static str); 12] = [
+    pub const CARD_DATA: [(
+        Option<&'static str>,
+        &'static str,
+        &'static str,
+        &'static str,
+        &'static str,
+    ); 5] = [
         (
+            Some("thumbnail1.png"),
             "Test1",
+            "Illyrius",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Windows",
         ),
         (
+            Some("thumbnail2.png"),
             "Test2",
+            "Illyrius",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Linux",
         ),
         (
+            Some("thumbnail3.png"),
             "Test3",
+            "Illyrius",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "MacOS",
         ),
         (
+            Some("thumbnail4.png"),
             "Test4",
+            "Illyrius",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Windows",
         ),
         (
+            Some("thumbnail5.png"),
             "Test5",
+            "Illyrius",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        ),
-        (
-            "Test6",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        ),
-        (
-            "Test7",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        ),
-        (
-            "Test8",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        ),
-        (
-            "Test9",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        ),
-        (
-            "Test10",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        ),
-        (
-            "Test11",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        ),
-        (
-            "Test12",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Linux",
         ),
     ];
 
