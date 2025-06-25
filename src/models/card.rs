@@ -13,7 +13,6 @@ use surrealdb::sql::Thing;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Card {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Thing>,
     pub thumbnail: Option<String>,
     pub title: String,
