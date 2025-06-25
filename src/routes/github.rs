@@ -12,8 +12,9 @@ use reqwest::Client as HttpClient;
 use rocket::http::{Cookie, CookieJar, SameSite};
 use rocket::response::{Flash, Redirect};
 use rocket::serde::{Deserialize, Serialize};
-use rocket::{get, State};
+use rocket::{State, get};
 use rocket_oauth2::{OAuth2, TokenResponse};
+use std::time::Duration;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]

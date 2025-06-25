@@ -6,7 +6,6 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
-use crate::routes::github::GitHubUser;
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
@@ -14,7 +13,8 @@ use surrealdb::sql::Thing;
 #[serde(crate = "rocket::serde")]
 pub struct Card {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub thumbnail: Option<TextureHandle>,
+    pub id: Option<Thing>,
+    pub thumbnail: Option<String>,
     pub title: String,
     pub author: String,
     pub description: String,
