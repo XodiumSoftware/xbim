@@ -20,14 +20,6 @@ pub struct User {
     pub name: Option<String>,
     pub email: Option<String>,
     pub avatar_url: Option<String>,
-    pub preferences: Option<UserPreferences>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-#[derive(Clone)]
-pub struct UserPreferences {
-    pub theme: Option<String>,
 }
 
 impl From<GitHubUser> for User {
@@ -39,9 +31,6 @@ impl From<GitHubUser> for User {
             name: github_user.name,
             email: github_user.email,
             avatar_url: github_user.avatar_url,
-            preferences: Some(UserPreferences {
-                theme: Some("light".to_string()),
-            }),
         }
     }
 }
