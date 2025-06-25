@@ -6,6 +6,7 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+use crate::models::user::User;
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
@@ -16,7 +17,7 @@ pub struct Card {
     pub id: Option<Thing>,
     pub thumbnail: Option<String>,
     pub title: String,
-    pub author: String,
+    pub author: User,
     pub description: String,
     pub platform: String,
     pub downloads: u32,
