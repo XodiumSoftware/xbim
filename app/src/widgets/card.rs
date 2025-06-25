@@ -64,8 +64,7 @@ impl Widget for CardWidget {
                                 ui.label("by");
                                 ui.hyperlink_to(
                                     RichText::new(&self.author).underline(),
-                                    // TODO: replace with propper url.
-                                    format!("https://example.com/author/{}", self.author),
+                                    format!("https://github.com/{}", self.author),
                                 );
                             });
                         });
