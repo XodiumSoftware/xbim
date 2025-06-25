@@ -7,7 +7,7 @@
 #![forbid(unsafe_code)]
 
 use crate::style::Style;
-use crate::utils::Utils;
+use crate::utils::CARD_DATA;
 use crate::widgets::card::CardWidget;
 use eframe::{App, Frame as EframeFrame};
 use egui::{
@@ -15,7 +15,6 @@ use egui::{
     epaint, global_theme_preference_switch,
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use web_sys::js_sys::Date;
 
 #[derive(Default, PartialEq)]
 enum Page {
@@ -65,16 +64,26 @@ impl Xbim {
         ScrollArea::vertical().show(ui, |ui| {
             ui.spacing_mut().item_spacing.x = Style::SPACING_M;
             ui.horizontal_wrapped(|ui| {
-                for (thumbnail, title, author, description, platform) in Utils::CARD_DATA.iter() {
+                for (
+                    thumbnail,
+                    title,
+                    author,
+                    description,
+                    platform,
+                    downloads,
+                    rating,
+                    last_updated,
+                ) in CARD_DATA.iter()
+                {
                     ui.add(CardWidget {
                         thumbnail: thumbnail.and_then(|t| Some(Xbim::load_texture(t))),
                         title: title.to_string(),
                         author: author.to_string(),
                         description: description.to_string(),
                         platform: platform.to_string(),
-                        downloads: 0,
-                        rating: 0.0,
-                        last_updated: Date::now(),
+                        downloads: *downloads,
+                        rating: *rating,
+                        last_updated: *last_updated,
                     });
                 }
             });

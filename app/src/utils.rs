@@ -2,25 +2,33 @@
  * Copyright (c) 2025. Xodium.
  * All rights reserved.
  */
+use std::sync::LazyLock;
 use web_sys::js_sys::Date;
 
 pub struct Utils;
 
-impl Utils {
-    //TODO: replace with actual data fetching logic.
-    pub const CARD_DATA: [(
+pub static CARD_DATA: LazyLock<
+    Vec<(
         Option<&'static str>,
         &'static str,
         &'static str,
         &'static str,
         &'static str,
-    ); 5] = [
+        u32,
+        f32,
+        f64,
+    )>,
+> = LazyLock::new(|| {
+    vec![
         (
             Some("thumbnail1.png"),
             "Test1",
             "Illyrius",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
             "Windows",
+            1200,
+            4.5,
+            1697040000000.0,
         ),
         (
             Some("thumbnail2.png"),
@@ -28,30 +36,14 @@ impl Utils {
             "Illyrius",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
             "Linux",
+            3400,
+            4.8,
+            1697030000000.0,
         ),
-        (
-            Some("thumbnail3.png"),
-            "Test3",
-            "Illyrius",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "MacOS",
-        ),
-        (
-            Some("thumbnail4.png"),
-            "Test4",
-            "Illyrius",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "Windows",
-        ),
-        (
-            Some("thumbnail5.png"),
-            "Test5",
-            "Illyrius",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "Linux",
-        ),
-    ];
+    ]
+});
 
+impl Utils {
     ///
     /// Formats the time elapsed since the given timestamp into a human-readable string.
     ///
