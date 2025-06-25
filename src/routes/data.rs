@@ -10,11 +10,12 @@ use crate::guards::ratelimit::RateLimitGuard;
 use crate::{database::Database, guards::auth::AuthGuard};
 use chrono::{DateTime, Utc};
 use rocket::{
-    State, delete, get,
+    delete, get,
     http::Status,
     post, put,
     serde::json::Json,
     serde::{Deserialize, Serialize},
+    State,
 };
 use rocket_governor::RocketGovernor;
 use std::collections::HashMap;

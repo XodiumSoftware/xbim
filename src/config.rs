@@ -7,8 +7,8 @@
 #![forbid(unsafe_code)]
 
 use crate::utils::Utils;
-use figment::Figment;
 use figment::providers::{Format, Serialized, Toml};
+use figment::Figment;
 use rocket::serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;

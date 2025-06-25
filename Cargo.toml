@@ -1,6 +1,35 @@
-[workspace]
-resolver = "3"
-members = [
-    "server",
-    "app"
+[package]
+name = "xBIM"
+version = "1.3.0"
+edition = "2024"
+include = [
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "LICENSE.md",
+    "README.md",
+    "**/*.rs",
+    "Cargo.toml",
 ]
+authors = ["XodiumSoftware <https://xodium.org/>"]
+description = "All-in solution to BIM models, written in Rust"
+license = "AGPL-3.0"
+repository = "https://github.com/XodiumSoftware/xBIM"
+homepage = "https://xodium.org/"
+publish = false
+
+[package.metadata.docs.rs]
+all-features = true
+
+[dependencies]
+chrono = "0.4.40"
+colored = "3.0.0"
+reqwest = { version = "0.12.15", features = ["json"] }
+rocket = { version = "0.5.1", features = ["json", "uuid", "tls"] }
+rocket_async_compression = "0.6.1"
+rocket_cors = "0.6.0"
+rocket-governor = "0.2.0-rc.4"
+rocket_oauth2 = "0.5.0"
+surrealdb = { version = "2.2.1", features = ["http"] }
+figment = { version = "0.10.19", features = ["toml"] }
+toml = "0.8.20"
+serde_json = "1.0.140"

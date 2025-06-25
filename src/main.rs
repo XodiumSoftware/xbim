@@ -28,16 +28,16 @@ mod utils;
 
 use crate::config::Config;
 use crate::routes::data::{data_delete, data_get, data_update, data_upload};
-use crate::routes::github::{GitHubUser, github_callback, github_login};
+use crate::routes::github::{github_callback, github_login, GitHubUser};
 use crate::routes::health::health;
 use database::Database;
 use errors::catchers;
 use rocket::config::SecretKey;
 use rocket::routes;
 use rocket::{
-    Build, Rocket, build, config::TlsConfig, launch, shield::ExpectCt, shield::Feature,
-    shield::Frame, shield::Hsts, shield::NoSniff, shield::Permission, shield::Prefetch,
-    shield::Referrer, shield::Shield, shield::XssFilter, time::Duration,
+    build, config::TlsConfig, launch, shield::ExpectCt, shield::Feature, shield::Frame,
+    shield::Hsts, shield::NoSniff, shield::Permission, shield::Prefetch, shield::Referrer,
+    shield::Shield, shield::XssFilter, time::Duration, Build, Rocket,
 };
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};

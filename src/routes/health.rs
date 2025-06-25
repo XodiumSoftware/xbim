@@ -8,7 +8,7 @@
 
 use crate::{guards::auth::AuthGuard, guards::ratelimit::RateLimitGuard};
 use chrono::{DateTime, Utc};
-use rocket::{get, http::Status, serde::Serialize, serde::json::Json};
+use rocket::{get, http::Status, serde::json::Json, serde::Serialize};
 use rocket_governor::RocketGovernor;
 
 #[derive(Serialize)]
