@@ -31,7 +31,7 @@
 
 ## About The Project
 
-xBIM is a project aimed to provide a complete solution for working with BIM models. It is written in Rust, which
+xbim is a project aimed to provide a complete solution for working with BIM models. It is written in Rust, which
 provides a high level of performance and safety. The project is still in its early stages, but it is already capable of
 reading and writing IFC files.
 
