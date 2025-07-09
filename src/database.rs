@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2025. Xodium.
- * All rights reserved.
- */
-
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
@@ -10,11 +5,11 @@ use crate::config::Config;
 use crate::utils::Utils;
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::{
+    Error, Surreal,
     engine::remote::ws::{Client, Ws},
     error::Api,
     opt::auth::Root,
     sql::Uuid,
-    Error, Surreal,
 };
 
 pub struct Database {

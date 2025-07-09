@@ -1,14 +1,9 @@
-/*
- * Copyright (c) 2025. Xodium.
- * All rights reserved.
- */
-
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
 use crate::utils::Utils;
-use figment::providers::{Format, Serialized, Toml};
 use figment::Figment;
+use figment::providers::{Format, Serialized, Toml};
 use rocket::serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;

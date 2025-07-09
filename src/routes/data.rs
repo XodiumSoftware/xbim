@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2025. Xodium.
- * All rights reserved.
- */
-
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
@@ -10,12 +5,11 @@ use crate::guards::ratelimit::RateLimitGuard;
 use crate::{database::Database, guards::auth::AuthGuard};
 use chrono::{DateTime, Utc};
 use rocket::{
-    delete, get,
+    State, delete, get,
     http::Status,
     post, put,
     serde::json::Json,
     serde::{Deserialize, Serialize},
-    State,
 };
 use rocket_governor::RocketGovernor;
 use std::collections::HashMap;

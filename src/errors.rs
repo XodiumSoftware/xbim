@@ -1,12 +1,7 @@
-/*
- * Copyright (c) 2025. Xodium.
- * All rights reserved.
- */
-
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
-use rocket::{catch, catchers, http::Status, serde::json::Json, serde::Serialize, Catcher};
+use rocket::{Catcher, catch, catchers, http::Status, serde::Serialize, serde::json::Json};
 use rocket_governor::rocket_governor_catcher;
 
 #[derive(Serialize)]
