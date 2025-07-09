@@ -1,13 +1,15 @@
 {
-  "version": "0.2.0",
-  "configurations": [
+  "version": "2.0.0",
+  "tasks": [
     {
-      "name": "Gen Certs for Dev",
+      "label": "Gen Certs for Dev",
       "type": "shell",
-      "request": "launch",
       "command": "mkdir -p target/debug/certs && openssl genrsa -out target/debug/certs/key.pem 2048 && openssl req -new -x509 -key target/debug/certs/key.pem -out target/debug/certs/cert.pem -days 365 -subj \"/CN=localhost\" && chmod 600 target/debug/certs/key.pem && chmod 644 target/debug/certs/cert.pem && echo \"Self-signed certificates generated in target/debug/certs/\"",
-      "cwd": "${workspaceFolder}",
-      "terminal": "integrated"
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
     }
   ]
 }
