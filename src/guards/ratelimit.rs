@@ -1,7 +1,5 @@
-/*
- * Copyright (c) 2025. Xodium.
- * All rights reserved.
- */
+#![warn(clippy::all)]
+#![forbid(unsafe_code)]
 
 use rocket_governor::{Method, Quota, RocketGovernable};
 
