@@ -40,14 +40,14 @@ impl Utils {
         let total_width = ERROR_TITLE.len() + (PADDING * 2);
         let border_line = "─".repeat(total_width);
         let box_parts = [
-            format!("╭{}╮", border_line),
+            format!("╭{border_line}╮"),
             format!(
                 "│{}{}{}│",
                 " ".repeat(PADDING),
                 ERROR_TITLE,
                 " ".repeat(PADDING)
             ),
-            format!("╰{}╯", border_line),
+            format!("╰{border_line}╯"),
         ];
 
         for (i, part) in box_parts.iter().enumerate() {

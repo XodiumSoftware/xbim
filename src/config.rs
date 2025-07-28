@@ -46,14 +46,14 @@ impl Config {
             println!("Creating default config at: {}", path.display());
             Self::default()
                 .save_to_file(path)
-                .unwrap_or_else(|err| eprintln!("Failed to create config: {}", err));
+                .unwrap_or_else(|err| eprintln!("Failed to create config: {err}"));
         }
 
         Figment::from(Serialized::defaults(Self::default()))
             .merge(Toml::file(path))
             .extract::<Self>()
             .unwrap_or_else(|err| {
-                eprintln!("Configuration error (using defaults): {}", err);
+                eprintln!("Configuration error (using defaults): {err}");
                 Self::default()
             })
     }

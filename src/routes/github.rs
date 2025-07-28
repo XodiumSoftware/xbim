@@ -54,7 +54,7 @@ pub async fn github_callback(
     let saved_user = match db.create("users", user).await {
         Ok(user) => user,
         Err(_) => db
-            .update("users", &format!("github_id:{}", github_id), user_clone)
+            .update("users", &format!("github_id:{github_id}"), user_clone)
             .await
             .map_err(|_| Flash::error(Redirect::to("/"), "Failed to save user data"))?,
     };

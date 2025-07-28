@@ -51,7 +51,7 @@ pub async fn data_upload(
             Ok(Json(saved_model))
         }
         Err(e) => {
-            println!("Error saving IFC model: {:?}", e);
+            println!("Error saving IFC model: {e:?}");
             Err(Status::InternalServerError)
         }
     }
@@ -74,14 +74,14 @@ pub async fn data_get(
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
 ) -> Result<Json<StoredIFC>, Status> {
-    println!("Retrieving IFC model {}", id);
+    println!("Retrieving IFC model {id}");
     match database.read::<StoredIFC>("ifc_models", &id).await {
         Ok(model) => {
-            println!("Successfully retrieved IFC model {}", id);
+            println!("Successfully retrieved IFC model {id}");
             Ok(Json(model))
         }
         Err(e) => {
-            println!("Error retrieving IFC model {}: {:?}", id, e);
+            println!("Error retrieving IFC model {id}: {e:?}");
             Err(Status::NotFound)
         }
     }
@@ -106,14 +106,14 @@ pub async fn data_update(
     id: String,
     model: Json<StoredIFC>,
 ) -> Result<Json<StoredIFC>, Status> {
-    println!("Updating IFC model {}", id);
+    println!("Updating IFC model {id}");
     match database.update("ifc_models", &id, model.into_inner()).await {
         Ok(updated_model) => {
-            println!("Successfully updated IFC model {}", id);
+            println!("Successfully updated IFC model {id}");
             Ok(Json(updated_model))
         }
         Err(e) => {
-            println!("Error updating IFC model {}: {:?}", id, e);
+            println!("Error updating IFC model {id}: {e:?}");
             Err(Status::InternalServerError)
         }
     }
@@ -136,18 +136,18 @@ pub async fn data_delete(
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
     id: String,
 ) -> Status {
-    println!("Deleting IFC model {}", id);
+    println!("Deleting IFC model {id}");
     match database.delete::<StoredIFC>("ifc_models", &id).await {
         Ok(true) => {
-            println!("Successfully deleted IFC model {}", id);
+            println!("Successfully deleted IFC model {id}");
             Status::NoContent
         }
         Ok(false) => {
-            println!("IFC model {} not found for deletion", id);
+            println!("IFC model {id} not found for deletion");
             Status::NotFound
         }
         Err(e) => {
-            println!("Error deleting IFC model {}: {:?}", id, e);
+            println!("Error deleting IFC model {id}: {e:?}");
             Status::InternalServerError
         }
     }
