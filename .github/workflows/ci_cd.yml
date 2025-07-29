@@ -85,7 +85,7 @@ jobs:
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@f37a2f9143791b88da06f2c143d376e00fce81dc
+        uses: softprops/action-gh-release@f2352b97da0095b4dbbd885a81023e3deabf4fef
         env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
