@@ -41,6 +41,7 @@ use rocket::{
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::{HyperRustlsAdapter, OAuth2, OAuthConfig, StaticProvider};
+use std::path::PathBuf;
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
@@ -48,8 +49,8 @@ async fn rocket() -> Rocket<Build> {
     let mut config = Config::new();
 
     if config.tls_cert_path.is_empty() || config.tls_key_path.is_empty() {
-        let cert_path = Utils::get_exec_path("certs/cert.pem");
-        let key_path = Utils::get_exec_path("certs/key.pem");
+        let cert_path = Utils::get_exec_path(PathBuf::from("certs").join("cert.pem"));
+        let key_path = Utils::get_exec_path(PathBuf::from("certs").join("key.pem"));
 
         Tls::new(cert_path.clone(), key_path.clone()).expect("Failed to generate TLS certificates");
 
