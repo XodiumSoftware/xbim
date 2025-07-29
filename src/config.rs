@@ -26,7 +26,7 @@ pub struct Config {
 }
 
 impl Config {
-    /// Creates a new instance of `AppConfig` with default values.
+    /// Creates a new instance of `Config` with default values.
     ///
     /// # Returns
     /// A `Self` instance containing the default configuration.
