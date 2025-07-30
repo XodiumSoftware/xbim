@@ -1,15 +1,17 @@
 name: Xodium CI/CD
-run-name: "Xodium CI/CD"
 
-on: { push: { branches: [ main ], paths: [ "../../server/src/**" ] }, workflow_dispatch }
+on:
+  push:
+    branches: [ main ]
+    paths: [ "src/**" ]
 
-permissions: { contents: write, packages: write }
+permissions:
+  contents: read
+  packages: write
 
 concurrency:
-  {
-    group: "${{ github.workflow }}-${{ github.ref }}",
-    cancel-in-progress: true,
-  }
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -25,14 +27,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4.2.2
 
+      - id: cache_deps
+        name: Cache dependencies
+        uses: actions/cache@v4.2.3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+
       - id: setup_rust
         name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1.13.0
-        with: { toolchain: stable }
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
 
       - id: build_artifact
         name: Build Artefact
-        run: cargo build --release
+        run: cargo build --release --locked --timings
 
       - id: install_toml_cli
         name: Install toml-cli
@@ -45,7 +60,10 @@ jobs:
       - id: upload_artifact
         name: Upload Artifact
         uses: actions/upload-artifact@v4.6.2
-        with: { name: xbim, path: target/release/xBIM }
+        with:
+          name: xbim
+          path: target/release/xbim
+          retention-days: 7
 
   test:
     needs: [ build ]
@@ -63,11 +81,15 @@ jobs:
       - id: setup_rust
         name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1.13.0
-        with: { toolchain: stable }
+        with:
+          toolchain: stable
 
       - id: run_tests
         name: Run Tests
-        run: cargo test --all
+        run: |
+          cargo test --all --no-fail-fast
+          cargo clippy --all-targets --all-features -- -D warnings
+          cargo fmt --all -- --check
 
   release:
     needs: [ build, test ]
@@ -81,15 +103,21 @@ jobs:
       - id: download_artifact
         name: Download Artefact
         uses: actions/download-artifact@v4.3.0
-        with: { name: xbim }
+        with:
+          name: xbim
+
+      - id: verify_binary
+        name: Verify Binary
+        run: ./xbim --version
 
       - id: create_release
         name: Create Release
         uses: softprops/action-gh-release@v2.3.2
-        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, '.pre') }}
           tag_name: v${{ needs.build.outputs.VERSION }}
-          files: xBIM
+          files: xbim

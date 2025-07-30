@@ -2,7 +2,10 @@
   <dictionary name="project">
     <words>
       <w>authguard</w>
+      <w>clippy</w>
+      <w>deps</w>
       <w>ratelimitguard</w>
+      <w>rustfmt</w>
       <w>softprops</w>
       <w>testuser</w>
       <w>xbim</w>
