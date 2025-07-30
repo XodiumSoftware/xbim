@@ -4,6 +4,7 @@
       <w>authguard</w>
       <w>ratelimitguard</w>
       <w>testuser</w>
+      <w>xodium</w>
     </words>
   </dictionary>
 </component>
