@@ -3,27 +3,27 @@
 
 use crate::config::Config;
 use colored::*;
-use std::env;
 use std::path::PathBuf;
+use std::{env, path};
 use surrealdb::Error;
 
 /// A utility struct for common helper functions.
 pub struct Utils;
 
 impl Utils {
-    /// Returns a path to a file in the same directory as the current executable.
+    /// Returns a path to a file relative to the current executable's directory.
     ///
     /// # Arguments
-    /// * `filename` - The name of the file to locate (e.g., "config.toml")
+    /// * `path` - A path component to append to the executable's directory.
     ///
     /// # Returns
-    /// A `PathBuf` pointing to the specified file in the executable's directory
-    pub fn get_exec_path(filename: &str) -> PathBuf {
+    /// A `PathBuf` pointing to the specified path relative to the executable's directory
+    pub fn get_exec_path<P: AsRef<path::Path>>(path: P) -> PathBuf {
         env::current_exe()
             .expect("Failed to get executable path")
             .parent()
-            .expect("Failed to get executable directory")
-            .join(filename)
+            .expect("Executable has no parent directory")
+            .join(path)
     }
 
     /// Displays a formatted error message for database connection issues.
