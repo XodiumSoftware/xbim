@@ -4,6 +4,8 @@
 use crate::utils::Utils;
 use figment::Figment;
 use figment::providers::{Format, Serialized, Toml};
+use rand::Rng;
+use rand::distr::Alphanumeric;
 use rocket::serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -42,20 +44,45 @@ impl Config {
     /// # Returns
     /// A `Self` instance containing the loaded or default configuration.
     pub fn load_or_create(path: &PathBuf) -> Self {
-        if !path.exists() {
+        let mut config = if path.exists() {
+            Figment::from(Serialized::defaults(Self::default()))
+                .merge(Toml::file(path))
+                .extract::<Self>()
+                .unwrap_or_else(|err| {
+                    eprintln!("Configuration error (using defaults): {err}");
+                    Self::default()
+                })
+        } else {
             println!("Creating default config at: {}", path.display());
             Self::default()
-                .save_to_file(path)
-                .unwrap_or_else(|err| eprintln!("Failed to create config: {err}"));
+        };
+
+        if config.secret_key.is_empty() {
+            config.generate_secret_key();
+            config.save_to_file(path).unwrap_or_else(|err| {
+                eprintln!("Failed to update config with new secret key: {err}")
+            });
         }
 
-        Figment::from(Serialized::defaults(Self::default()))
-            .merge(Toml::file(path))
-            .extract::<Self>()
-            .unwrap_or_else(|err| {
-                eprintln!("Configuration error (using defaults): {err}");
-                Self::default()
-            })
+        config
+    }
+
+    /// Generates a new random secret key if the current one is empty.
+    /// # Note
+    /// - This only generates a key if `secret_key` is currently empty
+    /// - The generated key is printed to stdout for visibility
+    /// - For production use, consider:
+    ///   - Storing the key securely (not in plaintext in config files)
+    ///   - Using a dedicated secrets management system
+    fn generate_secret_key(&mut self) {
+        if self.secret_key.is_empty() {
+            self.secret_key = rand::rng()
+                .sample_iter(&Alphanumeric)
+                .take(64)
+                .map(char::from)
+                .collect();
+            println!("Generated new secret key");
+        }
     }
 
     /// Saves the current configuration to a file.
