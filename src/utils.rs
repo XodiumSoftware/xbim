@@ -14,19 +14,16 @@ impl Utils {
     /// Returns a path to a file relative to the current executable's directory.
     ///
     /// # Arguments
-    /// * `path_components` - One or more path components (folders and/or filename)
+    /// * `path` - A path component to append to the executable's directory.
     ///
     /// # Returns
     /// A `PathBuf` pointing to the specified path relative to the executable's directory
-    pub fn get_exec_path<P: AsRef<path::Path>>(path_components: P) -> PathBuf {
-        let mut path = env::current_exe()
+    pub fn get_exec_path<P: AsRef<path::Path>>(path: P) -> PathBuf {
+        env::current_exe()
             .expect("Failed to get executable path")
             .parent()
-            .expect("Failed to get executable directory")
-            .to_path_buf();
-
-        path.push(path_components);
-        path
+            .expect("Executable has no parent directory")
+            .join(path)
     }
 
     /// Displays a formatted error message for database connection issues.

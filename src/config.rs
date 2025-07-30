@@ -71,13 +71,13 @@ impl Config {
             || !PathBuf::from(&config.tls_key_path).exists()
         {
             let cert_path = if config.tls_cert_path.is_empty() {
-                Utils::get_exec_path("cert.pem")
+                Utils::get_exec_path("certs/cert.pem")
             } else {
                 PathBuf::from(&config.tls_cert_path)
             };
 
             let key_path = if config.tls_key_path.is_empty() {
-                Utils::get_exec_path("key.pem")
+                Utils::get_exec_path("certs/key.pem")
             } else {
                 PathBuf::from(&config.tls_key_path)
             };
