@@ -23,11 +23,11 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v4.2.2
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@fb51252c7ba57d633bc668f941da052e410add48
+        uses: actions-rust-lang/setup-rust-toolchain@v1.13.0
         with: { toolchain: stable }
 
       - id: build_artifact
@@ -44,7 +44,7 @@ jobs:
 
       - id: upload_artifact
         name: Upload Artifact
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v4.6.2
         with: { name: xbim, path: target/release/xBIM }
 
   test:
@@ -58,11 +58,11 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v4.2.2
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@fb51252c7ba57d633bc668f941da052e410add48
+        uses: actions-rust-lang/setup-rust-toolchain@v1.13.0
         with: { toolchain: stable }
 
       - id: run_tests
@@ -80,12 +80,12 @@ jobs:
     steps:
       - id: download_artifact
         name: Download Artefact
-        uses: actions/download-artifact@main
+        uses: actions/download-artifact@v4.3.0
         with: { name: xbim }
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@f2352b97da0095b4dbbd885a81023e3deabf4fef
+        uses: softprops/action-gh-release@v2.3.2
         env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
