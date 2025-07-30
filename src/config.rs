@@ -1,6 +1,7 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+use crate::tls::Tls;
 use crate::utils::Utils;
 use figment::Figment;
 use figment::providers::{Format, Serialized, Toml};
@@ -62,6 +63,34 @@ impl Config {
             config.save_to_file(path).unwrap_or_else(|err| {
                 eprintln!("Failed to update config with new secret key: {err}")
             });
+        }
+
+        if config.tls_cert_path.is_empty()
+            || config.tls_key_path.is_empty()
+            || !PathBuf::from(&config.tls_cert_path).exists()
+            || !PathBuf::from(&config.tls_key_path).exists()
+        {
+            let cert_path = if config.tls_cert_path.is_empty() {
+                Utils::get_exec_path("cert.pem")
+            } else {
+                PathBuf::from(&config.tls_cert_path)
+            };
+
+            let key_path = if config.tls_key_path.is_empty() {
+                Utils::get_exec_path("key.pem")
+            } else {
+                PathBuf::from(&config.tls_key_path)
+            };
+
+            if let Err(e) = Tls::new(cert_path.clone(), key_path.clone()) {
+                eprintln!("Failed to generate TLS certificates: {e}");
+            } else {
+                config.tls_cert_path = cert_path.to_string_lossy().into_owned();
+                config.tls_key_path = key_path.to_string_lossy().into_owned();
+                config.save_to_file(path).unwrap_or_else(|err| {
+                    eprintln!("Failed to update config with TLS paths: {err}")
+                });
+            }
         }
 
         config

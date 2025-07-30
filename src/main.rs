@@ -27,8 +27,6 @@ use crate::config::Config;
 use crate::routes::data::{data_delete, data_get, data_update, data_upload};
 use crate::routes::github::{GitHubUser, github_callback, github_login};
 use crate::routes::health::health;
-use crate::tls::Tls;
-use crate::utils::Utils;
 use database::Database;
 use errors::catchers;
 use rocket::config::SecretKey;
@@ -41,33 +39,10 @@ use rocket::{
 use rocket_async_compression::{Compression, Level as CompressionLevel};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_oauth2::{HyperRustlsAdapter, OAuth2, OAuthConfig, StaticProvider};
-use std::path::PathBuf;
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
-    let config_path = Utils::get_exec_path("config.toml");
-    let mut config = Config::new();
-
-    if config.tls_cert_path.is_empty() || config.tls_key_path.is_empty() {
-        let cert_path = Utils::get_exec_path(PathBuf::from("certs").join("cert.pem"));
-        let key_path = Utils::get_exec_path(PathBuf::from("certs").join("key.pem"));
-
-        Tls::new(cert_path.clone(), key_path.clone()).expect("Failed to generate TLS certificates");
-
-        config.tls_cert_path = cert_path.to_string_lossy().into_owned();
-        config.tls_key_path = key_path.to_string_lossy().into_owned();
-        config
-            .save_to_file(&config_path)
-            .expect("Failed to save updated config with TLS paths");
-
-        println!("Auto-generated TLS certificates for development at:");
-        println!("  Config: {}", config_path.display());
-        println!("  Cert: {}", cert_path.display());
-        println!("  Key: {}", key_path.display());
-    }
-
-    let config_clone = config.clone();
-
+    let config = Config::new();
     build()
         .configure(rocket::Config {
             tls: (!config.tls_cert_path.is_empty() && !config.tls_key_path.is_empty())
@@ -76,7 +51,7 @@ async fn rocket() -> Rocket<Build> {
             ..rocket::Config::default()
         })
         .manage(config.clone())
-        .manage(Database::new(&config_clone).await)
+        .manage(Database::new(&config).await)
         .mount(
             "/",
             routes![
