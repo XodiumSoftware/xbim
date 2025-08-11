@@ -2,7 +2,8 @@
 
 ## Reporting a Vulnerability
 
-We take security vulnerabilities seriously. If you discover a security issue, please report it to us responsibly through GitHub's private vulnerability reporting system.
+We take security vulnerabilities seriously. If you discover a security issue,
+please report it to us responsibly through GitHub's private vulnerability reporting system.
 
 ### How to Report
 
