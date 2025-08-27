@@ -1,9 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "assignees": ["illyrius666"],
+  "assignees": [
+    "illyrius666"
+  ],
   "automerge": true,
-  "baseBranches": ["dev"],
-  "extends": ["config:recommended"],
-  "labels": ["Dependencies"],
+  "baseBranchPatterns": [
+    "dev"
+  ],
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": [
+    "Dependencies"
+  ],
   "prHeader": "Xodium Dependencies Updater"
 }
