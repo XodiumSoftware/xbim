@@ -38,7 +38,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@1812c7dfe1e025cc663298d3e33214f534505838
+        uses: actions-rust-lang/setup-rust-toolchain@2fcdc490d667999e01ddbbf0f2823181beef6b39
         with:
           toolchain: stable
           components: rustfmt, clippy
@@ -77,7 +77,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@1812c7dfe1e025cc663298d3e33214f534505838
+        uses: actions-rust-lang/setup-rust-toolchain@2fcdc490d667999e01ddbbf0f2823181beef6b39
         with:
           toolchain: stable
 
