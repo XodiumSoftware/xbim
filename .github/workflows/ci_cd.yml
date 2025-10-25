@@ -59,7 +59,7 @@ jobs:
 
       - id: upload_artifact
         name: Upload Artifact
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: xbim
           path: target/release/xbim
@@ -98,7 +98,7 @@ jobs:
     steps:
       - id: download_artifact
         name: Download Artefact
-        uses: actions/download-artifact@v5.0.0
+        uses: actions/download-artifact@v6.0.0
         with:
           name: xbim
 
