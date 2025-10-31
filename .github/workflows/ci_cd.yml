@@ -1,38 +1,52 @@
 name: Xodium CI/CD
-run-name: "Xodium CI/CD"
 
-on: { push: { branches: [ main ], paths: [ "../../server/src/**" ] }, workflow_dispatch }
+on:
+  push:
+    branches: [ main ]
+    paths: [ "src/**" ]
 
-permissions: { contents: write, packages: write }
+permissions:
+  contents: read
+  packages: write
 
 concurrency:
-  {
-    group: "${{ github.workflow }}-${{ github.ref }}",
-    cancel-in-progress: true,
-  }
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      {
-        name: "${{ github.ref_name }}",
-        url: "${{ steps.upload_artifact.outputs.artifact-url }}",
-      }
+      name: "${{ github.ref_name }}"
+      url: "${{ steps.upload_artifact.outputs.artifact-url }}"
     outputs: { VERSION: "${{ steps.get_version.outputs.VERSION }}" }
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v5.0.0
+
+      - id: cache_deps
+        name: Cache dependencies
+        uses: actions/cache@v4.3.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@fb51252c7ba57d633bc668f941da052e410add48
-        with: { toolchain: stable }
+        uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
 
       - id: build_artifact
         name: Build Artefact
-        run: cargo build --release
+        run: cargo build --release --locked --timings
+        shell: bash
 
       - id: install_toml_cli
         name: Install toml-cli
@@ -41,55 +55,66 @@ jobs:
       - id: get_version
         name: Get Version
         run: echo "VERSION=$(toml get Cargo.toml package.version | tr -d '\"')" >> $GITHUB_OUTPUT
+        shell: bash
 
       - id: upload_artifact
         name: Upload Artifact
-        uses: actions/upload-artifact@main
-        with: { name: xbim, path: target/release/xBIM }
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          name: xbim
+          path: target/release/xbim
+          retention-days: 7
 
   test:
     needs: [ build ]
     runs-on: ubuntu-latest
     environment:
-      {
-        name: "${{ github.ref_name }}",
-        url: "${{ steps.upload_artifact.outputs.artifact-url }}",
-      }
+      name: "${{ github.ref_name }}"
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v5.0.0
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@fb51252c7ba57d633bc668f941da052e410add48
-        with: { toolchain: stable }
+        uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c
+        with:
+          toolchain: stable
 
       - id: run_tests
         name: Run Tests
-        run: cargo test --all
+        run: |
+          cargo test --all --no-fail-fast
+          cargo clippy --all-targets --all-features -- -D warnings
+          cargo fmt --all -- --check
+        shell: bash
 
   release:
     needs: [ build, test ]
     runs-on: ubuntu-latest
     environment:
-      {
-        name: "${{ github.ref_name }}",
-        url: "${{ steps.create_release.outputs.url }}",
-      }
+      name: "${{ github.ref_name }}"
+      url: "${{ steps.create_release.outputs.url }}"
     steps:
       - id: download_artifact
         name: Download Artefact
-        uses: actions/download-artifact@main
-        with: { name: xbim }
+        uses: actions/download-artifact@v6.0.0
+        with:
+          name: xbim
+
+      - id: verify_binary
+        name: Verify Binary
+        run: ./xbim --version
+        shell: bash
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@f37a2f9143791b88da06f2c143d376e00fce81dc
-        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        uses: softprops/action-gh-release@0adea5aa98b89355a3ff602e3f2d18bc4d77e7aa
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, '.pre') }}
           tag_name: v${{ needs.build.outputs.VERSION }}
-          files: xBIM
+          files: xbim

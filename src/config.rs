@@ -1,9 +1,12 @@
 #![warn(clippy::all)]
 #![forbid(unsafe_code)]
 
+use crate::tls::Tls;
 use crate::utils::Utils;
 use figment::Figment;
 use figment::providers::{Format, Serialized, Toml};
+use rand::Rng;
+use rand::distr::Alphanumeric;
 use rocket::serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -26,7 +29,7 @@ pub struct Config {
 }
 
 impl Config {
-    /// Creates a new instance of `AppConfig` with default values.
+    /// Creates a new instance of `Config` with default values.
     ///
     /// # Returns
     /// A `Self` instance containing the default configuration.
@@ -42,20 +45,73 @@ impl Config {
     /// # Returns
     /// A `Self` instance containing the loaded or default configuration.
     pub fn load_or_create(path: &PathBuf) -> Self {
-        if !path.exists() {
+        let mut config = if path.exists() {
+            Figment::from(Serialized::defaults(Self::default()))
+                .merge(Toml::file(path))
+                .extract::<Self>()
+                .unwrap_or_else(|err| {
+                    eprintln!("Configuration error (using defaults): {err}");
+                    Self::default()
+                })
+        } else {
             println!("Creating default config at: {}", path.display());
             Self::default()
-                .save_to_file(path)
-                .unwrap_or_else(|err| eprintln!("Failed to create config: {err}"));
+        };
+
+        if config.secret_key.is_empty() {
+            config.generate_secret_key();
+            config.save_to_file(path).unwrap_or_else(|err| {
+                eprintln!("Failed to update config with new secret key: {err}")
+            });
         }
 
-        Figment::from(Serialized::defaults(Self::default()))
-            .merge(Toml::file(path))
-            .extract::<Self>()
-            .unwrap_or_else(|err| {
-                eprintln!("Configuration error (using defaults): {err}");
-                Self::default()
-            })
+        if config.tls_cert_path.is_empty()
+            || config.tls_key_path.is_empty()
+            || !PathBuf::from(&config.tls_cert_path).exists()
+            || !PathBuf::from(&config.tls_key_path).exists()
+        {
+            let cert_path = if config.tls_cert_path.is_empty() {
+                Utils::get_exec_path("certs/cert.pem")
+            } else {
+                PathBuf::from(&config.tls_cert_path)
+            };
+
+            let key_path = if config.tls_key_path.is_empty() {
+                Utils::get_exec_path("certs/key.pem")
+            } else {
+                PathBuf::from(&config.tls_key_path)
+            };
+
+            if let Err(e) = Tls::new(cert_path.clone(), key_path.clone()) {
+                eprintln!("Failed to generate TLS certificates: {e}");
+            } else {
+                config.tls_cert_path = cert_path.to_string_lossy().into_owned();
+                config.tls_key_path = key_path.to_string_lossy().into_owned();
+                config.save_to_file(path).unwrap_or_else(|err| {
+                    eprintln!("Failed to update config with TLS paths: {err}")
+                });
+            }
+        }
+
+        config
+    }
+
+    /// Generates a new random secret key if the current one is empty.
+    /// # Note
+    /// - This only generates a key if `secret_key` is currently empty
+    /// - The generated key is printed to stdout for visibility
+    /// - For production use, consider:
+    ///   - Storing the key securely (not in plaintext in config files)
+    ///   - Using a dedicated secrets management system
+    fn generate_secret_key(&mut self) {
+        if self.secret_key.is_empty() {
+            self.secret_key = rand::rng()
+                .sample_iter(&Alphanumeric)
+                .take(64)
+                .map(char::from)
+                .collect();
+            println!("Generated new secret key");
+        }
     }
 
     /// Saves the current configuration to a file.

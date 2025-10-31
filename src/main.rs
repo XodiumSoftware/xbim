@@ -20,6 +20,7 @@ pub mod routes {
 pub mod config;
 pub mod database;
 pub mod errors;
+mod tls;
 mod utils;
 
 use crate::config::Config;
